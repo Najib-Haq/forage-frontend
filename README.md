@@ -3,6 +3,13 @@
 ## Installation
 Install nvm: https://tecadmin.net/how-to-install-nvm-on-ubuntu-22-04/
 
+To run after a git clone:
+```
+npm install
+npm start
+```
+
+To create a new project:
 ```
 npx create-react-app forage-frontend
 cd forage-frontend

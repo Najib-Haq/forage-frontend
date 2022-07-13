@@ -3,8 +3,14 @@
 }
 
 .App-logo {
-  height: 10vmin;
+  height: 90%;
   pointer-events: none;
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  margin: 0;
+  padding: 0;
+  /* background-color: aqua; */
 }
 
 .App-header {

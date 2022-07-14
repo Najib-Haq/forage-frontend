@@ -1,8 +1,6 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
@@ -30,7 +28,6 @@ import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNone
 
 import '../styles/Sidebar.css';
 
-const drawerWidth = 250;
 const selectStyle = {
   textAlign : 'left',
   maxHeight : '80%',
@@ -55,16 +52,17 @@ const footerLogos = [
 ]
 
 
-export default function PermanentDrawerLeft() {
-  return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
-      >
-      </AppBar>
+export default function PermanentDrawerLeft(props) {
+  const drawerWidth = props.drawerWidth;
+  const routes = props.routes;
 
+  const startingLocation = useLocation();
+  // console.log("Starting location: " + startingLocation.pathname + " ; "  + [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname)));
+  const [active, setActive] = useState(
+    [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname))
+  );
+
+  return (
       <Drawer
         sx={{
           width: drawerWidth,
@@ -94,7 +92,12 @@ export default function PermanentDrawerLeft() {
         <List>
           {quickAccessLabels.map((text, index) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton selected={index===2} sx={index===2 ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1,}}>
+              <ListItemButton 
+                component={Link} 
+                to={routes.at(index)}
+                onClick={() => setActive(text)}
+                selected={active===text} 
+                sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1,}}>
                 <ListItemIcon>
                   {quickAccessLogos.at(index)}
                 </ListItemIcon>
@@ -125,7 +128,12 @@ export default function PermanentDrawerLeft() {
         <List>
           {projectAccessLabels.map((text, index) => (
             <ListItem key={text} disablePadding>
-              <ListItemButton selected={index===2} sx={index===2 ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1, }}>
+              <ListItemButton 
+                component={Link} 
+                to={routes.at(index+4)}
+                onClick={() => setActive(text)}
+                selected={active===text} 
+                sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1, }}>
                 <ListItemIcon>
                   {projectAccessLogos.at(index)}
                 </ListItemIcon>
@@ -149,6 +157,5 @@ export default function PermanentDrawerLeft() {
           </List>
         </div>
       </Drawer>
-    </Box>
   );
 }

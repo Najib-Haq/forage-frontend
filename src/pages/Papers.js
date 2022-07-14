@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-export default function Home() {
+export default function Papers() {
     return (
         <React.Fragment>
-            <h1>Home Page</h1>
+            <h1>Papers Page</h1>
         </React.Fragment>
     )
 }

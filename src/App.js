@@ -1,10 +1,13 @@
 import { Routes, Route } from "react-router-dom";
+import { useAuth, removeStorageToken } from "./context/Auth";
 import './styles/App.css';
 import Sidebar from './components/Sidebar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 // import pages
 import Home from './pages/Home';
@@ -27,13 +30,27 @@ const pages = [
 ]
 
 function App() {
+
+  const { setAuthToken } = useAuth();
+  const handleLogOut = () => {
+    console.log("Logging Out");
+    setAuthToken(null);
+    removeStorageToken();
+  }
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
+        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`}}
       >
+        <Toolbar sx={{backgroundColor: "#ffffff"}}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Title
+          </Typography>
+          <Button sx={{backgroundColor: "#a3a3a3", color: "black"}} onClick={handleLogOut}>Logout</Button>
+        </Toolbar>
       </AppBar>
       
       <Sidebar routes={routing} drawerWidth={drawerWidth}/>

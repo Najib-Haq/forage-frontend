@@ -1,0 +1,12 @@
+.react-trello-lane {
+    border: 0;
+    background-color: initial;
+  }
+
+.react-trello-card {
+    background-color: initial;
+}
+
+.react-trello-board {
+    background-color: inherit;
+}

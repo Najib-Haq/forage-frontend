@@ -30,46 +30,45 @@ const pages = [
 ]
 
 function App() {
-
-  const { setAuthToken } = useAuth();
-  const handleLogOut = () => {
+    const { setAuthToken } = useAuth();
+    const handleLogOut = () => {
     console.log("Logging Out");
     setAuthToken(null);
     removeStorageToken();
-  }
-
-  return (
+    }
+  
+    return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
+        <CssBaseline />
+        <AppBar
         position="fixed"
         sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`}}
-      >
+        >
         <Toolbar sx={{backgroundColor: "#ffffff"}}>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Title
-          </Typography>
-          <Button sx={{backgroundColor: "#a3a3a3", color: "black"}} onClick={handleLogOut}>Logout</Button>
+            </Typography>
+            <Button sx={{backgroundColor: "#a3a3a3", color: "black"}} onClick={handleLogOut}>Logout</Button>
         </Toolbar>
-      </AppBar>
-      
-      <Sidebar routes={routing} drawerWidth={drawerWidth}/>
+        </AppBar>
+        
+        <Sidebar routes={routing} drawerWidth={drawerWidth}/>
 
-      <Box
+        <Box
         component="main"
         sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
-      >
+        >
         <Toolbar/>
         <Routes>
             {pages.map((page, index) => {
                 return (<Route path={routing[index]} element={page} />)
             })}
-          <Route path="*" element={<Error />} />
+            <Route path="*" element={<Error />} />
         </Routes>
-      </Box>
+        </Box>
 
     </Box>
-  );
+    );
 }
 
 export default App;

@@ -52,58 +52,55 @@ const footerLogos = [
 
 
 export default function PermanentDrawerLeft(props) {
-  const drawerWidth = props.drawerWidth;
-  const routes = props.routes;
+    const drawerWidth = props.drawerWidth;
+    const routes = props.routes;
 
-  const startingLocation = useLocation();
-  // console.log("Starting location: " + startingLocation.pathname + " ; "  + [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname)));
-  const [active, setActive] = useState(
-    [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname))
-  );
+    const startingLocation = useLocation();
+    // console.log("Starting location: " + startingLocation.pathname + " ; "  + [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname)));
+    const [active, setActive] = useState(
+        [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname))
+    );
 
-  return (
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
+    return (
+        <Drawer
+            sx={{
             width: drawerWidth,
-            boxSizing: 'border-box',
-            borderWidth: 1,
-            borderColor: '#C3C3C3',
-          },
-        }}
-        variant="permanent"
-        anchor="left"
-      >
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+                width: drawerWidth,
+                boxSizing: 'border-box',
+                borderWidth: 1,
+                borderColor: '#C3C3C3',
+            },
+            }}
+            variant="permanent"
+            anchor="left"
+        >
 
         <ListItemIcon>
-          {<img src={logo} className="App-logo" alt="logo" />}
+            {<img src={logo} className="App-logo" alt="logo" />}
         </ListItemIcon>
-        {/* <Toolbar 
-            children={<img src={logo} className="App-logo" alt="logo" />}
-        /> */}
 
         <Divider variant='middle' light={true}/>
 
         <label className='Sidebar-header'> Quick Access </label>
 
         <List>
-          {quickAccessLabels.map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton 
-                component={Link} 
-                to={routes.at(index)}
-                onClick={() => setActive(text)}
-                selected={active===text} 
-                sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1,}}>
-                <ListItemIcon>
-                  {quickAccessLogos.at(index)}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+            {quickAccessLabels.map((text, index) => (
+                <ListItem key={text} disablePadding>
+                    <ListItemButton 
+                        component={Link} 
+                        to={routes.at(index)}
+                        onClick={() => setActive(text)}
+                        selected={active===text} 
+                        sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1,}}>
+                        <ListItemIcon>
+                        {quickAccessLogos.at(index)}
+                        </ListItemIcon>
+                        <ListItemText primary={text} />
+                    </ListItemButton>
+                </ListItem>
+            ))}
         </List>
 
         <label className='Sidebar-header'> Project  </label>
@@ -125,35 +122,35 @@ export default function PermanentDrawerLeft(props) {
         </FormControl>
 
         <List>
-          {projectAccessLabels.map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton 
-                component={Link} 
-                to={routes.at(index+4)}
-                onClick={() => setActive(text)}
-                selected={active===text} 
-                sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1, }}>
-                <ListItemIcon>
-                  {projectAccessLogos.at(index)}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
+            {projectAccessLabels.map((text, index) => (
+                <ListItem key={text} disablePadding>
+                    <ListItemButton 
+                        component={Link} 
+                        to={routes.at(index+4)}
+                        onClick={() => setActive(text)}
+                        selected={active===text} 
+                        sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1, }}>
+                        <ListItemIcon>
+                        {projectAccessLogos.at(index)}
+                        </ListItemIcon>
+                        <ListItemText primary={text} />
+                    </ListItemButton>
+                </ListItem>
+            ))}
         </List>
         
         <div className="bottomPush">
-          <List style={footerMenuStyle}>
-            {footerLogos.map((footerLogo, index) => (
-                <ListItem key={index} disablePadding>
-                  <ListItemButton sx={{padding: 1.4,}}>
-                    <ListItemIcon>
-                      {footerLogo}
-                    </ListItemIcon>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-          </List>
+            <List style={footerMenuStyle}>
+                {footerLogos.map((footerLogo, index) => (
+                    <ListItem key={index} disablePadding>
+                    <ListItemButton sx={{padding: 1.4,}}>
+                        <ListItemIcon>
+                        {footerLogo}
+                        </ListItemIcon>
+                    </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
         </div>
       </Drawer>
   );

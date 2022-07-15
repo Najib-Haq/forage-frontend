@@ -8,6 +8,7 @@ export function getStorageToken() {
 
 export function setStorageToken(data) {
     localStorage.setItem('token', JSON.stringify(data));
+    // setAuthToken(data);
 }
 
 export function removeStorageToken() {
@@ -19,11 +20,12 @@ export function useAuth() {
 }
 
 export const AuthProvider = ({ opt1, opt2 }) => {
-    const [authToken, setAuthToken] = useState(getStorageToken());
-    
-    return (
+  const [authToken, setAuthToken] = useState(getStorageToken());
+
+  return (
         <AuthContext.Provider value={{ authToken, setAuthToken }}>
-            {authToken ? opt1 : opt2}
+            {/* {authToken ? opt1 : opt2} */}
+            {opt1}
         </AuthContext.Provider>
     );
 }

@@ -9,16 +9,15 @@ import Login from './pages/Login';
 
 
 const Index = () => {
-  
-  return (
-      <React.StrictMode>
-          <Router>
-            <AuthProvider
-              opt1= {<App />}
-              opt2= {<Login />}
-            />
-          </Router>
-      </React.StrictMode>
+    return (
+        // <React.StrictMode> /* strict mode doesnt work with react-trello */
+            <Router>
+                <AuthProvider
+                    opt1= {<App />}
+                    opt2= {<Login />}
+                />
+            </Router>
+        // </React.StrictMode>
     );
 }
 

@@ -95,8 +95,6 @@ export default function Papers() {
         })
         setOpenModal(true);
         console.log(`Card: ${cardId} clicked in lane: ${laneId}`)
-
-       
     }
 
     return (
@@ -119,7 +117,7 @@ export default function Papers() {
                 onLaneAdd={t => alert('You added a line with title ' + t.title)}
             />
 
-            {openModal && <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>}
+            <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>
         </React.Fragment>
     )
 }

@@ -10,3 +10,6 @@
 .react-trello-board {
     background-color: inherit;
 }
+
+
+/* this doesnt work, probably due to precedence issues with styled-components */

@@ -4,6 +4,7 @@ import '../styles/Kanban.css' // for some teason this doesnt work when refreshin
 
 import apidata from '../constant.js' // TODO: remove this
 import PaperModal from '../components/PaperModal'
+import KBCard from '../components/KBCard'
 
 const data = {
     lanes: [
@@ -26,6 +27,18 @@ const data = {
 }
 
 
+const CustomCard = props => {
+    return (
+      <div>
+        <p> {props.title} </p>
+        <br />
+        <p>{props.description}</p>
+        {/* <CustomPopover />
+        <DatePicker /> */}
+      </div>
+    );
+  };
+
 function populateCards(data) {
     let number = data.count
     let lanes = []
@@ -38,8 +51,10 @@ function populateCards(data) {
                 id: item.status,
                 title: item.status,
                 cards: [],
-                style: {backgroundColor: '#f3f3f3'}, // lane style
-                // cardStyle: {height: 'auto', textAlign: 'center'} // card style
+                // style: {backgroundColor: '#f3f3f3', borderRadius: '15px', boxShadow: '2px 2px 4px 0px rgba(0,0,0,0.75)'}, // individual lane style
+                cardStyle: {
+                    borderRadius: '15px',
+                } // card style
             }
         }
 
@@ -48,7 +63,7 @@ function populateCards(data) {
             title: item.name, 
             description: "", 
             draggable: true,
-            label: '',
+            label: item.id.toString(),
             metadata: {'title': item.name}
         })
     })
@@ -59,9 +74,11 @@ function populateCards(data) {
 
 const boardStyle = {
     'backgroundColor': 'inherit',
-    // 'fontFamily': 'sans-serif',
-    // 'wordWrap': 'break-word',
-    // 'overflowWrap': 'break-word',
+    // 'borderRadius': '50px',
+}
+
+const laneStyle = {
+    backgroundColor: '#f3f3f3', borderRadius: '15px', boxShadow: '2px 2px 4px 0px rgba(0,0,0,0.75)'
 }
   
 export default function Papers() {
@@ -97,13 +114,17 @@ export default function Papers() {
         console.log(`Card: ${cardId} clicked in lane: ${laneId}`)
     }
 
+    const components = {Card: KBCard}
+
     return (
         <React.Fragment>
             <Board 
+                components={components}
                 data={data} 
                 style={boardStyle}
+                laneStyle={laneStyle}
                 draggable={true}
-                editable
+                // editable
                 canAddLanes
                 collapsibleLanes
                 // hideCardDeleteIcon
@@ -115,6 +136,7 @@ export default function Papers() {
                 onCardClick={handleCardClick}
                 onLaneUpdate={ (laneId, data) => alert(`onLaneUpdate: ${laneId} -> ${data.title}`)}
                 onLaneAdd={t => alert('You added a line with title ' + t.title)}
+                
             />
 
             <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>

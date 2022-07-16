@@ -5,6 +5,7 @@ import '../styles/Kanban.css' // for some teason this doesnt work when refreshin
 import PaperModal from '../components/PaperModal'
 import KBCard from '../components/KBCard'
 import { getStorageToken } from "../context/Auth";
+import { useProjID } from "../context/ProjectID";
 /*  
     kanban board data format:
     data = { lanes: [
@@ -19,43 +20,6 @@ import { getStorageToken } from "../context/Auth";
 */
 
 const URL = process.env.REACT_APP_API_URL;
-
-
-function populateCards(data) {
-    let number = data.count
-    let lanes = []
-    let all_cards = []
-    let status = ['Review', 'In Progress'] // TODO: get from backend
-
-    data.results.forEach((item, index) => {
-        // console.log(index)
-        let card_lane = status[index%2]
-        if(!lanes.includes(card_lane)) {
-            lanes.push(card_lane)
-            all_cards[index%2] = {
-                id: card_lane,
-                title: card_lane,
-                cards: [],
-                // individual lane styles
-                // style: {backgroundColor: '#f3f3f3', borderRadius: '15px', boxShadow: '2px 2px 4px 0px rgba(0,0,0,0.75)'}, // individual lane style
-                // cardStyle: { borderRadius: '15px' } // card style
-            }
-        }
-
-        all_cards[index%2].cards.push({
-            id: item.id.toString(), // they expect string in id
-            title: item.name, 
-            description: '', 
-            draggable: true,
-            label: item.id.toString(),
-            metadata: {'title': item.name},
-            // style: { backgroundColor: 'red'} // individual card style
-        })
-    })
-
-    console.log({lanes: all_cards})
-    return {lanes: all_cards}
-}
 
 const boardStyle = {
     'backgroundColor': 'inherit',
@@ -76,14 +40,16 @@ const cardStyle = {
 
 export default function Papers() {
 
-    const [data, setData] = useState({lanes: []});
+    const { projID } = useProjID();
+    const [lanes, setLanes] = useState([]);
+    const [data, setData] = useState({lanes: [{id: 'loading', title: 'loading..', cards: []}]});
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState({});
 
-    
-
-    useEffect(() => {
-        fetch(URL + 'api/papers/',
+    /////////////////////////////////// FETCH LANES
+    function fetchLanes() {
+        // setData({lanes: []});
+        fetch(URL + `api/projects/${projID}/lists/`,
             {
                 method: 'GET',
                 credentials: "same-origin",
@@ -97,12 +63,73 @@ export default function Papers() {
                 return resp.json();
             })
             .then(resp=>{
-                setData(populateCards(resp))
+                const filteredData = resp.results.filter((item)=>{ return !item.is_archived })
+                setLanes(filteredData)
+                
+                const laneData = {lanes: []}
+                filteredData.map((item)=>{
+                    laneData.lanes.push({
+                        id: item.id.toString(),
+                        title: item.name,
+                        cards: [],
+                    })
+                })
+                setData(laneData)
             })
             .catch(error=>{
                 console.log(error);
             })
-    }, [])
+    }
+
+    useEffect(() => {
+        if(projID != null) fetchLanes()
+    }, [projID])
+    
+    /////////////////////////////////// FETCH CARDS
+    function fetchCards(lane, idx) {
+        fetch(URL + `api/projects/${projID}/lists/${lane.id}/papers`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                let prevData = data
+                console.log(idx)
+                
+                resp.map((item)=>{
+                    prevData.lanes[idx].cards.push({
+                        id: item.id.toString(), // they expect string in id 
+                        title: item.name,
+                        description: '', //item.authors,
+                        // label: item.doi,
+                        draggable: true,
+                        metadata: {
+                            title: item.name,
+                        }
+                    })
+                })
+
+                console.log("New data : ", data, prevData)
+                setData(prevData)
+                console.log("New data : ", data, prevData)
+
+            })
+            .catch(error=>{
+                console.log(error);
+            })
+    }
+
+    useEffect(() => {
+        if (lanes.length > 0 ) lanes.map((item, index)=>fetchCards(item, index))
+    }, [lanes])
 
     const handleModalClose = () => {
         setOpenModal(false);
@@ -135,27 +162,31 @@ export default function Papers() {
 
     return (
         <React.Fragment>
-            <Board 
-                components={components}
-                data={data} 
-                style={boardStyle}
-                laneStyle={laneStyle}
-                cardStyle={cardStyle}
-                draggable={true}
-                editable
-                canAddLanes
-                collapsibleLanes
-                // hideCardDeleteIcon
-                editLaneTitle
-                // onDataChange={shouldReceiveNewData}
-                onCardDelete={handleCardDelete}
-                onCardMoveAcrossLanes={(fromLaneId, toLaneId, cardId, index) => alert("moving")}
-                onCardAdd={handleCardAdd}
-                onCardClick={handleCardClick}
-                onLaneUpdate={ (laneId, data) => alert(`onLaneUpdate: ${laneId} -> ${data.title}`)}
-                onLaneAdd={t => alert('You added a line with title ' + t.title)}
-                
-            />
+            {
+                lanes.length > 0 &&
+                <Board 
+                    components={components}
+                    data={data} 
+                    style={boardStyle}
+                    laneStyle={laneStyle}
+                    cardStyle={cardStyle}
+                    draggable={true}
+                    editable
+                    canAddLanes
+                    collapsibleLanes
+                    // hideCardDeleteIcon
+                    editLaneTitle
+                    onDataChange={shouldReceiveNewData}
+                    onCardDelete={handleCardDelete}
+                    onCardMoveAcrossLanes={(fromLaneId, toLaneId, cardId, index) => alert("moving")}
+                    onCardAdd={handleCardAdd}
+                    onCardClick={handleCardClick}
+                    onLaneUpdate={ (laneId, data) => alert(`onLaneUpdate: ${laneId} -> ${data.title}`)}
+                    onLaneAdd={t => alert('You added a line with title ' + t.title)}
+                    
+                />
+            }
+            
 
             <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>
         </React.Fragment>

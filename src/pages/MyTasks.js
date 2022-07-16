@@ -7,11 +7,12 @@ import TaskTable from "../components/TaskTable";
 import { getStorageToken } from "../context/Auth";
 import '../styles/Table.css'
 
+const URL = process.env.REACT_APP_API_URL;
+
 const tableHeaders = [
    'ID', 'Task Name', 'Paper', 'Status', 'Project', 'Start Date', 'Due Date'
 ]
 
-const URL = process.env.REACT_APP_API_URL;
 
 function getDateLabel(date) {
     const currentDate = new Date();

@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { useAuth, removeStorageToken } from "./context/Auth";
+import { useProjID, removeStorageProjID } from "./context/ProjectID";
 import './styles/App.css';
 import Sidebar from './components/Sidebar';
 import Box from '@mui/material/Box';
@@ -18,7 +19,7 @@ import Papers from "./pages/Papers";
 import Tasks from "./pages/Tasks";
 import Schedule from "./pages/Schedule";
 import Submission from "./pages/Submission";
-import Error from './pages/Error';
+import Error from './components/Error';
 
 const drawerWidth = 250;
 
@@ -31,10 +32,16 @@ const pages = [
 
 function App() {
     const { setAuthToken } = useAuth();
+    const { setProjID } = useProjID();
     const handleLogOut = () => {
-    console.log("Logging Out");
-    setAuthToken(null);
-    removeStorageToken();
+        console.log("Logging Out");
+        setAuthToken(null);
+        removeStorageToken();
+
+        localStorage.removeItem('username'); // TODO: remove user id if appended
+        
+        setProjID(null);
+        removeStorageProjID();
     }
   
     return (
@@ -52,7 +59,7 @@ function App() {
         </Toolbar>
         </AppBar>
         
-        <Sidebar routes={routing} drawerWidth={drawerWidth}/>
+        { <Sidebar routes={routing} drawerWidth={drawerWidth}/> }
 
         <Box
         component="main"

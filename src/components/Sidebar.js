@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
@@ -7,7 +7,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 
@@ -26,11 +26,15 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined';
 
 import '../styles/Sidebar.css';
+import { useAuth } from "../context/Auth";
+import { useProjID, setStorageProjID } from "../context/ProjectID";
+
+const URL = process.env.REACT_APP_API_URL;
 
 const selectStyle = {
   textAlign : 'left',
   maxHeight : '80%',
-  color: '#C3C3C3', // TODO: change this with default value stuff
+  color: '#131313', // TODO: change this with default value stuff
 }
 const footerMenuStyle = { display: 'flex', flexDirection: 'row', padding: 0, paddingLeft: 7, alignItems: 'center', justifyContent: 'center'}
 
@@ -51,15 +55,67 @@ const footerLogos = [
 ]
 
 
+function prepData(data) {
+    const preppedData = []
+    data.results.map(item => {
+        if(!item.is_default) {
+            preppedData.push({
+                id: item.id,
+                name: item.name
+            })
+        }
+    })
+    return preppedData;
+}
+
+
 export default function PermanentDrawerLeft(props) {
     const drawerWidth = props.drawerWidth;
     const routes = props.routes;
 
     const startingLocation = useLocation();
     // console.log("Starting location: " + startingLocation.pathname + " ; "  + [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname)));
+    const { authToken } = useAuth();
     const [active, setActive] = useState(
         [...quickAccessLabels, ...projectAccessLabels].at(routes.indexOf(startingLocation.pathname))
     );
+
+    // get project names
+    const [projects, setProjects] = useState([]);
+    const { projID, setProjID } = useProjID();
+    
+    // to update project list
+    useEffect(() => {
+        // call api to get projects lists under user
+        console.log(authToken, typeof(authToken))
+        if(authToken != 'null')
+            fetch(URL + 'api/projects',
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${authToken}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    console.log("data is :", prepData(resp))
+                    setProjects(prepData(resp))
+                })
+                .catch(error=>{
+                    console.log(error);
+                })
+    }, [authToken]);
+
+
+    const handleChange = (event) => {
+        setProjID(event.target.value);
+        setStorageProjID(event.target.value);
+    };
 
     return (
         <Drawer
@@ -108,36 +164,44 @@ export default function PermanentDrawerLeft(props) {
         <FormControl sx={{ m: 2 }}>
             {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
             <Select
-                value={0}
-                // onChange={handleChange}
+                value={projID ? projID : ""}
+                onChange={handleChange}
                 displayEmpty
                 sx= {selectStyle} //{styles.Select}
                 // inputProps={{ 'aria-label': 'Without label' }}
             >
-                <MenuItem value={0}>Select Project</MenuItem>
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
+                {   
+                    projects.length > 0 &&  projects.map(item => {
+                                                    return (
+                                                        <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                                                    )
+                                                })
+                }
             </Select>
         </FormControl>
 
-        <List>
-            {projectAccessLabels.map((text, index) => (
-                <ListItem key={text} disablePadding>
-                    <ListItemButton 
-                        component={Link} 
-                        to={routes.at(index+4)}
-                        onClick={() => setActive(text)}
-                        selected={active===text} 
-                        sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1, }}>
-                        <ListItemIcon>
-                        {projectAccessLogos.at(index)}
-                        </ListItemIcon>
-                        <ListItemText primary={text} />
-                    </ListItemButton>
-                </ListItem>
-            ))}
-        </List>
+        {/* show only when a project is selected */}
+        
+        {
+            projID && 
+            <List>
+                {projectAccessLabels.map((text, index) => (
+                    <ListItem key={text} disablePadding>
+                        <ListItemButton 
+                            component={Link} 
+                            to={routes.at(index+4)}
+                            onClick={() => setActive(text)}
+                            selected={active===text} 
+                            sx={active===text ? {borderRadius: '5%', ml: 1, mr: 1, backgroundColor: '#D9D9D9'} : {ml: 1, mr: 1, }}>
+                            <ListItemIcon>
+                            {projectAccessLogos.at(index)}
+                            </ListItemIcon>
+                            <ListItemText primary={text} />
+                        </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
+        }
         
         <div className="bottomPush">
             <List style={footerMenuStyle}>

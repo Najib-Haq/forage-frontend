@@ -87,7 +87,6 @@ export default function PermanentDrawerLeft(props) {
     // to update project list
     useEffect(() => {
         // call api to get projects lists under user
-        console.log(authToken, typeof(authToken))
         if(authToken != 'null')
             fetch(URL + 'api/projects',
                 {

@@ -33,10 +33,10 @@ export default function PaperCard(props) {
             />
             <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-                {props.data.id}
+                {props.data.name}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-                {props.data.name}
+                {props.data.authors}
             </Typography>
             </CardContent>
         </CardActionArea>

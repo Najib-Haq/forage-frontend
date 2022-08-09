@@ -73,6 +73,14 @@ export default function BasicModal(props) {
                     {data.name}
                 </Typography>
                 <Divider light />
+                {
+                    data.venue  && 
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        {data.venue.name}
+                    </Typography>
+                }
+                
+                <Divider light />
                 <Typography id="modal-modal-description" sx={{ mt: 1 }}>
                     {data.abstract}
                 </Typography>

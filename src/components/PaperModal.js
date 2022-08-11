@@ -12,9 +12,9 @@ import Tab from '@mui/material/Tab';
 import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { RichTextEditor } from '@mantine/rte';
 
-import {Editor, EditorState} from 'draft-js';
-import 'draft-js/dist/Draft.css';
+
 
 import { getStorageToken } from "../context/Auth";
 
@@ -85,7 +85,8 @@ export default function BasicModal(props) {
     const [abstractFull, setAbstractFull] = useState(false);
     const [notePrivacy, setNotePrivacy] = useState("Private");
     const [checked, setChecked] = useState(false);
-    const [editorState, setEditorState] = useState(()=> EditorState.createEmpty())
+    
+
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -108,7 +109,7 @@ export default function BasicModal(props) {
                 })
                 .then(resp=>{
                     console.log("data is :", resp)
-                    // resp.note = "there is a note";
+                    // resp.note = '<p>Your initial <b>html value</b> or an empty string to init editor without value</p>';
                     setData(resp);
                     if(resp.note == "")
                         setIsEditMode(true);
@@ -189,7 +190,7 @@ export default function BasicModal(props) {
                     {!isEditMode &&
                         <div>
                             <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                                <p>{note}</p>
+                                <p><div className="content" dangerouslySetInnerHTML={{__html: note}}></div></p>
                             </Typography>
                             <Typography id="modal-modal-description" sx={{ mt: 1 }}>
                             <Stack direction="row" spacing={2}>
@@ -202,10 +203,15 @@ export default function BasicModal(props) {
                             </Typography>
                         </div>}
                     {isEditMode &&
+                    <div>
+                    <div><RichTextEditor 
+                    controls={[
+                        ['bold', 'italic', 'underline', 'link'],
+                        ['unorderedList', 'h1', 'h2', 'h3'],
+                        ['sup', 'sub'],
+                      ]} 
+                    value={note} onChange={setNote}/></div>
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                        <TextField fullWidth id="outlined-basic" variant="outlined" onChange={(e)=>setNote(e.target.value)}
-                    value={note}/>
-                        {/* <Editor editorState={editorState} onChange={setEditorState}/> */}
                         <Stack direction="row" spacing={2}>
                         <Button variant="outlined" href="#outlined-buttons" onClick={() => {
                             setIsEditMode(false);
@@ -238,7 +244,7 @@ export default function BasicModal(props) {
                             Save
                         </Button>
                         </Stack>
-                    </Typography>}
+                    </Typography></div>}
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
                     <FormGroup>
                         <FormControlLabel control={<Switch checked={checked} onChange={(e) => {

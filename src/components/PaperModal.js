@@ -9,6 +9,12 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
+import {Editor, EditorState} from 'draft-js';
+import 'draft-js/dist/Draft.css';
 
 import { getStorageToken } from "../context/Auth";
 
@@ -72,8 +78,14 @@ TabPanel.propTypes = {
 
 export default function BasicModal(props) {
     const [data, setData] = useState({});
+    const [abstract, setAbstract] = useState("");
     const [note, setNote] = useState("");
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(0);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [abstractFull, setAbstractFull] = useState(false);
+    const [notePrivacy, setNotePrivacy] = useState("Private");
+    const [checked, setChecked] = useState(false);
+    const [editorState, setEditorState] = useState(()=> EditorState.createEmpty())
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -96,7 +108,12 @@ export default function BasicModal(props) {
                 })
                 .then(resp=>{
                     console.log("data is :", resp)
-                    setData(resp)
+                    // resp.note = "there is a note";
+                    setData(resp);
+                    if(resp.note == "")
+                        setIsEditMode(true);
+                    setNote(resp.note);
+                    setAbstract(resp.abstract);
                 })
                 .catch(error=>{
                     console.log(error);
@@ -144,55 +161,95 @@ export default function BasicModal(props) {
                     </Typography> */}
                     <Divider light />
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <b>Authors: </b> {data.authors}
+                    <b>Authors </b> 
+                    <p>{data.authors}</p>
                     </Typography>
                     <Divider light />
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                    <b>Abstract: </b> 
-                        {data.abstract}
+                    <b>Abstract </b> 
                     </Typography>
-
+                    {!abstractFull && 
+                        <div><p><i>{abstract.substring(0,abstract.length/3)}...</i><Button onClick={() => {
+                            setAbstractFull(true);
+                        }}>
+                            <b>See More</b>
+                        </Button></p></div>}
+                    {abstractFull && 
+                    <div>
+                        <p><i>{abstract}</i><Button onClick={() => {
+                            setAbstractFull(false);
+                        }}>
+                            <b> See Less</b>
+                            </Button>
+                        </p>
+                    </div>}
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                    <b>Note: </b> 
-                        {data.note}
+                    <b>Notes </b> 
                     </Typography>
-                    
+                    {!isEditMode &&
+                        <div>
+                            <Typography id="modal-modal-description" sx={{ mt: 1 }}>
+                                <p>{note}</p>
+                            </Typography>
+                            <Typography id="modal-modal-description" sx={{ mt: 1 }}>
+                            <Stack direction="row" spacing={2}>
+                            <Button variant="outlined" href="#outlined-buttons" onClick={() => {
+                                    setIsEditMode(true);
+                             }}>
+                                    Edit
+                                </Button>
+                                </Stack>
+                            </Typography>
+                        </div>}
+                    {isEditMode &&
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                    <TextField fullWidth id="outlined-basic" label="Add Note" variant="outlined" onChange={(e)=>setNote(e.target.value)}
-                value={note}/>
-                    <Stack direction="row" spacing={2}>
-                    
-                    <Button variant="outlined" href="#outlined-buttons" onClick={() => {
-        alert(note);
-        //have to change this according to backend implementation
-        fetch(URL + "api/note-to-paper/",
-                {
-                    method: 'POST',
-                    credentials: "same-origin",
-                    headers: {
-                        'Authorization': `Token ${getStorageToken()}`,
-                        'Content-Type':'application/json'
-                    },
-                    body: JSON.stringify({ 'ppid':props.data.id, 'note':note })
-                })
-                .then(resp => {
-                    if (resp.status == 200)
-                        return resp.json();
-                    else if (resp.status >= 400){
-                        if (resp.status == 500) throw new Error();
-                        return resp.json();
-                    }
-                })
-                .then(resp => {
-                    console.log(resp);
-                })
-                .catch(error=>{
-                    console.log(error);
-                })
-    }}>
-                        Submit
-                    </Button>
-                    </Stack>
+                        <TextField fullWidth id="outlined-basic" variant="outlined" onChange={(e)=>setNote(e.target.value)}
+                    value={note}/>
+                        {/* <Editor editorState={editorState} onChange={setEditorState}/> */}
+                        <Stack direction="row" spacing={2}>
+                        <Button variant="outlined" href="#outlined-buttons" onClick={() => {
+                            setIsEditMode(false);
+                            //have to change this according to backend implementation
+                            // fetch(URL + "api/note-to-paper/",
+                            //         {
+                            //             method: 'POST',
+                            //             credentials: "same-origin",
+                            //             headers: {
+                            //                 'Authorization': `Token ${getStorageToken()}`,
+                            //                 'Content-Type':'application/json'
+                            //             },
+                            //             body: JSON.stringify({ 'ppid':props.data.id, 'note':note })
+                            //         })
+                            //         .then(resp => {
+                            //             if (resp.status == 200)
+                            //                 return resp.json();
+                            //             else if (resp.status >= 400){
+                            //                 if (resp.status == 500) throw new Error();
+                            //                 return resp.json();
+                            //             }
+                            //         })
+                            //         .then(resp => {
+                            //             console.log(resp);
+                            //         })
+                            //         .catch(error=>{
+                            //             console.log(error);
+                            //         })
+                        }}>
+                            Save
+                        </Button>
+                        </Stack>
+                    </Typography>}
+                    <Typography id="modal-modal-description" sx={{ mt: 1 }}>
+                    <FormGroup>
+                        <FormControlLabel control={<Switch checked={checked} onChange={(e) => {
+                            setChecked(e.target.checked);
+                            if(notePrivacy=="Private")
+                                setNotePrivacy("Public");
+                            else
+                                setNotePrivacy("Private");
+                            //add api call
+                        }} />} label={notePrivacy} />
+                    </FormGroup>
                     </Typography>
                 </TabPanel>     
             </Box>

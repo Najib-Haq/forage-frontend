@@ -42,9 +42,9 @@ function getTableData(apidata) {
         data.push([
             item.id, 
             item.name,
-            item.project_paper, // TODO: need to change this to paper name
+            (item.project_paper === null) ? "" :item.project_paper.paper.substring(0, 20) + '...', // TODO: need to change this to paper name
             <Typography><span className='labelSpan'>{item.status}</span></Typography>, // 
-            item.project_paper, // TODO: need to change this to project name
+            item.project.name, // TODO: need to change this to project name
             getDateLabel(item.start_date), 
             getDateLabel(item.due_date)
         ])

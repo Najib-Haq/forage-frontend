@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-
 import { Table, TableBody, TableCell, TableContainer, 
          TableHead, TableRow, Paper, Typography, Card } from '@mui/material';
+import TaskModal from "./TaskModal";
 
 
 /*
@@ -35,11 +35,24 @@ const tableRowStyle = {
 
 export default function TaskTable(props) {
     const [data, setData] = useState(props.data);
+    const [openModal, setOpenModal] = useState(false);
+    const [modalData, setModalData] = useState(null);
 
     useEffect(() => {
         console.log("Received data : ", props.data)
         setData(props.data)
     }, [props.data])
+
+    const openModalWithData = (id) => {
+        // alert(data.rows[id])
+        setModalData(data.rows[id]);
+        setOpenModal(true);
+    };
+
+    const closeModal = () => {
+        setOpenModal(false);
+        setModalData(null);
+    }
 
     return (
         <React.Fragment>
@@ -59,15 +72,16 @@ export default function TaskTable(props) {
 
                     <TableBody>
                         {
-                            data.rows.map((row) => (
+                            data.rows.map((row, index) => (
                                 <TableRow
                                     component={Card} // TODO: this gives warning :/
                                     key={row[0]} // TODO: or the index which has task id
                                     sx={tableRowStyle}
+                                    onClick={() => openModalWithData(index)}
                                 >
                                     {
                                         data.head.map((headCell, index)=>(
-                                            <TableCell align="left" key={row[index]}>{row[index]}</TableCell>
+                                            <TableCell align="left" key={index}>{row[index]}</TableCell>
                                         ))
                                     }
                                 </TableRow>
@@ -77,6 +91,8 @@ export default function TaskTable(props) {
                 </Table>
                 // </TableContainer>
             }  
+
+            <TaskModal data={modalData} isOpen={openModal} handleClose={closeModal} />
         </React.Fragment>
     );
 }

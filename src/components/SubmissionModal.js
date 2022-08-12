@@ -125,6 +125,10 @@ export default function SubmissionModal(props) {
             <Box sx={style}>
                 <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
             
+                <Typography variant="h4" gutterBottom component="div">
+                    {props.steps[props.activeStep]}
+                </Typography>
+
                 <div>
                     {
                         (props.activeStep == 0 || props.activeStep == 1) && 

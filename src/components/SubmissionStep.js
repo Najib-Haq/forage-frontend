@@ -11,19 +11,11 @@ import StepLabel from '@mui/material/StepLabel';
         steps: array of steps to display
 */
 
-const steps = [
-    'Upload Abstract',
-    'Upload Manuscript',
-    'Peer Review',
-    'Submit to Editor',
-    'Approval Decision'
-  ];
-
 
 export default function SubmissionStep(props) {
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%', marginBottom: '25px' }}>
             <Stepper activeStep={props.activeStep} alternativeLabel>
                 {props.steps.map((label) => (
                 <Step key={label} onClick={()=>{console.log(label)}}>

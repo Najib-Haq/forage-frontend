@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Divider } from "@mui/material";
+import { Divider, requirePropFactory } from "@mui/material";
 import SubmissionStep from "../components/SubmissionStep"
 
 import { styled } from '@mui/material/styles';
@@ -12,6 +12,9 @@ import MuiAccordionSummary, {
   AccordionSummaryProps,
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
+// import {DropzoneArea} from 'material-ui-dropzone' // HAS PROBLEMS
+// import FileUpload from "react-mui-fileuploader"
+import { Dropzone, FileItem } from "@dropzone-ui/react";
 
 import { getStorageToken } from "../context/Auth";
 
@@ -80,6 +83,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 export default function SubmissionModal(props) {
     const [data, setData] = useState({});
     const [expanded, setExpanded] = React.useState('panel1');
+    const [files, setFiles] = React.useState([]);
 
     const handleChange =
         (panel) => (event, newExpanded) => {
@@ -119,48 +123,63 @@ export default function SubmissionModal(props) {
           aria-describedby="modal-modal-description"
         >
             <Box sx={style}>
-                <SubmissionStep />
+                <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
             
                 <div>
-                    <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-                        <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-                        <Typography>Collapsible Group Item #1</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                            malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                            sit amet blandit leo lobortis eget.
-                        </Typography>
-                        </AccordionDetails>
-                    </Accordion>
-                    <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-                        <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
-                        <Typography>Collapsible Group Item #2</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                            malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                            sit amet blandit leo lobortis eget.
-                        </Typography>
-                        </AccordionDetails>
-                    </Accordion>
-                    <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-                        <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
-                        <Typography>Collapsible Group Item #3</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                            malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                            sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                            sit amet blandit leo lobortis eget.
-                        </Typography>
-                        </AccordionDetails>
-                    </Accordion>
+                    {
+                        (props.activeStep == 0 || props.activeStep == 1) && 
+                        <Dropzone onChange={()=>{}} value={files}>
+                            {files.map((file) => (
+                                <FileItem {...file} preview />
+                            ))}
+                        </Dropzone>
+                    }
+
+                    {
+                        props.activeStep == 2 &&
+                        <div>
+                        <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+                            <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+                            <Typography>Collapsible Group Item #1</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                            <Typography>
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
+                                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
+                                sit amet blandit leo lobortis eget.
+                            </Typography>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
+                            <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
+                            <Typography>Collapsible Group Item #2</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                            <Typography>
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
+                                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
+                                sit amet blandit leo lobortis eget.
+                            </Typography>
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
+                            <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
+                            <Typography>Collapsible Group Item #3</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                            <Typography>
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
+                                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
+                                sit amet blandit leo lobortis eget.
+                            </Typography>
+                            </AccordionDetails>
+                        </Accordion>
+                        </div>
+                    }
+                    
                 </div>
             </Box>
         </Modal>

@@ -41,6 +41,7 @@ const style = {
     pb: 3,
   };
 
+
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -80,13 +81,22 @@ export default function BasicModal(props) {
     const [data, setData] = useState({});
     const [abstract, setAbstract] = useState("");
     const [note, setNote] = useState("");
+    const [noteData, setNoteData] = useState({});
     const [value, setValue] = useState(0);
     const [isEditMode, setIsEditMode] = useState(false);
     const [abstractFull, setAbstractFull] = useState(false);
     const [notePrivacy, setNotePrivacy] = useState("Private");
     const [checked, setChecked] = useState(false);
-    
 
+    //TODO : delete default values of the following after adding api calls
+    const [venueType, setVenueType] = useState("Conference");
+    const [venueValue, setVenueValue] = useState("NSDI 2020");
+    const [list, setList] = useState("To Read");
+    const [collaborators, setCollaborators] = useState(['tahmeed','najib']);
+    
+    const collaboratorItems = collaborators.map((collaborator) =>
+        <div>{collaborator}</div>
+        );
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -94,6 +104,8 @@ export default function BasicModal(props) {
 
     useEffect(() => {
         if(props.data.id)
+        {
+            console.log("paper id",props.data.id);
             fetch(URL + `api/papers/${props.data.id}`,
                 {
                     method: 'GET',
@@ -108,17 +120,46 @@ export default function BasicModal(props) {
                     return resp.json();
                 })
                 .then(resp=>{
-                    console.log("data is :", resp)
-                    // resp.note = '<p>Your initial <b>html value</b> or an empty string to init editor without value</p>';
+                    console.log("data is :", resp);
+                    console.log("abstract is :", resp.abstract);
                     setData(resp);
-                    if(resp.note == "")
-                        setIsEditMode(true);
-                    setNote(resp.note);
                     setAbstract(resp.abstract);
                 })
                 .catch(error=>{
                     console.log(error);
+                });
+
+            fetch(URL + `api/notes/11`,
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
                 })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    console.log("data is :", resp);
+                    
+                    if(resp.text.length == 0)
+                        setIsEditMode(true);
+                    if(resp.visibility=="Public")
+                        setChecked(true);
+                    setNotePrivacy(resp.visibility);
+                    setNote(resp.text); 
+                    setNoteData(resp);
+                    
+                })
+                .catch(error=>{
+                    console.log(error);
+                })
+            
+        }
+            
     }, [props.isOpen]);
     
   
@@ -126,6 +167,7 @@ export default function BasicModal(props) {
         <Modal
           open={props.isOpen}
           onClose={props.handleClose}
+          style={{overflow:'scroll'}}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
@@ -162,12 +204,12 @@ export default function BasicModal(props) {
                     </Typography> */}
                     <Divider light />
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <b>Authors </b> 
+                    <b><small>Authors</small> </b> 
                     <p>{data.authors}</p>
                     </Typography>
                     <Divider light />
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                    <b>Abstract </b> 
+                    <b><small>Abstract</small> </b> 
                     </Typography>
                     {!abstractFull && 
                         <div><p><i>{abstract.substring(0,abstract.length/3)}...</i><Button onClick={() => {
@@ -185,7 +227,14 @@ export default function BasicModal(props) {
                         </p>
                     </div>}
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
-                    <b>Notes </b> 
+                    <Stack direction="row" spacing={6}>
+                        <div><b><small>{venueType}</small></b><div>{venueValue}</div></div>
+                        <div><b><small>List</small> </b><div>{list}</div></div>
+                        <div><b><small>Assigned</small></b><div>{collaboratorItems}</div> </div>
+                    </Stack>
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 1 }}>
+                    <b><small>Notes</small></b> 
                     </Typography>
                     {!isEditMode &&
                         <div>
@@ -215,31 +264,49 @@ export default function BasicModal(props) {
                         <Stack direction="row" spacing={2}>
                         <Button variant="outlined" href="#outlined-buttons" onClick={() => {
                             setIsEditMode(false);
-                            //have to change this according to backend implementation
-                            // fetch(URL + "api/note-to-paper/",
-                            //         {
-                            //             method: 'POST',
-                            //             credentials: "same-origin",
-                            //             headers: {
-                            //                 'Authorization': `Token ${getStorageToken()}`,
-                            //                 'Content-Type':'application/json'
-                            //             },
-                            //             body: JSON.stringify({ 'ppid':props.data.id, 'note':note })
-                            //         })
-                            //         .then(resp => {
-                            //             if (resp.status == 200)
-                            //                 return resp.json();
-                            //             else if (resp.status >= 400){
-                            //                 if (resp.status == 500) throw new Error();
-                            //                 return resp.json();
-                            //             }
-                            //         })
-                            //         .then(resp => {
-                            //             console.log(resp);
-                            //         })
-                            //         .catch(error=>{
-                            //             console.log(error);
-                            //         })
+                            console.log(JSON.stringify(
+                                {
+                                    "id": noteData.id,
+                                    "text": note,
+                                    "visibility": noteData.visibility,
+                                    "last_modified": noteData.last_modified,
+                                    "creator": noteData.creator,
+                                    "project_paper": noteData.project_paper
+                                }));
+                            //have to change the hardcoded project paper id
+                            fetch(URL + "api/notes/11/",
+                                    {
+                                        method: 'PUT',
+                                        credentials: "same-origin",
+                                        headers: {
+                                            'Authorization': `Token ${getStorageToken()}`,
+                                            'Content-Type':'application/json'
+                                        },
+                                        body: JSON.stringify(
+                                            {
+                                                "id": noteData.id,
+                                                "text": note,
+                                                "visibility": noteData.visibility,
+                                                "last_modified": noteData.last_modified,
+                                                "creator": noteData.creator,
+                                                "project_paper": noteData.project_paper
+                                            }
+                                            )
+                                    })
+                                    .then(resp => {
+                                        if (resp.status == 200)
+                                            return resp.json();
+                                        else if (resp.status >= 400){
+                                            if (resp.status == 500) throw new Error();
+                                            return resp.json();
+                                        }
+                                    })
+                                    .then(resp => {
+                                        console.log(resp);
+                                    })
+                                    .catch(error=>{
+                                        console.log(error);
+                                    })
                         }}>
                             Save
                         </Button>
@@ -254,10 +321,56 @@ export default function BasicModal(props) {
                             else
                                 setNotePrivacy("Private");
                             //add api call
+
+                            //have to change the hardcoded project paper id
+                            fetch(URL + "api/notes/11/",
+                            {
+                                method: 'PUT',
+                                credentials: "same-origin",
+                                headers: {
+                                    'Authorization': `Token ${getStorageToken()}`,
+                                    'Content-Type':'application/json'
+                                },
+                                body: JSON.stringify(
+                                    {
+                                        "id": noteData.id,
+                                        "text": note,
+                                        "visibility": notePrivacy,
+                                        "last_modified": noteData.last_modified,
+                                        "creator": noteData.creator,
+                                        "project_paper": noteData.project_paper
+                                    }
+                                    )
+                            })
+                            .then(resp => {
+                                if (resp.status == 200)
+                                    return resp.json();
+                                else if (resp.status >= 400){
+                                    if (resp.status == 500) throw new Error();
+                                    return resp.json();
+                                }
+                            })
+                            .then(resp => {
+                                console.log(resp);
+                            })
+                            .catch(error=>{
+                                console.log(error);
+                            })
+
+
                         }} />} label={notePrivacy} />
                     </FormGroup>
                     </Typography>
-                </TabPanel>     
+                </TabPanel> 
+                <TabPanel value={value} index={1}>
+                    <Typography id="modal-modal-title" variant="h4" component="h4" sx={{ mt: 2 }}>
+                        <b>Public Notes</b>
+                    </Typography>
+                    <Divider light />
+                    <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mt: 2 }}>
+                        <b>{data.name}</b>
+                    </Typography>
+                </TabPanel>    
             </Box>
         </Modal>
     );

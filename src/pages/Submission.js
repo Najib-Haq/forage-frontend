@@ -16,7 +16,7 @@ const steps = [
 export default function Submission() {
     const [openModal, setOpenModal] = useState(false);
 
-    const activeStep = 2;
+    const activeStep = 1;
 
     const handleModalClose = () => {
         setOpenModal(false);

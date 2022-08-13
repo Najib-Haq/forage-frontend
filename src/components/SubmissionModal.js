@@ -14,7 +14,7 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 // import {DropzoneArea} from 'material-ui-dropzone' // HAS PROBLEMS
 // import FileUpload from "react-mui-fileuploader"
-import { Dropzone, FileItem } from "@dropzone-ui/react";
+import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 
 import { getStorageToken } from "../context/Auth";
 
@@ -84,6 +84,7 @@ export default function SubmissionModal(props) {
     const [data, setData] = useState({});
     const [expanded, setExpanded] = React.useState('panel1');
     const [files, setFiles] = React.useState([]);
+    const [imageSrc, setImageSrc] = useState(undefined);
 
     const handleChange =
         (panel) => (event, newExpanded) => {
@@ -113,6 +114,69 @@ export default function SubmissionModal(props) {
     //                 console.log(error);
     //             })
     // }, [props.isOpen]);
+
+
+    const updateFiles = (incommingFiles) => {
+        console.log("incomming files", incommingFiles);
+        setFiles(incommingFiles);
+    };
+    const onDelete = (id) => {
+        setFiles(files.filter((x) => x.id !== id));
+    };
+    const handleSee = (imageSource) => {
+        setImageSrc(imageSource);
+    };
+    const handleClean = (files) => {
+        console.log("list cleaned", files);
+        setFiles([])
+    };
+
+    const dropzoneUI = () => {
+        return (
+            <Dropzone
+                style={{ minWidth: "inherit" }}
+                //view={"list"}
+                onChange={updateFiles}
+                // minHeight="195px"
+                onClean={handleClean}
+                value={files}
+                maxFiles={5}
+                //header={false}
+                // footer={false}
+                maxFileSize={2998000}
+                //label="Drag'n drop files here or click to browse"
+                //label="Suleta tus archivos aquí"
+                accept=".pdf"
+                // uploadingMessage={"Uploading..."}
+                url="https://my-awsome-server/upload-my-file"
+                //of course this url doens´t work, is only to make upload button visible
+                //uploadOnDrop
+                //clickable={false}
+                fakeUploading
+                //localization={"FR-fr"}
+                disableScroll
+                >
+                {files.map((file) => (
+                    <FileItem
+                    {...file}
+                    key={file.id}
+                    onDelete={onDelete}
+                    onSee={handleSee}
+                    //localization={"ES-es"}
+                    resultOnTooltip
+                    preview
+                    info
+                    hd
+                    />
+                ))}
+                <FullScreenPreview
+                    imgSource={imageSrc}
+                    openImage={imageSrc}
+                    onClose={(e) => handleSee(undefined)}
+                />
+            </Dropzone>
+            )
+    }
     
   
     return (
@@ -131,12 +195,7 @@ export default function SubmissionModal(props) {
 
                 <div>
                     {
-                        (props.activeStep == 0 || props.activeStep == 1) && 
-                        <Dropzone onChange={()=>{}} value={files}>
-                            {files.map((file) => (
-                                <FileItem {...file} preview />
-                            ))}
-                        </Dropzone>
+                        (props.activeStep == 0 || props.activeStep == 1) && dropzoneUI()
                     }
 
                     {

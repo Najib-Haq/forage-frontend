@@ -68,25 +68,29 @@ TabPanel.propTypes = {
     value: PropTypes.number.isRequired,
   };
   
-  function a11yProps(index) {
+function a11yProps(index) {
     return {
-      id: `simple-tab-${index}`,
-      'aria-controls': `simple-tabpanel-${index}`,
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
     };
-  }
+}
 
 
 
 export default function BasicModal(props) {
+
     const [data, setData] = useState({});
     const [abstract, setAbstract] = useState("");
     const [note, setNote] = useState("");
     const [noteData, setNoteData] = useState({});
+    const [publicNoteData, setPublicNoteData] = useState({});
     const [value, setValue] = useState(0);
     const [isEditMode, setIsEditMode] = useState(false);
     const [abstractFull, setAbstractFull] = useState(false);
+    const [noteFull, setNoteFull] = useState({});
     const [notePrivacy, setNotePrivacy] = useState("Private");
     const [checked, setChecked] = useState(false);
+
 
     //TODO : delete default values of the following after adding api calls
     const [venueType, setVenueType] = useState("Conference");
@@ -129,7 +133,8 @@ export default function BasicModal(props) {
                     console.log(error);
                 });
 
-            fetch(URL + `api/notes/11`,
+            
+                fetch(URL + `api/notes/11`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -156,7 +161,30 @@ export default function BasicModal(props) {
                 })
                 .catch(error=>{
                     console.log(error);
+                });
+
+                fetch(URL + `api/notes/?project_paper__paper=${props.data.id}`,
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
                 })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    console.log("public note data is :", resp);
+                    setPublicNoteData(resp);
+                    setNoteFull(new Array(resp.count).fill(true));
+                    
+                })
+                .catch(error=>{
+                    console.log(error);
+                });
             
         }
             
@@ -286,7 +314,7 @@ export default function BasicModal(props) {
                                             {
                                                 "id": noteData.id,
                                                 "text": note,
-                                                "visibility": noteData.visibility,
+                                                "visibility": notePrivacy,
                                                 "last_modified": noteData.last_modified,
                                                 "creator": noteData.creator,
                                                 "project_paper": noteData.project_paper
@@ -369,6 +397,76 @@ export default function BasicModal(props) {
                     <Divider light />
                     <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mt: 2 }}>
                         <b>{data.name}</b>
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 4 }}>
+
+                    {
+                        publicNoteData.count > 0 && 
+                        <div>
+                        {
+                            publicNoteData.results.map((item, index) => {
+                                return (
+                                    <Box
+                                        sx={{
+                                        width: 1,
+                                        p: 1,
+                                        bgcolor: (theme) =>
+                                            theme.palette.mode === 'dark' ? 'white' : 'white',
+                                        color: (theme) =>
+                                            theme.palette.mode === 'dark' ? 'black' : 'black',
+                                        border: '1px solid',
+                                        borderColor: (theme) =>
+                                            theme.palette.mode === 'dark' ? 'black' : 'black',
+                                        borderRadius: 2,
+                                        fontSize: '0.875rem',
+                                        fontWeight: '700',
+                                        textAlign: 'left',
+                                        margin : '1em',
+                                        }}
+                                    >
+                                        {item.text.length<=50 && 
+                                            <h2><b>"{item.text}"</b></h2>
+                                        }
+                                        {item.text.length>50 && 
+                                            <h2><b>"{item.text.substring(0,50)}..."</b></h2>
+                                        }
+                                        <p><i>{item.text}</i></p>
+                                        {/* for see more see less feature, check how to update state by changing array element, then add below code */}
+                                        {/* {!noteFull[index] && 
+                                            <div><p><i>{item.text.substring(0,item.text.length/3)}...</i><Button onClick={() => {
+                                                setNoteFull(prevState => ({
+                                                    items: {
+                                                        ...prevState.items,
+                                                        [prevState.items[index]]: true,
+                                                    },
+                                                }));
+                                            }}>
+                                                <b>See More</b>
+                                            </Button></p></div>}
+                                        {noteFull[index] && 
+                                        <div>
+                                            <p><i>{item.text}</i><Button onClick={() => {
+                                                setNoteFull(prevState => ({
+                                                    items: {
+                                                        ...prevState.items,
+                                                        [prevState.items[index]]: false,
+                                                    },
+                                                }));
+                                            }}>
+                                                <b> See Less</b>
+                                                </Button>
+                                            </p>
+                                        </div>} */}
+                                    <Divider light />
+                                    <p><b>Last Updated: </b>{item.last_modified}</p>
+                                    </Box>
+
+                                )
+                            })
+                        }
+                        </div>
+                    }
+                    
                     </Typography>
                 </TabPanel>    
             </Box>

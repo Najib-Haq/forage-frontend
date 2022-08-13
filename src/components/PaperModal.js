@@ -96,7 +96,7 @@ export default function BasicModal(props) {
     const [venueType, setVenueType] = useState("Conference");
     const [venueValue, setVenueValue] = useState("NSDI 2020");
     const [list, setList] = useState("To Read");
-    const [collaborators, setCollaborators] = useState(['tahmeed','najib']);
+    const [collaborators, setCollaborators] = useState(['tahmeed']);
     
     const collaboratorItems = collaborators.map((collaborator) =>
         <div>{collaborator}</div>
@@ -135,7 +135,7 @@ export default function BasicModal(props) {
                 });
 
             
-                fetch(URL + `api/notes/${props.data.pp_id}`,
+                fetch(URL + `api/notes/${props.data.pp_id}/`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -200,24 +200,6 @@ export default function BasicModal(props) {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-            {/* <Box sx={style}>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                    <Tab label="Item One" {...a11yProps(0)} />
-                    <Tab label="Item Two" {...a11yProps(1)} />
-                    <Tab label="Item Three" {...a11yProps(2)} />
-                    </Tabs>
-                </Box>
-                <TabPanel value={value} index={0}>
-                    Item One
-                </TabPanel>
-                <TabPanel value={value} index={1}>
-                    Item Two
-                </TabPanel>
-                <TabPanel value={value} index={2}>
-                    Item Three
-                </TabPanel>
-            </Box> */}
             <Box sx={style}>
                 <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                         <Tab label="Basic" {...a11yProps(0)} />
@@ -228,9 +210,6 @@ export default function BasicModal(props) {
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                     <b>{data.name}</b>
                     </Typography>
-                    {/* <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        <b>{data.name}</b>
-                    </Typography> */}
                     <Divider light />
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                     <b><small>Authors</small> </b> 
@@ -293,17 +272,8 @@ export default function BasicModal(props) {
                         <Stack direction="row" spacing={2}>
                         <Button variant="outlined" href="#outlined-buttons" onClick={() => {
                             setIsEditMode(false);
-                            console.log(JSON.stringify(
-                                {
-                                    "id": noteData.id,
-                                    "text": note,
-                                    "visibility": noteData.visibility,
-                                    "last_modified": noteData.last_modified,
-                                    "creator": noteData.creator,
-                                    "project_paper": noteData.project_paper
-                                }));
                             //have to change the hardcoded project paper id
-                            fetch(URL + `api/notes/${props.data.pp_id}`,
+                            fetch(URL + `api/notes/${props.data.pp_id}/`,
                                     {
                                         method: 'PUT',
                                         credentials: "same-origin",
@@ -352,7 +322,7 @@ export default function BasicModal(props) {
                             //add api call
 
                             //have to change the hardcoded project paper id
-                            fetch(URL + `api/notes/${props.data.pp_id}`,
+                            fetch(URL + `api/notes/${props.data.pp_id}/`,
                             {
                                 method: 'PUT',
                                 credentials: "same-origin",

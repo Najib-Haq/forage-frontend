@@ -11,7 +11,7 @@ import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import TaskTable from "../components/TaskTable";
 import { getStorageToken } from "../context/Auth";
-import { getStorageProjID } from "../context/ProjectID";
+import { getStorageProjID, useProjID} from "../context/ProjectID";
 import '../styles/Table.css'
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -71,6 +71,7 @@ function getStatusLabel(status) {
 
 
 export default function Tasks() {
+    const { projID } = useProjID();
     const [search, setSearch] = useState("");
     const [data, setData] = useState({head: [], rows: [[]]});
     const [openModal, setOpenModal] = useState(false);
@@ -177,8 +178,8 @@ export default function Tasks() {
     }
 
     useEffect(() => {
-        getTasks();
-    }, [])
+        if(projID != null) getTasks();
+    }, [projID]);
 
     return (
         <React.Fragment>

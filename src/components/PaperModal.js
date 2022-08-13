@@ -107,10 +107,11 @@ export default function BasicModal(props) {
     };
 
     useEffect(() => {
-        if(props.data.id)
+        if(props.data)
         {
-            console.log("paper id",props.data.id);
-            fetch(URL + `api/papers/${props.data.id}`,
+            console.log("paper id",props.data.paper_id);
+            console.log("project paper id",props.data.pp_id);
+            fetch(URL + `api/papers/${props.data.paper_id}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -134,7 +135,7 @@ export default function BasicModal(props) {
                 });
 
             
-                fetch(URL + `api/notes/11`,
+                fetch(URL + `api/notes/${props.data.pp_id}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -163,7 +164,7 @@ export default function BasicModal(props) {
                     console.log(error);
                 });
 
-                fetch(URL + `api/notes/?project_paper__paper=${props.data.id}`,
+                fetch(URL + `api/notes/?project_paper__paper=${props.data.pp_id}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -302,7 +303,7 @@ export default function BasicModal(props) {
                                     "project_paper": noteData.project_paper
                                 }));
                             //have to change the hardcoded project paper id
-                            fetch(URL + "api/notes/11/",
+                            fetch(URL + `api/notes/${props.data.pp_id}`,
                                     {
                                         method: 'PUT',
                                         credentials: "same-origin",
@@ -351,7 +352,7 @@ export default function BasicModal(props) {
                             //add api call
 
                             //have to change the hardcoded project paper id
-                            fetch(URL + "api/notes/11/",
+                            fetch(URL + `api/notes/${props.data.pp_id}`,
                             {
                                 method: 'PUT',
                                 credentials: "same-origin",

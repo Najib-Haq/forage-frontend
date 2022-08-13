@@ -17,20 +17,20 @@ export default function PaperCard(props) {
 
     return (
     <Card sx={{ maxWidth: 345 }}>
-        <CardHeader
-            action={
-            <IconButton aria-label="settings" onClick={handleAdd}>
-                <ControlPointIcon />
-            </IconButton>
-            }
-        />
+        {/* <CardHeader
+            // action={
+            // <IconButton aria-label="settings" onClick={handleAdd}>
+            //     <ControlPointIcon />
+            // </IconButton>
+            // }
+        /> */}
         <CardActionArea onClick={props.onClick}>
-            <CardMedia
+            {/* <CardMedia
             component="img"
             // height="140"
             image="/static/images/cards/contemplative-reptile.jpg"
             alt="green iguana"
-            />
+            /> */}
             <CardContent>
             <Typography gutterBottom variant="h5" component="div">
                 {props.data.name}

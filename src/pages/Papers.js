@@ -41,10 +41,11 @@ const cardStyle = {
 export default function Papers() {
 
     const { projID } = useProjID();
-    const [lanes, setLanes] = useState([]);
-    const [data, setData] = useState({lanes: [{id: 'loading', title: 'loading..', cards: []}]});
+    const [lanes, setLanes] = useState(2);
+    const [data, setData] = useState({lanes: []}); //[{id: 'loading', title: 'loading..', cards: []}]});
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState({});
+    
 
     /////////////////////////////////// FETCH LANES
     function fetchLanes() {
@@ -64,17 +65,9 @@ export default function Papers() {
             })
             .then(resp=>{
                 const filteredData = resp.results.filter((item)=>{ return !item.is_archived })
-                setLanes(filteredData)
-                
-                const laneData = {lanes: []}
-                filteredData.map((item)=>{
-                    laneData.lanes.push({
-                        id: item.id.toString(),
-                        title: item.name,
-                        cards: [],
-                    })
-                })
-                setData(laneData)
+                // console.log("filtered : ", filteredData.length)
+                setLanes(filteredData.length);
+                filteredData.map((item, index)=>fetchCards(item, index))
             })
             .catch(error=>{
                 console.log(error);
@@ -87,6 +80,7 @@ export default function Papers() {
     
     /////////////////////////////////// FETCH CARDS
     function fetchCards(lane, idx) {
+        console.log(lane.name);
         fetch(URL + `api/projects/${projID}/lists/${lane.id}/papers`,
             {
                 method: 'GET',
@@ -101,35 +95,34 @@ export default function Papers() {
                 return resp.json();
             })
             .then(resp=>{
-                let prevData = data
-                console.log(idx)
+                
+                let newLaneData = {
+                    id: lane.id.toString(),
+                    title: lane.name.toString(),
+                    cards: [],
+                }
                 
                 resp.map((item)=>{
-                    prevData.lanes[idx].cards.push({
+                    newLaneData.cards.push({
                         id: item.id.toString(), // they expect string in id 
-                        title: item.name,
+                        title: item.name.toString(),
                         description: '', //item.authors,
                         // label: item.doi,
-                        draggable: true,
+                        // draggable: true,
                         metadata: {
-                            title: item.name,
+                            title: item.name.toString(),
                         }
                     })
                 })
 
-                console.log("New data : ", data, prevData)
-                setData(prevData)
-                console.log("New data : ", data, prevData)
-
+                setData({lanes: [...data.lanes, newLaneData]})
+                console.log(data)
+                console.log("Compare : ", data.lanes.length, lanes)
             })
             .catch(error=>{
                 console.log(error);
             })
     }
-
-    useEffect(() => {
-        if (lanes.length > 0 ) lanes.map((item, index)=>fetchCards(item, index))
-    }, [lanes])
 
     const handleModalClose = () => {
         setOpenModal(false);
@@ -137,6 +130,7 @@ export default function Papers() {
 
     const shouldReceiveNewData = nextData => {
         console.log('Board has changed')
+        // setData({lanes: [...data.lanes, nextData]})
         console.log(nextData)
       }
 
@@ -163,7 +157,7 @@ export default function Papers() {
     return (
         <React.Fragment>
             {
-                lanes.length > 0 &&
+                data.lanes.length >= lanes &&
                 <Board 
                     components={components}
                     data={data} 

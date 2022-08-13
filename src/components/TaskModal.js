@@ -49,6 +49,7 @@ export default function TaskModal(props) {
         next: []
     });
     const [projectTasks, setProjectTasks] = useState(null);
+    const [projectPapers, setProjectPapers] = useState(null);
     
     const [list, setList] = useState("");
     const [name, setName] = useState("");
@@ -84,7 +85,8 @@ export default function TaskModal(props) {
                 status: list, 
                 start_date: startDate,
                 due_date: dueDate,
-                project_id: task.project.id
+                project_id: task.project.id,
+                project_paper_id: task.project_paper.id
             })
         })
         .catch(error=>{
@@ -124,8 +126,25 @@ export default function TaskModal(props) {
         // props.handleClose();
     }
 
-    const deleteDependsOn = (task_id) => {
+    const deleteTask = () => {
         fetch(URL + `api/tasks/${task.id}/`, {
+            method: 'DELETE',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+        })
+        .then(resp=>{
+            props.handleClose();
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
+    const deleteDependsOn = (task_id) => {
+        fetch(URL + `api/tasks/${task.id}/depends_on/`, {
             method: 'DELETE',
             credentials: "same-origin",
             headers: {
@@ -138,6 +157,26 @@ export default function TaskModal(props) {
         })
     }
 
+    const getPapers = (project_id) => {
+        fetch(URL + `api/projects/${project_id}/papers`, {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            setProjectPapers(resp.results);
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
 
     const loadData = async () => {
         // Get the task
@@ -161,26 +200,30 @@ export default function TaskModal(props) {
             setList(resp.status);
             setStartDate(resp.start_date);
             setDueDate(resp.due_date);
+            
+            // Get task for dependencies
+            fetch(URL + `api/projects/${resp.project.id}`, {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                setProjectTasks(resp.tasks);
+            })
+            .catch(error=>{
+                console.log(error);
+            })
 
-            // // Get task for dependencies
-            // fetch(URL + `api/projects/${task.project.id}`, {
-            //     method: 'GET',
-            //     credentials: "same-origin",
-            //     headers: {
-            //         'Authorization': `Token ${getStorageToken()}`,
-            //         'Content-Type':'application/json'
-            //     }
-            // })
-            // .then(resp=>{
-            //     if (resp.status >= 400) throw new Error();
-            //     return resp.json();
-            // })
-            // .then(resp=>{
-            //     setProjectTasks(resp.tasks);
-            // })
-            // .catch(error=>{
-            //     console.log(error);
-            // })
+
+            // get papers list
+            getPapers(resp.project.id);
         })
         .catch(error=>{
             console.log(error);
@@ -216,7 +259,10 @@ export default function TaskModal(props) {
     
 
     useEffect(() => {
-        if(props.projectTask) getTasks(getStorageProjID());
+        if(props.projectTask) {
+            getTasks(getStorageProjID());
+            getPapers(getStorageProjID());
+        }
     }, []);
 
   
@@ -276,9 +322,28 @@ export default function TaskModal(props) {
                     />
                 </FormControl>
 
+
+                {
+                    projectPapers && <FormControl fullWidth sx={{ pb: 3 }}>
+                        <InputLabel id="depends-on">Link Paper</InputLabel>
+                        <Select
+                            labelId="paper"
+                            id="demo-simple-select"
+                            value={task.project_paper ? task.project_paper.paper : ""}
+                            label="Link Paper"
+                            // onChange={(e) => setTask({...task, project_paper[paper]:task.depends_on.concat({"before": e.target.value})})}
+                        >
+                            {projectPapers && projectPapers.map((data, index) => (
+                                <MenuItem value={data.paper} key={index} onClick={() => {setTask({...task, project_paper: {id: data.id, paper: data.paper}})}}>
+                                    {data.paper.substring(0, 60) + "..."}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                }
+
+
                 <hr />
-
-
                 {
                     task.id && 
                     <React.Fragment>    
@@ -287,12 +352,12 @@ export default function TaskModal(props) {
                             <Select
                                 labelId="depends-on"
                                 id="demo-simple-select"
-                                // value=""
+                                value=""
                                 label="Depends on"
-                                onChange={(e) => setTask({...task, depends_on:task.depends_on.concat(e.target.value)})}
+                                onChange={(e) => setTask({...task, depends_on:task.depends_on.concat({"before": e.target.value})})}
                             >
                                 {projectTasks && projectTasks.map((data, index) => (
-                                    <MenuItem value={data.id} key={index} onClick={() => addDependsOn(task.id, data.id)}>
+                                    <MenuItem value={data.name} key={index} onClick={() => addDependsOn(task.id, data.id)}>
                                         {data.name}
                                     </MenuItem>
                                 ))}
@@ -320,10 +385,10 @@ export default function TaskModal(props) {
                                 id="demo-simple-select"
                                 value={task.depends_on ? task.depends_on[0] : ""}
                                 label="Next"
-                                onChange={(e) => setTask({...task, next:task.next.concat(e.target.value)})}
+                                onChange={(e) => setTask({...task, next:task.next.concat({'after': e.target.value})})}
                             >
                                 {projectTasks && projectTasks.map((data, index) => (
-                                    <MenuItem value={data.id} key={index} onClick={() => addDependsOn(data.id, task.id)}>
+                                    <MenuItem value={data.name} key={index} onClick={() => addDependsOn(data.id, task.id)}>
                                         {data.name}
                                     </MenuItem>
                                 ))}
@@ -336,7 +401,6 @@ export default function TaskModal(props) {
                                             <ListItemText primary={data.after} />
                                             </ListItemButton>
                                             <Button onClick={()=>{deleteDependsOn(task.id); setTask({...task, next:task.next.filter(item=> item.after!=data.after)})}}>X</Button>
-                                        
                                         </ListItem>
                                     ))}
                                 </List>
@@ -348,6 +412,7 @@ export default function TaskModal(props) {
                 </DialogContent>
             <DialogActions>
                 <Button onClick={props.handleClose}>Back</Button>
+                <Button variant="outlined" color="error" onClick={deleteTask}> Delete</Button>
                 <Button variant="outlined" color="success" onClick={task.id ? updateTask : createTask}>Save</Button>
             </DialogActions>
         </Dialog>

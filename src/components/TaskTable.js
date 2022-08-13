@@ -10,6 +10,7 @@ import TaskModal from "./TaskModal";
             heads: [],
             rows: [[]]
         }
+        handleModalClose: reload after closing modal
 */
 
 
@@ -52,6 +53,8 @@ export default function TaskTable(props) {
     const closeModal = () => {
         setOpenModal(false);
         setModalData(null);
+        props.handleModalClose();
+        console.log("Closing modal")
     }
 
     return (
@@ -72,16 +75,19 @@ export default function TaskTable(props) {
 
                     <TableBody>
                         {
-                            data.rows.map((row, index) => (
+                            data.rows.map((row, row_index) => (
                                 <TableRow
                                     component={Card} // TODO: this gives warning :/
                                     key={row[0]} // TODO: or the index which has task id
                                     sx={tableRowStyle}
-                                    onClick={() => openModalWithData(index)}
                                 >
                                     {
                                         data.head.map((headCell, index)=>(
-                                            <TableCell align="left" key={index}>{row[index]}</TableCell>
+                                            <TableCell 
+                                                onClick={() => {if (index != 7) openModalWithData(row_index)}}
+                                                align="left" 
+                                                key={index}>{row[index]}
+                                            </TableCell>
                                         ))
                                     }
                                 </TableRow>

@@ -15,14 +15,24 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 // import {DropzoneArea} from 'material-ui-dropzone' // HAS PROBLEMS
 // import FileUpload from "react-mui-fileuploader"
 import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
+import Button from '@mui/material/Button';
+import Grid from "@mui/material/Grid";
 
 import { getStorageToken } from "../context/Auth";
+import pseudoData from "./constant";
+import Comment from "./Comment";
+
+
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 
 /* 
     define props=> 
         isOpen: will open the modal
         handleClose: what to do when closing the modal
         data: data to display 
+        handleStepChange: what to do when changing step
 */
 
 
@@ -81,8 +91,9 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   
 
 export default function SubmissionModal(props) {
-    const [data, setData] = useState({});
-    const [expanded, setExpanded] = React.useState('panel1');
+    const new_data = pseudoData[0];
+    const [data, setData] = useState(new_data);
+    const [expanded, setExpanded] = React.useState(null);
     const [files, setFiles] = React.useState([]);
     const [imageSrc, setImageSrc] = useState(undefined);
 
@@ -90,6 +101,19 @@ export default function SubmissionModal(props) {
         (panel) => (event, newExpanded) => {
         setExpanded(newExpanded ? panel : false);
     };
+
+    const updateComments = (reviewer_id, value) => {
+        new_data.forEach(item => {
+            if(item.reviewer_id == reviewer_id) {
+                item.comments.push({
+                    commenter: "Tahmeed",
+                    comment: value
+                })
+            }
+        })
+        console.log(new_data, value)
+        setData(new_data);
+    }
 
     // useEffect(() => {
     //     if(props.data.id)
@@ -131,20 +155,22 @@ export default function SubmissionModal(props) {
         setFiles([])
     };
 
-    const dropzoneUI = () => {
+    const dropzoneUI = (step) => {
+        
         return (
             <Dropzone
-                style={{ minWidth: "inherit" }}
+                style={{ maxWidth: "inherit" }}
                 //view={"list"}
                 onChange={updateFiles}
                 // minHeight="195px"
                 onClean={handleClean}
+                onUploadFinish={()=>{props.handleStepChange(step+1); handleClean(" ")}}
                 value={files}
                 maxFiles={5}
                 //header={false}
                 // footer={false}
                 maxFileSize={2998000}
-                //label="Drag'n drop files here or click to browse"
+                label="Click or drag files here to upload"
                 //label="Suleta tus archivos aquí"
                 accept=".pdf"
                 // uploadingMessage={"Uploading..."}
@@ -169,16 +195,46 @@ export default function SubmissionModal(props) {
                     hd
                     />
                 ))}
-                <FullScreenPreview
+                {/* <FullScreenPreview
+                    style={{ maxWidth: "inherit" }}
                     imgSource={imageSrc}
                     openImage={imageSrc}
                     onClose={(e) => handleSee(undefined)}
-                />
+                /> */}
             </Dropzone>
             )
     }
     
-  
+    const commentBox = () => {
+        // console.log(data)
+        return (
+            <React.Fragment>
+            { data.map((item, index) => (
+                <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)}>
+                    <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+                        <Typography>{item.reviewer_name}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Comment data={item.comments} updateComments={updateComments}/>
+                    </AccordionDetails>
+                </Accordion>
+            ))}
+            <Grid container justifyContent="flex-end">
+                <Grid item>
+                    <Button 
+                        variant="outlined" 
+                        size="small" 
+                        // startIcon={<AddIcon />}
+                        style={{borderColor: "black", color: "black"}}
+                        onClick={()=>{props.handleStepChange(3);}}
+                        // color="black"
+                    >Next</Button>
+                </Grid> 
+            </Grid>
+            </React.Fragment>
+        )
+    }
+
     return (
         <Modal
           open={props.isOpen}
@@ -195,54 +251,39 @@ export default function SubmissionModal(props) {
 
                 <div>
                     {
-                        (props.activeStep == 0 || props.activeStep == 1) && dropzoneUI()
+                        (props.activeStep == 0 || props.activeStep == 1 || props.activeStep == 3) && dropzoneUI(props.activeStep)
                     }
 
                     {
                         props.activeStep == 2 &&
                         <div>
-                        <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-                            <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-                            <Typography>Collapsible Group Item #1</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                            <Typography>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                                sit amet blandit leo lobortis eget.
-                            </Typography>
-                            </AccordionDetails>
-                        </Accordion>
-                        <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
-                            <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
-                            <Typography>Collapsible Group Item #2</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                            <Typography>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                                sit amet blandit leo lobortis eget.
-                            </Typography>
-                            </AccordionDetails>
-                        </Accordion>
-                        <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-                            <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
-                            <Typography>Collapsible Group Item #3</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                            <Typography>
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                                malesuada lacus ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor
-                                sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                                sit amet blandit leo lobortis eget.
-                            </Typography>
-                            </AccordionDetails>
-                        </Accordion>
+                            { commentBox() }
                         </div>
                     }
-                    
+
+                    {
+                        props.activeStep == 4 &&
+                        <div>
+                           <Grid
+                                container
+                                direction="column"
+                                justifyContent="center"
+                                alignItems="center"
+                            >
+                                <Grid item>
+                                    {/* <CheckCircleOutlineIcon large sx={{color:'green', fontSize: 100 }}/> */}
+                                    <PendingOutlinedIcon large sx={{color:'grey', fontSize: 100 }}/>
+                                </Grid>
+                                <Grid item>
+                                    <Typography variant="h5" component="div">
+                                        {/* Congratulations! Your submission has been accepted. */}
+                                        Your submission is being processed.
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                            
+                        </div>
+                    }
                 </div>
             </Box>
         </Modal>

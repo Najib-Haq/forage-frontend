@@ -68,7 +68,7 @@ function App() {
         <Toolbar/>
         <Routes>
             {pages.map((page, index) => {
-                return (<Route path={routing[index]} element={page} />)
+                return (<Route path={routing[index]} element={page} key={index} />)
             })}
             <Route path="*" element={<Error />} />
         </Routes>

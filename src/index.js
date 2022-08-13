@@ -7,6 +7,8 @@ import { ProjIDProvider } from './context/ProjectID';
 import './styles/index.css';
 import App from './App';
 import Login from './pages/Login';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 
 const Index = () => {
@@ -16,7 +18,9 @@ const Index = () => {
                 <AuthProvider
                     opt1= {
                         <ProjIDProvider>
+                        <LocalizationProvider dateAdapter={AdapterMoment}>
                             <App />
+                        </LocalizationProvider>
                         </ProjIDProvider>
                     }
                     opt2= {<Login />}

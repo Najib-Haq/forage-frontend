@@ -89,7 +89,9 @@ export default function MyTasks() {
     }
 
     const getTasks = () => {
-        fetch(URL + 'api/tasks/', //TODO: filter using user id
+        let url = 'api/tasks/'
+        if (search) url = `api/tasks/?search=${search}`
+        fetch(URL + url, //TODO: filter using user id
         {
             method: 'GET',
             credentials: "same-origin",
@@ -166,7 +168,7 @@ export default function MyTasks() {
 
     useEffect(() => {
         getTasks();
-    }, [])
+    }, [search])
 
     return (
         <React.Fragment>

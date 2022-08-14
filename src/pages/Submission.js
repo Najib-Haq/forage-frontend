@@ -15,7 +15,7 @@ const steps = [
     'Upload Abstract',
     'Upload Manuscript',
     'Peer Review',
-    'Submit to Editor',
+    // 'Submit to Editor',
     'Approval Decision'
   ];
 

@@ -264,7 +264,7 @@ export default function SubmissionModal(props) {
                     }
 
                     {
-                        (props.activeStep == 3 || props.activeStep == 4) &&
+                        (props.activeStep == 3) &&
                         <div>
                            <Grid
                                 container

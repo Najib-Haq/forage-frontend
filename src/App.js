@@ -96,13 +96,13 @@ function App() {
         <CssBaseline />
         <AppBar
         position="fixed"
-        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`}}
+        sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px`, backgroundColor: 'white'}}
         >
         <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {/* Title */}
             </Typography>
-            <Search>
+            {/* <Search>
                 <SearchIconWrapper>
                 <SearchIcon />
                 </SearchIconWrapper>
@@ -110,7 +110,7 @@ function App() {
                 placeholder="Search…"
                 inputProps={{ 'aria-label': 'search' }}
                 />
-             </Search>
+             </Search> */}
             <Button sx={{backgroundColor: "#a3a3a3", color: "black"}} onClick={handleLogOut}>Logout</Button>
         </Toolbar>
         </AppBar>

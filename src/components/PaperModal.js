@@ -14,7 +14,8 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { RichTextEditor } from '@mantine/rte';
 
-
+import Grid from '@mui/material/Grid';
+import PaperCard from '../components/PaperCard';
 
 import { getStorageToken } from "../context/Auth";
 
@@ -96,6 +97,7 @@ export default function BasicModal(props) {
     const [noteFull, setNoteFull] = useState({});
     const [notePrivacy, setNotePrivacy] = useState("Private");
     const [checked, setChecked] = useState(false);
+    const [cardData, setCardData] = useState([])
 
 
     //TODO : delete default values of the following after adding api calls
@@ -111,6 +113,30 @@ export default function BasicModal(props) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
+
+    const getReco = () => {
+        fetch(URL + 'api/papers/unsorted',
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    console.log(resp)
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    setCardData(resp)
+                })
+                .catch(error=>{
+                    console.log(error);
+                })
+    }
 
     useEffect(() => {
         if(props.data)
@@ -195,6 +221,9 @@ export default function BasicModal(props) {
                 .catch(error=>{
                     console.log(error);
                 });
+
+
+                getReco();
             
         }
             
@@ -448,7 +477,24 @@ export default function BasicModal(props) {
                     }
                     
                     </Typography>
-                </TabPanel>    
+                </TabPanel> 
+                <TabPanel value={value} index={2}>
+                    { cardData.length > 0 &&  <Grid container spacing={2}>
+                        {
+                            cardData.map((item, index) => {
+                                return (<Grid item key={index}>
+                                            <PaperCard 
+                                                key={index} 
+                                                data={item}
+                                                onClick={()=>{}}
+                                            />
+                                        </Grid>
+                                )
+                            })
+                        }
+                    </Grid>
+                    }
+                </TabPanel>   
             </Box>
         </Modal>
     );

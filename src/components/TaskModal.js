@@ -344,7 +344,7 @@ export default function TaskModal(props) {
                 <FormControl fullWidth sx={{ mb: 3 }}>
                     <DateTimePicker
                         label="Due Date"
-                        value={dueDate}
+                        value={dueDate}getPap
                         onChange={setDueDate}
                         renderInput={(params) => <TextField {...params} />}
                     />
@@ -362,8 +362,8 @@ export default function TaskModal(props) {
                             // onChange={(e) => setTask({...task, project_paper[paper]:task.depends_on.concat({"before": e.target.value})})}
                         >
                             {projectPapers && projectPapers.map((data, index) => (
-                                <MenuItem value={data.paper} key={index} onClick={() => {setTask({...task, project_paper: {id: data.id, paper: data.paper}})}}>
-                                    {data.paper.substring(0, 60) + "..."}
+                                <MenuItem value={data.paper.name} key={index} onClick={() => {setTask({...task, project_paper: {id: data.id, paper: data.paper.name}})}}>
+                                    {data.paper.name.substring(0, 60) + "..."}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -412,10 +412,10 @@ export default function TaskModal(props) {
                                 id="demo-simple-select"
                                 value=""
                                 label="Depends on"
-                                onChange={(e) => setTask({...task, depends_on:task.depends_on.concat({"before": e.target.value})})}
+                                onChange={(e) => setTask({...task, depends_on:task.depends_on.concat({"id": e.target.value.id, "name":e.target.value.name})})}
                             >
                                 {projectTasks && projectTasks.map((data, index) => (
-                                    <MenuItem value={data.name} key={index} onClick={() => addDependsOn(task.id, data.id)}>
+                                    <MenuItem value={data} key={index} onClick={() => addDependsOn(task.id, data.id)}>
                                         {data.name}
                                     </MenuItem>
                                 ))} 
@@ -426,9 +426,9 @@ export default function TaskModal(props) {
                                     {task.id && task.depends_on.map((data, index) => (
                                         <ListItem disablePadding>
                                             <ListItemButton>
-                                            <ListItemText primary={data.before} />
+                                            <ListItemText primary={data.name} />
                                             </ListItemButton>
-                                            <Button onClick={()=>{deleteDependsOn(task.id); setTask({...task, depends_on:task.depends_on.filter(item=> item.before!=data.before)})}}>X</Button>
+                                            <Button onClick={()=>{deleteDependsOn(task.id); setTask({...task, depends_on:task.depends_on.filter(item=> item.id!=data.id)})}}>X</Button>
                                         </ListItem>
                                     ))}
                                 </List>
@@ -443,10 +443,10 @@ export default function TaskModal(props) {
                                 id="demo-simple-select"
                                 value={task.depends_on ? task.depends_on[0] : ""}
                                 label="Next"
-                                onChange={(e) => setTask({...task, next:task.next.concat({'after': e.target.value})})}
+                                onChange={(e) => setTask({...task, next:task.next.concat({"id": e.target.value.id, "name":e.target.value.name})})}
                             >
                                 {projectTasks && projectTasks.map((data, index) => (
-                                    <MenuItem value={data.name} key={index} onClick={() => addDependsOn(data.id, task.id)}>
+                                    <MenuItem value={data} key={index} onClick={() => addDependsOn(data.id, task.id)}>
                                         {data.name}
                                     </MenuItem>
                                 ))}
@@ -456,9 +456,9 @@ export default function TaskModal(props) {
                                     {task && task.next.map((data, index) => (
                                         <ListItem disablePadding>
                                             <ListItemButton>
-                                            <ListItemText primary={data.after} />
+                                            <ListItemText primary={data.name} />
                                             </ListItemButton>
-                                            <Button onClick={()=>{deleteDependsOn(task.id); setTask({...task, next:task.next.filter(item=> item.after!=data.after)})}}>X</Button>
+                                            <Button onClick={()=>{deleteDependsOn(task.id); setTask({...task, next:task.next.filter(item=> item.id!=data.id)})}}>X</Button>
                                         </ListItem>
                                     ))}
                                 </List>

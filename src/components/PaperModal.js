@@ -76,6 +76,12 @@ function a11yProps(index) {
 }
 
 
+const formatDate = (date) => {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const text = date.toLocaleDateString("en-US", options)
+    
+    return text
+}
 
 export default function BasicModal(props) {
 
@@ -111,6 +117,7 @@ export default function BasicModal(props) {
         {
             console.log("paper id",props.data.paper_id);
             console.log("project paper id",props.data.pp_id);
+            
             fetch(URL + `api/papers/${props.data.paper_id}`,
                 {
                     method: 'GET',
@@ -164,7 +171,9 @@ export default function BasicModal(props) {
                     console.log(error);
                 });
 
-                fetch(URL + `api/notes/?project_paper__paper=${props.data.pp_id}`,
+                
+
+                fetch(URL + `api/notes/?project_paper__paper=${props.data.paper_id}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -396,12 +405,12 @@ export default function BasicModal(props) {
                                         }}
                                     >
                                         {item.text.length<=50 && 
-                                            <h2><b>"{item.text}"</b></h2>
+                                            <h2><div className="content" dangerouslySetInnerHTML={{__html: item.text}}></div></h2>
                                         }
                                         {item.text.length>50 && 
-                                            <h2><b>"{item.text.substring(0,50)}..."</b></h2>
+                                            <h2><div className="content" dangerouslySetInnerHTML={{__html: item.text.substring(0,50)}}></div></h2>
                                         }
-                                        <p><i>{item.text}</i></p>
+                                        <p><div className="content" dangerouslySetInnerHTML={{__html: item.text}}></div></p>
                                         {/* for see more see less feature, check how to update state by changing array element, then add below code */}
                                         {/* {!noteFull[index] && 
                                             <div><p><i>{item.text.substring(0,item.text.length/3)}...</i><Button onClick={() => {
@@ -429,7 +438,7 @@ export default function BasicModal(props) {
                                             </p>
                                         </div>} */}
                                     <Divider light />
-                                    <p><b>Last Updated: </b>{item.last_modified}</p>
+                                    <p><b>Last Updated: </b>{formatDate(new Date(item.last_modified))}</p>
                                     </Box>
 
                                 )

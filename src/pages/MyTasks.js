@@ -76,7 +76,7 @@ export default function MyTasks() {
             data.push([
                 item.id, 
                 item.name,
-                (item.project_paper === null) ? "" :item.project_paper.paper.substring(0, 20) + '...', 
+                (item.project_paper === null) ? "" :item.project_paper.paper.name.substring(0, 20) + '...', 
                 getStatusLabel(item.status), // 
                 item.project.name, 
                 getDateLabel(item.start_date, false), 

@@ -98,7 +98,7 @@ export default function Uncategorized() {
                     </Grid>
                 </Box>
             }
-            <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>
+            {openModal && <PaperModal data={modalData} isOpen={true} handleClose={handleModalClose} unsorted={true}/>}
         </React.Fragment>
     )
 }

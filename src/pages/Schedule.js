@@ -60,7 +60,7 @@ export default function Schedule() {
             
             // depends_on
             {
-                task.depends_on.map((item) => {newTask.dependencies.push(taskMap[item.before])})
+                task.depends_on.map((item) => {newTask.dependencies.push(taskMap[item.name])})
             }
 
             // TODO do next

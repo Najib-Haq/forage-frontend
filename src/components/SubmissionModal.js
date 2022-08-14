@@ -103,8 +103,10 @@ export default function SubmissionModal(props) {
     };
 
     const updateComments = (reviewer_id, value) => {
+        console.log(reviewer_id, value)
         new_data.forEach(item => {
             if(item.reviewer_id == reviewer_id) {
+                // console.log("milse to")
                 item.comments.push({
                     commenter: "Tahmeed",
                     comment: value
@@ -215,7 +217,7 @@ export default function SubmissionModal(props) {
                         <Typography>{item.reviewer_name}</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Comment data={item.comments} updateComments={updateComments}/>
+                        <Comment data={item.comments} updateComments={updateComments} reviewer={item.reviewer_id}/>
                     </AccordionDetails>
                 </Accordion>
             ))}
@@ -251,7 +253,7 @@ export default function SubmissionModal(props) {
 
                 <div>
                     {
-                        (props.activeStep == 0 || props.activeStep == 1 || props.activeStep == 3) && dropzoneUI(props.activeStep)
+                        (props.activeStep == 0 || props.activeStep == 1) && dropzoneUI(props.activeStep)
                     }
 
                     {
@@ -262,7 +264,7 @@ export default function SubmissionModal(props) {
                     }
 
                     {
-                        props.activeStep == 4 &&
+                        props.activeStep == 3 || props.activeStep == 4 &&
                         <div>
                            <Grid
                                 container

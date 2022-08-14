@@ -30,7 +30,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function Submission() {
     const newData = pseudoData[1][0];
     const [openModal, setOpenModal] = useState(false);
-    const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState(1);
     // const activeStep = 1;
 
     const handleModalClose = () => {

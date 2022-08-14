@@ -45,11 +45,13 @@ export default function TaskModal(props) {
             id: null,
             name: ""
         },
+        collaborators: [],
         depends_on: [],
         next: []
     });
     const [projectTasks, setProjectTasks] = useState(null);
     const [projectPapers, setProjectPapers] = useState(null);
+    const [projectColabs, setProjectColabs] = useState(null);
     
     const [list, setList] = useState("");
     const [name, setName] = useState("");
@@ -178,6 +180,27 @@ export default function TaskModal(props) {
         })
     }
 
+    const getColabs = (project_id) => {
+        fetch(URL + `api/projects/${project_id}/collaborators`, {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            setProjectColabs(resp.results.map((item) => item.collaborator));
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
     const loadData = async () => {
         // Get the task
         await fetch(URL + `api/tasks/${props.data[0]}`, {
@@ -195,6 +218,7 @@ export default function TaskModal(props) {
         .then(resp=>{
             // setProjectList(resp.results)
             // console.log(resp);
+            resp.collaborators = [];
             setTask(resp);
             setName(resp.name);
             setList(resp.status);
@@ -224,6 +248,9 @@ export default function TaskModal(props) {
 
             // get papers list
             getPapers(resp.project.id);
+
+            // get colab list
+            getColabs(resp.project.id);
         })
         .catch(error=>{
             console.log(error);
@@ -262,6 +289,7 @@ export default function TaskModal(props) {
         if(props.projectTask) {
             getTasks(getStorageProjID());
             getPapers(getStorageProjID());
+            getColabs(getStorageProjID());
         }
     }, []);
 
@@ -341,6 +369,36 @@ export default function TaskModal(props) {
                         </Select>
                     </FormControl>
                 }
+                
+                <FormControl fullWidth sx={{ pb: 3 }}>
+                    <InputLabel id="depends-on">Collaborators</InputLabel>
+                    <Select
+                        labelId="depends-on"
+                        id="demo-simple-select"
+                        value=""
+                        label="Collaborators"
+                        onChange={(e) => setTask({...task, collaborators:task.collaborators.concat(e.target.value)})}
+                    >
+                        {projectColabs && projectColabs.map((data, index) => (
+                            <MenuItem value={data.username} key={index}>
+                                {data.username}
+                            </MenuItem>
+                        ))} 
+                    </Select>
+
+                    <nav aria-label="secondary mailbox folders">
+                        <List>
+                            {task.collaborators.map((data, index) => (
+                                <ListItem disablePadding>
+                                    <ListItemButton>
+                                    <ListItemText primary={data} />
+                                    </ListItemButton>
+                                    <Button onClick={()=>{setTask({...task, collaborators:task.collaborators.filter(item=> item!=data)})}}>X</Button>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </nav>
+                </FormControl>
 
 
                 <hr />
@@ -360,7 +418,7 @@ export default function TaskModal(props) {
                                     <MenuItem value={data.name} key={index} onClick={() => addDependsOn(task.id, data.id)}>
                                         {data.name}
                                     </MenuItem>
-                                ))}
+                                ))} 
                             </Select>
 
                             <nav aria-label="secondary mailbox folders">

@@ -69,7 +69,7 @@ export default function Home() {
             {/* <h1>Home Page</h1> */}
 
 
-            <Grid container justifyContent="flex-end">
+            <Grid container justifyContent="flex-end" sx={{pb:5}}>
                 <Grid item>
                     <SearchBar
                         data={search}

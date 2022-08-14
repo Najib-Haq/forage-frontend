@@ -1,9 +1,10 @@
-import { fabClasses, Typography } from "@mui/material";
+import { fabClasses, Typography, Grid } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 
 import TaskTable from "../components/TaskTable";
+import SearchBar from "../components/SearchBar"
 import { getStorageToken } from "../context/Auth";
 import '../styles/Table.css'
 
@@ -66,6 +67,7 @@ function getStatusLabel(status) {
 
 export default function MyTasks() {
     const [data, setData] = useState({head: [], rows: [[]]});
+    const [search, setSearch] = useState(null);
 
     const getTableData = (apidata) => {
         let data = []
@@ -168,6 +170,14 @@ export default function MyTasks() {
 
     return (
         <React.Fragment>
+            <Grid container justifyContent="flex-end" sx={{pb:5}}>
+                <Grid item>
+                    <SearchBar
+                        data={search}
+                        handleSearch={(data) => {setSearch(data); console.log(data)}}
+                    />
+                </Grid>
+            </Grid>
             <TaskTable data={data} handleModalClose={getTasks}/>
         </React.Fragment>
     );

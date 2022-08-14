@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid'
 import Typography from "@mui/material/Typography"
 import Button, { ButtonProps } from '@mui/material/Button';
-// import SearchBar from "../components/SearchBar"
+import SearchBar from "../components/SearchBar"
 import AddIcon from '@mui/icons-material/Add';
 import { grey } from '@mui/material/colors';
 import TaskModal from "../components/TaskModal";
@@ -185,13 +185,13 @@ export default function Tasks() {
         <React.Fragment>
             {/* <h1>Tasks Page</h1> */}
 
-            <Grid container justifyContent="flex-end">
-                {/* <Grid item>
+            <Grid container justifyContent="flex-end" sx={{pb:5}}>
+                <Grid item>
                     <SearchBar
                         data={search}
                         handleSearch={(data) => {setSearch(data); console.log(data)}}
                     />
-                </Grid> */}
+                </Grid>
 
                 <Grid item>
                     <Button 

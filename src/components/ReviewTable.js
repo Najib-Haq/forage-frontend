@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableContainer, 
          TableHead, TableRow, Paper, Typography, Card } from '@mui/material';
-import TaskModal from "./TaskModal";
+import ReviewModal from "./ReviewModal";
 
 
 /*
@@ -34,7 +34,7 @@ const tableRowStyle = {
     // '&:last-child td, &:last-child th': { border: 0 }
 }
 
-export default function TaskTable(props) {
+export default function ReviewTable(props) {
     const [data, setData] = useState(props.data);
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState(null);
@@ -78,7 +78,7 @@ export default function TaskTable(props) {
                             data.rows.map((row, row_index) => (
                                 <TableRow
                                     component={Card} // TODO: this gives warning :/
-                                    key={row[0]} // TODO: or the index which has task id
+                                    key={row[0]} // TODO: or the index which has review id
                                     sx={tableRowStyle}
                                 >
                                     {
@@ -98,7 +98,7 @@ export default function TaskTable(props) {
                 // </TableContainer>
             }  
 
-            <TaskModal data={modalData} isOpen={openModal} handleClose={closeModal} />
+            <ReviewModal data={modalData} isOpen={openModal} handleClose={closeModal} />
         </React.Fragment>
     );
 }

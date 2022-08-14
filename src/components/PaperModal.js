@@ -22,7 +22,7 @@ import { getStorageToken } from "../context/Auth";
     define props=> 
         isOpen: will open the modal
         handleClose: what to do when closing the modal
-        data: data to display 
+        data: data to display   
 */
 
 const URL = process.env.REACT_APP_API_URL;

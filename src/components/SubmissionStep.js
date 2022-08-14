@@ -5,19 +5,20 @@ import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 
-const steps = [
-    'Select master blaster campaign settings',
-    'Create an ad group',
-    'Create an ad',
-  ];
+/*
+    define props=>
+        activeStep : index number of latest active step
+        steps: array of steps to display
+*/
 
 
-export default function SubmissionStep() {
+export default function SubmissionStep(props) {
+
     return (
-        <Box sx={{ width: '100%' }}>
-            <Stepper activeStep={1} alternativeLabel>
-                {steps.map((label) => (
-                <Step key={label}>
+        <Box sx={{ width: '100%', marginBottom: '25px' }}>
+            <Stepper activeStep={props.activeStep} alternativeLabel>
+                {props.steps.map((label) => (
+                <Step key={label} onClick={()=>{console.log(label)}}>
                     <StepLabel>{label}</StepLabel>
                 </Step>
                 ))}

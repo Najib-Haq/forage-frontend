@@ -41,16 +41,13 @@ const cardStyle = {
 export default function Papers() {
 
     const { projID } = useProjID();
-    const [lanes, setLanes] = useState(2);
-    const [data, setData] = useState({lanes: []}); //[{id: 'loading', title: 'loading..', cards: []}]});
+    const [data, setData] = useState({lanes: [{id: 'loading', title: 'loading..', cards: []}]});
     const [openModal, setOpenModal] = useState(false);
-    const [modalData, setModalData] = useState({});
+    const [modalData, setModalData] = useState(null);
     
-
-    /////////////////////////////////// FETCH LANES
-    function fetchLanes() {
-        // setData({lanes: []});
-        fetch(URL + `api/projects/${projID}/lists/`,
+    /////////////////////////////////// FETCH CARDS
+    const fetchCards = (laneData) => {
+        fetch(URL + `api/projects/${projID}/papers`,
             {
                 method: 'GET',
                 credentials: "same-origin",
@@ -64,10 +61,48 @@ export default function Papers() {
                 return resp.json();
             })
             .then(resp=>{
-                const filteredData = resp.results.filter((item)=>{ return !item.is_archived })
-                // console.log("filtered : ", filteredData.length)
-                setLanes(filteredData.length);
-                filteredData.map((item, index)=>fetchCards(item, index))
+                resp.results.forEach((item, index) => {
+                    laneData.forEach(lane => {
+                        if(lane.id == item.list_id) {
+                            lane.cards.push({
+                                // most probably id is project paper id and paper_id is paper id
+                                id: item.id, title: item.paper, description: item.paper, label: 'Done', draggable: false, metadata: {paper_id: item.paper_id, title: item.paper}
+                            })
+                        }
+                    })
+                })
+                setData({lanes: laneData});
+                console.log(data);
+            })
+            .catch(error=>{
+                console.log(error);
+            })
+    }
+
+    /////////////////////////////////// FETCH LANES
+    const fetchLanes = async () => {
+        // setData({lanes: []});
+        await fetch(URL + `api/projects/${projID}/lists/`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                const filteredLanes = resp.results.filter((item)=>{ return !item.is_archived })
+                console.log("filtered : ", filteredLanes)
+                let laneData = [];
+                filteredLanes.forEach((item, index) => {
+                    laneData.push({id: item.id, title:item.name, cards: []})
+                })
+                fetchCards(laneData)
             })
             .catch(error=>{
                 console.log(error);
@@ -78,52 +113,6 @@ export default function Papers() {
         if(projID != null) fetchLanes()
     }, [projID])
     
-    /////////////////////////////////// FETCH CARDS
-    function fetchCards(lane, idx) {
-        console.log(lane.name);
-        fetch(URL + `api/projects/${projID}/lists/${lane.id}/papers`,
-            {
-                method: 'GET',
-                credentials: "same-origin",
-                headers: {
-                        'Authorization': `Token ${getStorageToken()}`,
-                        'Content-Type':'application/json'
-                }
-            })
-            .then(resp=>{
-                if (resp.status >= 400) throw new Error();
-                return resp.json();
-            })
-            .then(resp=>{
-                
-                let newLaneData = {
-                    id: lane.id.toString(),
-                    title: lane.name.toString(),
-                    cards: [],
-                }
-                
-                resp.map((item)=>{
-                    newLaneData.cards.push({
-                        id: item.id.toString(), // they expect string in id 
-                        title: item.name.toString(),
-                        description: '', //item.authors,
-                        // label: item.doi,
-                        // draggable: true,
-                        metadata: {
-                            title: item.name.toString(),
-                        }
-                    })
-                })
-
-                setData({lanes: [...data.lanes, newLaneData]})
-                console.log(data)
-                console.log("Compare : ", data.lanes.length, lanes)
-            })
-            .catch(error=>{
-                console.log(error);
-            })
-    }
-
     const handleModalClose = () => {
         setOpenModal(false);
     }
@@ -144,9 +133,12 @@ export default function Papers() {
     }
 
     const handleCardClick = (cardId, metadata, laneId) => {
+
+        console.log(cardId, metadata)
         setModalData({
-            id: cardId,
-            name: metadata.title,
+            pp_id: cardId,
+            paper_id: metadata.paper_id,
+            title: metadata.title
         })
         setOpenModal(true);
         console.log(`Card: ${cardId} clicked in lane: ${laneId}`)
@@ -157,7 +149,7 @@ export default function Papers() {
     return (
         <React.Fragment>
             {
-                data.lanes.length >= lanes &&
+                data.lanes.length > 0 &&
                 <Board 
                     components={components}
                     data={data} 
@@ -182,7 +174,7 @@ export default function Papers() {
             }
             
 
-            <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>
+            { openModal && <PaperModal data={modalData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>
     )
 }

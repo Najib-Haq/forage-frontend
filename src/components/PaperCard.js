@@ -18,11 +18,11 @@ export default function PaperCard(props) {
     return (
     <Card sx={{ maxWidth: 345 }}>
         {/* <CardHeader
-            // action={
-            // <IconButton aria-label="settings" onClick={handleAdd}>
-            //     <ControlPointIcon />
-            // </IconButton>
-            // }
+            action={
+            <IconButton aria-label="settings" onClick={handleAdd}>
+                <ControlPointIcon />
+            </IconButton>
+            }
         /> */}
         <CardActionArea onClick={props.onClick}>
             {/* <CardMedia

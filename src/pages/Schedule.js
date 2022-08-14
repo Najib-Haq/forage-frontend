@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { getStorageToken } from "../context/Auth";
-import { getStorageProjID } from "../context/ProjectID";
+import { getStorageProjID, useProjID } from "../context/ProjectID";
 
 const URL = process.env.REACT_APP_API_URL;
 
@@ -33,6 +33,7 @@ let tasks = [
 
 
 export default function Schedule() {
+    const { projID } = useProjID();
     const [tasks, setTasks] = useState([]);
 
     const setTaskData = (data) => {
@@ -96,8 +97,8 @@ export default function Schedule() {
     }
 
     useEffect(() => {
-        getTasks();
-    }, [])
+        if(projID != null) getTasks();
+    }, [projID])
 
     return (
         <React.Fragment>

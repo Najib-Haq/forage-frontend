@@ -3,6 +3,7 @@ import { getStorageToken } from "../context/Auth";
 import { useProjID } from "../context/ProjectID";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import SearchBar from "../components/SearchBar"
 import PaperCard from '../components/PaperCard';
 import PaperModal from '../components/PaperModal';
 
@@ -25,6 +26,7 @@ export default function Uncategorized() {
     const [cardData, setData] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState({});
+    const [search, setSearch] = useState(null);
 
     // to update project list
     useEffect(() => {
@@ -72,6 +74,14 @@ export default function Uncategorized() {
             {
                 cardData.length > 0 && 
                 <Box sx={{ flexGrow: 1 }}>
+                    <Grid container justifyContent="flex-end" sx={{pb:5}}>
+                        <Grid item>
+                            <SearchBar
+                                data={search}
+                                handleSearch={(data) => {setSearch(data); console.log(data)}}
+                            />
+                        </Grid>
+                    </Grid>
                     <Grid container spacing={2}>
                         {
                             cardData.map((item, index) => {

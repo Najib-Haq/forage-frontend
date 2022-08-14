@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid'
 import Typography from "@mui/material/Typography"
 import Button, { ButtonProps } from '@mui/material/Button';
-// import SearchBar from "../components/SearchBar"
+import SearchBar from "../components/SearchBar"
 import AddIcon from '@mui/icons-material/Add';
 import { grey } from '@mui/material/colors';
 import TaskModal from "../components/TaskModal";
@@ -11,7 +11,7 @@ import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import TaskTable from "../components/TaskTable";
 import { getStorageToken } from "../context/Auth";
-import { getStorageProjID } from "../context/ProjectID";
+import { getStorageProjID, useProjID} from "../context/ProjectID";
 import '../styles/Table.css'
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -71,6 +71,7 @@ function getStatusLabel(status) {
 
 
 export default function Tasks() {
+    const { projID } = useProjID();
     const [search, setSearch] = useState("");
     const [data, setData] = useState({head: [], rows: [[]]});
     const [openModal, setOpenModal] = useState(false);
@@ -177,20 +178,20 @@ export default function Tasks() {
     }
 
     useEffect(() => {
-        getTasks();
-    }, [])
+        if(projID != null) getTasks();
+    }, [projID]);
 
     return (
         <React.Fragment>
             {/* <h1>Tasks Page</h1> */}
 
-            <Grid container justifyContent="flex-end">
-                {/* <Grid item>
+            <Grid container justifyContent="flex-end" sx={{pb:5}}>
+                <Grid item>
                     <SearchBar
                         data={search}
                         handleSearch={(data) => {setSearch(data); console.log(data)}}
                     />
-                </Grid> */}
+                </Grid>
 
                 <Grid item>
                     <Button 

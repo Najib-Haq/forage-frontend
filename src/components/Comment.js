@@ -69,7 +69,7 @@ export default function Comment(props) {
                         size="large" 
                         // startIcon={<AddIcon />}
                         style={{borderColor: "black", color: "black"}}
-                        onClick={()=>{props.updateComments(props.data.reviewer_id, data)}}
+                        onClick={()=>{props.updateComments(props.reviewer, data); setData("")}}
                         // color="black"
                     >Send Message</Button>
                 </Grid> 

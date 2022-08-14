@@ -174,7 +174,7 @@ export default function Papers() {
             }
             
 
-            <PaperModal data={modalData} isOpen={openModal} handleClose={handleModalClose}/>
+            { openModal && <PaperModal data={modalData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>
     )
 }

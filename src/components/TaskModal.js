@@ -357,7 +357,7 @@ export default function TaskModal(props) {
                         <Select
                             labelId="paper"
                             id="demo-simple-select"
-                            value={task.project_paper ? task.project_paper.paper : ""}
+                            value={task.project_paper ? task.project_paper.paper.name : ""}
                             label="Link Paper"
                             // onChange={(e) => setTask({...task, project_paper[paper]:task.depends_on.concat({"before": e.target.value})})}
                         >

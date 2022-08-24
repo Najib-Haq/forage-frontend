@@ -53,7 +53,7 @@ export default function Schedule() {
                 start: new Date(task.start_date),
                 end: new Date(task.due_date),
                 dependencies: [],
-                progress: 45,
+                progress: 100,
                 isDisabled: true,
                 styles: { progressColor: '#ffbb54', progressSelectedColor: '#ff9e0d' }
             }

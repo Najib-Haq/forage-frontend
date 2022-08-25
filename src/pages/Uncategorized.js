@@ -60,9 +60,11 @@ export default function Uncategorized() {
     }
 
     const handleCardClick = (index) => {
+        console.log("Clicked ", cardData);
         setModalData({
-            id: cardData[index].id,
-            name: cardData[index].name
+            pp_id: cardData[index].id,
+            paper_id: cardData[index].id,
+            title: cardData[index].name,
         })
         // console.log(cardData[index])
         setOpenModal(true);
@@ -82,7 +84,7 @@ export default function Uncategorized() {
                             />
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2}>    
                         {
                             cardData.map((item, index) => {
                                 return (<Grid item key={index}>

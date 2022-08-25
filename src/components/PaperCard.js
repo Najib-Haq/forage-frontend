@@ -16,7 +16,7 @@ export default function PaperCard(props) {
     }
 
     return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{ width: 400, maxWidth: 400, height: 150, maxHeight: 150}}>
         {/* <CardHeader
             action={
             <IconButton aria-label="settings" onClick={handleAdd}>
@@ -33,7 +33,7 @@ export default function PaperCard(props) {
             /> */}
             <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-                {props.data.name}
+                {props.data.name.length > 50 ? props.data.name.substring(0, 50) + "..." : props.data.name}
             </Typography>
             <Typography variant="body2" color="text.secondary">
                 {props.data.authors}

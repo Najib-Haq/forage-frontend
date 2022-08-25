@@ -157,11 +157,12 @@ export default function Papers() {
                     laneStyle={laneStyle}
                     cardStyle={cardStyle}
                     draggable={true}
-                    editable
-                    canAddLanes
-                    collapsibleLanes
+                    // laneDraggable
+                    // editable
+                    canAddLane
+                    // collapsibleLanes
                     // hideCardDeleteIcon
-                    editLaneTitle
+                    // editLaneTitle
                     onDataChange={shouldReceiveNewData}
                     onCardDelete={handleCardDelete}
                     onCardMoveAcrossLanes={(fromLaneId, toLaneId, cardId, index) => alert("moving")}

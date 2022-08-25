@@ -6,9 +6,10 @@ import Button, { ButtonProps } from '@mui/material/Button';
 import SearchBar from "../components/SearchBar"
 import AddIcon from '@mui/icons-material/Add';
 import { grey } from '@mui/material/colors';
-import PaperCard from '../components/PaperCard';
+import ProjectCard from '../components/ProjectCard';
 import ProjectModal from '../components/ProjectModal';
 import Box from '@mui/material/Box';
+import { useNavigate } from "react-router-dom";
 
 import { getStorageToken } from "../context/Auth";
 import { useProjID, setStorageProjID } from "../context/ProjectID";
@@ -27,6 +28,9 @@ export default function Home() {
     const [search, setSearch] = useState("");
     const [cardData, setCardData] = useState([])
     const [openModal, setOpenModal] = useState(false);
+    const navigate = useNavigate();
+
+    const { projID, setProjID } = useProjID();
 
     const handleModalClose = () => {
         setOpenModal(false);
@@ -56,8 +60,23 @@ export default function Home() {
     }
 
     const handleCardClick = (proj_id) => {
-        // setProjID(proj_id);
+        setProjID(proj_id);
         setStorageProjID(proj_id);
+        navigate("/papers");
+    }
+
+    const populateCardData = (projects) => {
+        // handle default project for uncategorized 
+        projects = projects.filter(project => project.name.toLowerCase() != "unsorted");
+        return projects.map((project, index) => {
+            return (<Grid item key={index}>
+                        <ProjectCard 
+                            key={index} 
+                            data={project}
+                            onClick={()=>handleCardClick(project.id)}
+                        />
+                    </Grid>)
+        })
     }
 
     useEffect(() => {
@@ -94,16 +113,7 @@ export default function Home() {
                 <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={2}>
                         {
-                            cardData.map((item, index) => {
-                                return (<Grid item key={index}>
-                                            <PaperCard 
-                                                key={index} 
-                                                data={item}
-                                                onClick={()=>handleCardClick(item.id)}
-                                            />
-                                        </Grid>
-                                )
-                            })
+                            populateCardData(cardData)
                         }
                     </Grid>
                 </Box>

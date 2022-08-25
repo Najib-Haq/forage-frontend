@@ -1,0 +1,12 @@
+.CardItem-left-align {
+    margin-right: auto;
+}
+
+.CardItem-right-align {
+    margin-left: auto;
+}
+
+.CardParent-right-align {
+    display: flex;
+    justify-content: space-between
+}

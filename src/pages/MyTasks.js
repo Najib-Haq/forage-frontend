@@ -1,10 +1,12 @@
-import { fabClasses, Typography } from "@mui/material";
+import { fabClasses, Typography, Grid } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 
 import TaskTable from "../components/TaskTable";
+import SearchBar from "../components/SearchBar"
 import { getStorageToken } from "../context/Auth";
+import { statusColor } from "../components/Helpers";
 import '../styles/Table.css'
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -52,11 +54,7 @@ function getDateLabel(date, due, status) {
 
 
 function getStatusLabel(status) {
-    let color = "rgb(0, 0, 0)";
-    if (status === "Done") {color = "rgb(150, 242, 119)" }
-    else if (status === "Progress") {color = "cyan" }
-    else if (status === "Later") {color = "rgb(254, 137, 111)" }
-    else if (status === "Next") {color = "rgb(163, 160, 249)" }
+    let color = statusColor(status)
 
     return (
         <Typography><span className='labelSpan' style={{backgroundColor: color}}>{status}</span></Typography>
@@ -66,6 +64,7 @@ function getStatusLabel(status) {
 
 export default function MyTasks() {
     const [data, setData] = useState({head: [], rows: [[]]});
+    const [search, setSearch] = useState(null);
 
     const getTableData = (apidata) => {
         let data = []
@@ -74,7 +73,7 @@ export default function MyTasks() {
             data.push([
                 item.id, 
                 item.name,
-                (item.project_paper === null) ? "" :item.project_paper.paper.substring(0, 20) + '...', 
+                (item.project_paper === null) ? "" :item.project_paper.paper.name.substring(0, 20) + '...', 
                 getStatusLabel(item.status), // 
                 item.project.name, 
                 getDateLabel(item.start_date, false), 
@@ -87,7 +86,9 @@ export default function MyTasks() {
     }
 
     const getTasks = () => {
-        fetch(URL + 'api/tasks/', //TODO: filter using user id
+        let url = 'api/tasks/'
+        if (search) url = `api/tasks/?search=${search}`
+        fetch(URL + url, //TODO: filter using user id
         {
             method: 'GET',
             credentials: "same-origin",
@@ -164,10 +165,18 @@ export default function MyTasks() {
 
     useEffect(() => {
         getTasks();
-    }, [])
+    }, [search])
 
     return (
         <React.Fragment>
+            <Grid container justifyContent="flex-end" sx={{pb:5}}>
+                <Grid item>
+                    <SearchBar
+                        data={search}
+                        handleSearch={(data) => {setSearch(data); console.log(data)}}
+                    />
+                </Grid>
+            </Grid>
             <TaskTable data={data} handleModalClose={getTasks}/>
         </React.Fragment>
     );

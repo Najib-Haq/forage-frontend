@@ -63,16 +63,16 @@ export default function Papers() {
             .then(resp=>{
                 resp.results.forEach((item, index) => {
                     laneData.forEach(lane => {
-                        if(lane.id == item.list_id) {
+                        if(lane.id == item.list) {
                             lane.cards.push({
                                 // most probably id is project paper id and paper_id is paper id
-                                id: item.id, title: item.paper, description: item.paper, label: 'Done', draggable: false, metadata: {paper_id: item.paper_id, title: item.paper}
+                                id: item.id, title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: false, metadata: {paper_id: item.paper_id, title: item.paper.name}
                             })
                         }
                     })
                 })
                 setData({lanes: laneData});
-                console.log(data);
+                console.log("HEREEEEEEEEEEEEE ", data);
             })
             .catch(error=>{
                 console.log(error);
@@ -100,7 +100,7 @@ export default function Papers() {
                 console.log("filtered : ", filteredLanes)
                 let laneData = [];
                 filteredLanes.forEach((item, index) => {
-                    laneData.push({id: item.id, title:item.name, cards: []})
+                    laneData.push({id: item.name, title:item.name, cards: []})
                 })
                 fetchCards(laneData)
             })
@@ -157,11 +157,12 @@ export default function Papers() {
                     laneStyle={laneStyle}
                     cardStyle={cardStyle}
                     draggable={true}
-                    editable
-                    canAddLanes
-                    collapsibleLanes
+                    // laneDraggable
+                    // editable
+                    canAddLane
+                    // collapsibleLanes
                     // hideCardDeleteIcon
-                    editLaneTitle
+                    // editLaneTitle
                     onDataChange={shouldReceiveNewData}
                     onCardDelete={handleCardDelete}
                     onCardMoveAcrossLanes={(fromLaneId, toLaneId, cardId, index) => alert("moving")}

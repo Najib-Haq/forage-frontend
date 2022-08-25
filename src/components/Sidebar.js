@@ -181,7 +181,7 @@ export default function PermanentDrawerLeft(props) {
 
         <Divider variant='middle' light={true}/>
 
-        <Search>
+        {/* <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -189,7 +189,7 @@ export default function PermanentDrawerLeft(props) {
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
             />
-        </Search>
+        </Search> */}
 
         <label className='Sidebar-header'> Quick Access </label>
 
@@ -220,7 +220,6 @@ export default function PermanentDrawerLeft(props) {
                 onChange={handleChange}
                 displayEmpty
                 sx= {selectStyle} //{styles.Select}
-                // inputProps={{ 'aria-label': 'Without label' }}
             >
                 {   
                     projects.length > 0 &&  projects.map(item => {

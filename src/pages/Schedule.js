@@ -2,38 +2,44 @@ import React, { useState, useEffect } from "react";
 import { Gantt, Task, EventOption, StylingOption, ViewMode, DisplayOption } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { getStorageToken } from "../context/Auth";
-import { getStorageProjID } from "../context/ProjectID";
+import { getStorageProjID, useProjID } from "../context/ProjectID";
+import { statusColor } from "../components/Helpers";
+import TaskModal from "../components/TaskModal";
 
 const URL = process.env.REACT_APP_API_URL;
 
-let tasks = [
-    {
-      start: new Date(2020, 1, 1),
-      end: new Date(2020, 3, 2),
-      name: 'Idea',
-      id: 1,
-      type:'task',
-      progress: 45,
-      isDisabled: true,
-      styles: { progressColor: '#ffbb54', progressSelectedColor: '#ff9e0d' },
-    },
-    {
-        start: new Date(2020, 2, 1),
-        end: new Date(2020, 5, 2),
-        name: 'Idea',
-        id: 1,
-        type:'task',
-        progress: 45,
-        isDisabled: true,
-        styles: { progressColor: '#ffbb54', progressSelectedColor: '#ff9e0d' },
-        dependencies: [1]
-      },
-];
+// let tasks = [
+//     {
+//       start: new Date(2020, 1, 1),
+//       end: new Date(2020, 3, 2),
+//       name: 'Idea',
+//       id: 1,
+//       type:'task',
+//       progress: 45,
+//       isDisabled: true,
+//       styles: { progressColor: '#ffbb54', progressSelectedColor: '#ff9e0d' },
+//     },
+// ];
 
 
 
 export default function Schedule() {
+    const { projID } = useProjID();
     const [tasks, setTasks] = useState([]);
+    const [openModal, setOpenModal] = useState(false);
+    const [modalData, setModalData] = useState(null);
+
+    const handleModalClose = () => {
+        setOpenModal(false);
+        setModalData(null);
+        getTasks();
+    }
+    
+    const handleTaskClick = (task) => {
+        console.log(task.id)
+        setModalData([task.id]);
+        setOpenModal(true);
+    }
 
     const setTaskData = (data) => {
         let gnattData = [];
@@ -52,14 +58,14 @@ export default function Schedule() {
                 start: new Date(task.start_date),
                 end: new Date(task.due_date),
                 dependencies: [],
-                progress: 45,
+                progress: 100,
                 isDisabled: true,
-                styles: { progressColor: '#ffbb54', progressSelectedColor: '#ff9e0d' }
+                styles: { progressColor: statusColor(task.status), progressSelectedColor: statusColor(task.status) }
             }
             
             // depends_on
             {
-                task.depends_on.map((item) => {newTask.dependencies.push(taskMap[item.before])})
+                task.depends_on.map((item) => {newTask.dependencies.push(taskMap[item.name])})
             }
 
             // TODO do next
@@ -96,8 +102,8 @@ export default function Schedule() {
     }
 
     useEffect(() => {
-        getTasks();
-    }, [])
+        if(projID != null) getTasks();
+    }, [projID])
 
     return (
         <React.Fragment>
@@ -110,8 +116,11 @@ export default function Schedule() {
                     tasks={tasks} 
                     listCellWidth="" //{isChecked ? "155px" : ""}
                     columnWidth={150}
+                    onClick={handleTaskClick}
                 />
             }
+
+            { openModal && <TaskModal data={modalData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>
     )
 }

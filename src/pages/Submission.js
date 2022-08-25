@@ -9,13 +9,13 @@ import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined';
 import BookOutlinedIcon from '@mui/icons-material/BookOutlined';
 import { Grid, Divider, Typography } from "@mui/material";
 import pseudoData from "../components/constant";
-
+import { getStorageProjID, useProjID } from "../context/ProjectID";
 
 const steps = [
     'Upload Abstract',
     'Upload Manuscript',
     'Peer Review',
-    'Submit to Editor',
+    // 'Submit to Editor',
     'Approval Decision'
   ];
 
@@ -30,7 +30,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function Submission() {
     const newData = pseudoData[1][0];
     const [openModal, setOpenModal] = useState(false);
-    const [activeStep, setActiveStep] = useState(0);
+    const [activeStep, setActiveStep] = useState(1);
     // const activeStep = 1;
 
     const handleModalClose = () => {

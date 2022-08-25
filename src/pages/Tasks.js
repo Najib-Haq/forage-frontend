@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid'
 import Typography from "@mui/material/Typography"
 import Button, { ButtonProps } from '@mui/material/Button';
-// import SearchBar from "../components/SearchBar"
+import SearchBar from "../components/SearchBar"
 import AddIcon from '@mui/icons-material/Add';
 import { grey } from '@mui/material/colors';
 import TaskModal from "../components/TaskModal";
@@ -11,18 +11,27 @@ import AccessAlarmOutlinedIcon from '@mui/icons-material/AccessAlarmOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import TaskTable from "../components/TaskTable";
 import { getStorageToken } from "../context/Auth";
-import { getStorageProjID } from "../context/ProjectID";
+import { getStorageProjID, useProjID} from "../context/ProjectID";
+import { stringToColor, statusColor } from "../components/Helpers";
+import { AvatarGroup, Avatar } from '@mui/material';
+
 import '../styles/Table.css'
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { getStepLabelUtilityClass } from "@mui/material";
 
 const URL = process.env.REACT_APP_API_URL;
 
 const tableHeaders = [
-   'ID', 'Task Name', 'Paper', 'Status', 'Project', 'Start Date', 'Due Date', " "
+   'ID', 'Task Name', 'Paper', 'Status', 'Assigned', 'Start Date', 'Due Date', " "
 ]
 
+// TODO: from api call
+const USERS = [
+    {id:1, username: "tahmeed"},
+    {id:2, username: "nexhex"},
+]
 
 function getDateLabel(date, due, status) {
     const currentDate = new Date();
@@ -58,19 +67,31 @@ function getDateLabel(date, due, status) {
 
 
 function getStatusLabel(status) {
-    let color = "rgb(0, 0, 0)";
-    if (status === "Done") {color = "rgb(150, 242, 119)" }
-    else if (status === "Progress") {color = "cyan" }
-    else if (status === "Later") {color = "rgb(254, 137, 111)" }
-    else if (status === "Next") {color = "rgb(163, 160, 249)" }
-
+    let color = statusColor(status)
     return (
         <Typography><span className='labelSpan' style={{backgroundColor: color}}>{status}</span></Typography>
     )
 }
 
 
+function getAssignedAvatars(users) {
+    return (
+        <AvatarGroup style={{ justifyContent: "left", display: "flex" }} max={3}>
+            {
+                users.map((user, index) => {
+                    return (
+                        <Avatar key={index} alt={user.username} src={user.username[0]} sx={{bgcolor : stringToColor(user.username)}} />
+                    )
+                }
+                )
+            }
+        </AvatarGroup>
+    )
+}
+
+
 export default function Tasks() {
+    const { projID } = useProjID();
     const [search, setSearch] = useState("");
     const [data, setData] = useState({head: [], rows: [[]]});
     const [openModal, setOpenModal] = useState(false);
@@ -87,9 +108,9 @@ export default function Tasks() {
             data.push([
                 item.id, 
                 item.name,
-                (item.project_paper === null) ? "" :item.project_paper.paper.substring(0, 20) + '...', 
+                (item.project_paper === null) ? "" :item.project_paper.paper.name.substring(0, 20) + '...', 
                 getStatusLabel(item.status), // 
-                item.project.name, 
+                getAssignedAvatars(USERS), // TODO: CHANGE THIS 
                 getDateLabel(item.start_date, false), 
                 getDateLabel(item.due_date, true, item.status),
                 tableActions(item)
@@ -177,20 +198,20 @@ export default function Tasks() {
     }
 
     useEffect(() => {
-        getTasks();
-    }, [])
+        if(projID != null) getTasks();
+    }, [projID]);
 
     return (
         <React.Fragment>
             {/* <h1>Tasks Page</h1> */}
 
-            <Grid container justifyContent="flex-end">
-                {/* <Grid item>
+            <Grid container justifyContent="flex-end" sx={{pb:5}}>
+                <Grid item>
                     <SearchBar
                         data={search}
                         handleSearch={(data) => {setSearch(data); console.log(data)}}
                     />
-                </Grid> */}
+                </Grid>
 
                 <Grid item>
                     <Button 
@@ -206,7 +227,7 @@ export default function Tasks() {
 
             <TaskTable data={data} handleModalClose={getTasks}/>
 
-            <TaskModal isOpen={openModal} handleClose={handleModalClose} projectTask={true}/>
+            { openModal && <TaskModal isOpen={true} handleClose={handleModalClose} projectTask={true}/> }
         </React.Fragment>
     )
 }

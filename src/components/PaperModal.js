@@ -14,7 +14,8 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { RichTextEditor } from '@mantine/rte';
 
-
+import Grid from '@mui/material/Grid';
+import PaperCard from '../components/PaperCard';
 
 import { getStorageToken } from "../context/Auth";
 
@@ -76,6 +77,12 @@ function a11yProps(index) {
 }
 
 
+const formatDate = (date) => {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const text = date.toLocaleDateString("en-US", options)
+    
+    return text
+}
 
 export default function BasicModal(props) {
 
@@ -90,6 +97,7 @@ export default function BasicModal(props) {
     const [noteFull, setNoteFull] = useState({});
     const [notePrivacy, setNotePrivacy] = useState("Private");
     const [checked, setChecked] = useState(false);
+    const [cardData, setCardData] = useState([])
 
 
     //TODO : delete default values of the following after adding api calls
@@ -106,11 +114,36 @@ export default function BasicModal(props) {
         setValue(newValue);
     };
 
+
+    const getReco = () => {
+        fetch(URL + 'api/papers/unsorted',
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    console.log(resp)
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    setCardData(resp)
+                })
+                .catch(error=>{
+                    console.log(error);
+                })
+    }
+
     useEffect(() => {
         if(props.data)
         {
             console.log("paper id",props.data.paper_id);
             console.log("project paper id",props.data.pp_id);
+            
             fetch(URL + `api/papers/${props.data.paper_id}`,
                 {
                     method: 'GET',
@@ -135,7 +168,7 @@ export default function BasicModal(props) {
                 });
 
             
-                fetch(URL + `api/notes/${props.data.pp_id}`,
+                fetch(URL + `api/notes/${props.data.pp_id}/`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -164,7 +197,9 @@ export default function BasicModal(props) {
                     console.log(error);
                 });
 
-                fetch(URL + `api/notes/?project_paper__paper=${props.data.pp_id}`,
+                
+
+                fetch(URL + `api/notes/?project_paper__paper=${props.data.paper_id}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -186,6 +221,9 @@ export default function BasicModal(props) {
                 .catch(error=>{
                     console.log(error);
                 });
+
+
+                getReco();
             
         }
             
@@ -396,12 +434,12 @@ export default function BasicModal(props) {
                                         }}
                                     >
                                         {item.text.length<=50 && 
-                                            <h2><b>"{item.text}"</b></h2>
+                                            <h2><div className="content" dangerouslySetInnerHTML={{__html: item.text}}></div></h2>
                                         }
                                         {item.text.length>50 && 
-                                            <h2><b>"{item.text.substring(0,50)}..."</b></h2>
+                                            <h2><div className="content" dangerouslySetInnerHTML={{__html: item.text.substring(0,50)}}></div></h2>
                                         }
-                                        <p><i>{item.text}</i></p>
+                                        <p><div className="content" dangerouslySetInnerHTML={{__html: item.text}}></div></p>
                                         {/* for see more see less feature, check how to update state by changing array element, then add below code */}
                                         {/* {!noteFull[index] && 
                                             <div><p><i>{item.text.substring(0,item.text.length/3)}...</i><Button onClick={() => {
@@ -429,7 +467,7 @@ export default function BasicModal(props) {
                                             </p>
                                         </div>} */}
                                     <Divider light />
-                                    <p><b>Last Updated: </b>{item.last_modified}</p>
+                                    <p><b>Last Updated: </b>{formatDate(new Date(item.last_modified))}</p>
                                     </Box>
 
                                 )
@@ -439,7 +477,24 @@ export default function BasicModal(props) {
                     }
                     
                     </Typography>
-                </TabPanel>    
+                </TabPanel> 
+                <TabPanel value={value} index={2}>
+                    { cardData.length > 0 &&  <Grid container spacing={2}>
+                        {
+                            cardData.map((item, index) => {
+                                return (<Grid item key={index}>
+                                            <PaperCard 
+                                                key={index} 
+                                                data={item}
+                                                onClick={()=>{}}
+                                            />
+                                        </Grid>
+                                )
+                            })
+                        }
+                    </Grid>
+                    }
+                </TabPanel>   
             </Box>
         </Modal>
     );

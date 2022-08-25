@@ -156,11 +156,12 @@ export default function Papers() {
                     style={boardStyle}
                     laneStyle={laneStyle}
                     cardStyle={cardStyle}
-                    draggable={true}
+                    draggable
+                    // cardDraggable={true}
                     // laneDraggable
                     // editable
                     canAddLane
-                    // collapsibleLanes
+                    collapsibleLanes
                     // hideCardDeleteIcon
                     // editLaneTitle
                     onDataChange={shouldReceiveNewData}
@@ -170,7 +171,10 @@ export default function Papers() {
                     onCardClick={handleCardClick}
                     onLaneUpdate={ (laneId, data) => alert(`onLaneUpdate: ${laneId} -> ${data.title}`)}
                     onLaneAdd={t => alert('You added a line with title ' + t.title)}
-                    
+                    // handleDragStart={null}
+                    // handleDragEnd={null}
+                    // handleLaneDragStart={null}
+                    // handleLaneDragEnd={null}
                 />
             }
             

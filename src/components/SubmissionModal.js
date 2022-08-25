@@ -16,7 +16,8 @@ import MuiAccordionDetails from '@mui/material/AccordionDetails';
 // import FileUpload from "react-mui-fileuploader"
 import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 import Button from '@mui/material/Button';
-import Grid from "@mui/material/Grid";
+// import Grid from "@mui/material/Grid";
+import MuiGrid from '@mui/material/Grid';
 
 import { getStorageToken } from "../context/Auth";
 import pseudoData from "./constant";
@@ -43,7 +44,7 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'auto',
+    width: '768px', //'auto',
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -53,7 +54,17 @@ const style = {
   };
 
 
-const Accordion = styled((props: AccordionProps) => (
+const Grid = styled(MuiGrid)(({ theme }) => ({
+    width: '100%',
+    maxWidth: '800px',
+    ...theme.typography.body2,
+    '& [role="separator"]': {
+      margin: theme.spacing(0, 2),
+    },
+  }));
+
+
+const Accordion = styled((props) => (
     <MuiAccordion disableGutters elevation={0} square {...props} />
     ))(({ theme }) => ({
     border: `1px solid ${theme.palette.divider}`,
@@ -237,6 +248,60 @@ export default function SubmissionModal(props) {
         )
     }
 
+    const leftPart = (
+        <Box>
+            <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
+        
+            <Typography variant="h4" gutterBottom component="div">
+                {props.steps[props.activeStep]}
+            </Typography>
+
+            <div>
+                {
+                    (props.activeStep == 0 || props.activeStep == 1) && dropzoneUI(props.activeStep)
+                }
+
+                {
+                    props.activeStep == 2 &&
+                    <div>
+                        { commentBox() }
+                    </div>
+                }
+
+                {
+                    (props.activeStep == 3) &&
+                    <div>
+                        <Grid
+                            container
+                            direction="column"
+                            justifyContent="center"
+                            alignItems="center"
+                        >
+                            <Grid item>
+                                {/* <CheckCircleOutlineIcon large sx={{color:'green', fontSize: 100 }}/> */}
+                                <PendingOutlinedIcon large sx={{color:'grey', fontSize: 100 }}/>
+                            </Grid>
+                            <Grid item>
+                                <Typography variant="h5" component="div">
+                                    {/* Congratulations! Your submission has been accepted. */}
+                                    Your submission is being processed.
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        
+                    </div>
+                }
+            </div>
+        </Box>
+    )
+
+    const rightPart = (
+        <Box>
+            <Button variant="contained" fullWidth sx={{ m: 1 }}>Create</Button>
+            <Button variant="contained" fullWidth sx={{ m: 1 }}>Cancel</Button>
+        </Box>
+    );
+
     return (
         <Modal
           open={props.isOpen}
@@ -244,50 +309,16 @@ export default function SubmissionModal(props) {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-            <Box sx={style}>
-                <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
-            
-                <Typography variant="h4" gutterBottom component="div">
-                    {props.steps[props.activeStep]}
-                </Typography>
-
-                <div>
-                    {
-                        (props.activeStep == 0 || props.activeStep == 1) && dropzoneUI(props.activeStep)
-                    }
-
-                    {
-                        props.activeStep == 2 &&
-                        <div>
-                            { commentBox() }
-                        </div>
-                    }
-
-                    {
-                        (props.activeStep == 3) &&
-                        <div>
-                           <Grid
-                                container
-                                direction="column"
-                                justifyContent="center"
-                                alignItems="center"
-                            >
-                                <Grid item>
-                                    {/* <CheckCircleOutlineIcon large sx={{color:'green', fontSize: 100 }}/> */}
-                                    <PendingOutlinedIcon large sx={{color:'grey', fontSize: 100 }}/>
-                                </Grid>
-                                <Grid item>
-                                    <Typography variant="h5" component="div">
-                                        {/* Congratulations! Your submission has been accepted. */}
-                                        Your submission is being processed.
-                                    </Typography>
-                                </Grid>
-                            </Grid>
-                            
-                        </div>
-                    }
-                </div>
-            </Box>
+            <Grid container sx={style}>
+                <Grid item xs>
+                    {leftPart}
+                </Grid>
+                <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
+                </Divider>
+                <Grid item xs style = {{maxWidth: "150px"}}>
+                    {rightPart}
+                </Grid>
+            </Grid>
         </Modal>
     );
   }

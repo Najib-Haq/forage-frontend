@@ -111,7 +111,8 @@ export default function Schedule() {
 
             {
                 tasks.length > 0 &&
-                <Gantt 
+                <Gantt
+                    style={{overflow: 'auto'}}
                     viewMode={ViewMode.Month}
                     tasks={tasks} 
                     listCellWidth="" //{isChecked ? "155px" : ""}

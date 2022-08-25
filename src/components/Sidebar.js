@@ -220,7 +220,6 @@ export default function PermanentDrawerLeft(props) {
                 onChange={handleChange}
                 displayEmpty
                 sx= {selectStyle} //{styles.Select}
-                // inputProps={{ 'aria-label': 'Without label' }}
             >
                 {   
                     projects.length > 0 &&  projects.map(item => {

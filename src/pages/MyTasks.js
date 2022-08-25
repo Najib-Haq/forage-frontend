@@ -6,6 +6,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import TaskTable from "../components/TaskTable";
 import SearchBar from "../components/SearchBar"
 import { getStorageToken } from "../context/Auth";
+import { statusColor } from "../components/Helpers";
 import '../styles/Table.css'
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -53,11 +54,7 @@ function getDateLabel(date, due, status) {
 
 
 function getStatusLabel(status) {
-    let color = "rgb(0, 0, 0)";
-    if (status === "Done") {color = "rgb(150, 242, 119)" }
-    else if (status === "Progress") {color = "cyan" }
-    else if (status === "Later") {color = "rgb(254, 137, 111)" }
-    else if (status === "Next") {color = "rgb(163, 160, 249)" }
+    let color = statusColor(status)
 
     return (
         <Typography><span className='labelSpan' style={{backgroundColor: color}}>{status}</span></Typography>

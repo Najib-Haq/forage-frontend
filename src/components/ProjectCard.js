@@ -30,7 +30,7 @@ export default function ProjectCard(props) {
     }
 
     return (
-    <Card sx={{ width: 300, maxWidth: 300, height: 150, maxHeight: 150}}>
+    <Card elevation={3} sx={{ width: 300, maxWidth: 300, height: 150, maxHeight: 150}}>
         {/* <CardHeader
             action={
             <IconButton aria-label="settings" onClick={handleAdd}>

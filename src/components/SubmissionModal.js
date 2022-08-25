@@ -14,10 +14,15 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 // import {DropzoneArea} from 'material-ui-dropzone' // HAS PROBLEMS
 // import FileUpload from "react-mui-fileuploader"
-import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
+// import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 import Button from '@mui/material/Button';
 // import Grid from "@mui/material/Grid";
 import MuiGrid from '@mui/material/Grid';
+import LanguageIcon from '@mui/icons-material/Language';
+import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import { useFilePicker } from 'use-file-picker';
 
 import { getStorageToken } from "../context/Auth";
 import pseudoData from "./constant";
@@ -76,7 +81,8 @@ const Accordion = styled((props) => (
     },
 }));
 
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
+
+const AccordionSummary = styled((props) => (
     <MuiAccordionSummary
         expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />}
         {...props}
@@ -95,6 +101,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
     },
 }));
 
+
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
     padding: theme.spacing(2),
     borderTop: '1px solid rgba(0, 0, 0, .125)',
@@ -107,6 +114,10 @@ export default function SubmissionModal(props) {
     const [expanded, setExpanded] = React.useState(null);
     const [files, setFiles] = React.useState([]);
     const [imageSrc, setImageSrc] = useState(undefined);
+
+    const [openFileSelector, { filesContent, loading }] = useFilePicker({
+        accept: '.txt',
+    });
 
     const handleChange =
         (panel) => (event, newExpanded) => {
@@ -128,31 +139,6 @@ export default function SubmissionModal(props) {
         setData(new_data);
     }
 
-    // useEffect(() => {
-    //     if(props.data.id)
-    //         fetch(URL + `api/papers/${props.data.id}`,
-    //             {
-    //                 method: 'GET',
-    //                 credentials: "same-origin",
-    //                 headers: {
-    //                         'Authorization': `Token ${getStorageToken()}`,
-    //                         'Content-Type':'application/json'
-    //                 }
-    //             })
-    //             .then(resp=>{
-    //                 if (resp.status >= 400) throw new Error();
-    //                 return resp.json();
-    //             })
-    //             .then(resp=>{
-    //                 console.log("data is :", resp)
-    //                 setData(resp)
-    //             })
-    //             .catch(error=>{
-    //                 console.log(error);
-    //             })
-    // }, [props.isOpen]);
-
-
     const updateFiles = (incommingFiles) => {
         console.log("incomming files", incommingFiles);
         setFiles(incommingFiles);
@@ -170,52 +156,7 @@ export default function SubmissionModal(props) {
 
     const dropzoneUI = (step) => {
         
-        return (
-            <Dropzone
-                style={{ maxWidth: "inherit" }}
-                //view={"list"}
-                onChange={updateFiles}
-                // minHeight="195px"
-                onClean={handleClean}
-                onUploadFinish={()=>{props.handleStepChange(step+1); handleClean(" ")}}
-                value={files}
-                maxFiles={5}
-                //header={false}
-                // footer={false}
-                maxFileSize={2998000}
-                label="Click or drag files here to upload"
-                //label="Suleta tus archivos aquí"
-                accept=".pdf"
-                // uploadingMessage={"Uploading..."}
-                url="https://my-awsome-server/upload-my-file"
-                //of course this url doens´t work, is only to make upload button visible
-                //uploadOnDrop
-                //clickable={false}
-                fakeUploading
-                //localization={"FR-fr"}
-                disableScroll
-                >
-                {files.map((file) => (
-                    <FileItem
-                    {...file}
-                    key={file.id}
-                    onDelete={onDelete}
-                    onSee={handleSee}
-                    //localization={"ES-es"}
-                    resultOnTooltip
-                    preview
-                    info
-                    hd
-                    />
-                ))}
-                {/* <FullScreenPreview
-                    style={{ maxWidth: "inherit" }}
-                    imgSource={imageSrc}
-                    openImage={imageSrc}
-                    onClose={(e) => handleSee(undefined)}
-                /> */}
-            </Dropzone>
-            )
+        return (null)
     }
     
     const commentBox = () => {
@@ -297,8 +238,94 @@ export default function SubmissionModal(props) {
 
     const rightPart = (
         <Box>
-            <Button variant="contained" fullWidth sx={{ m: 1 }}>Create</Button>
-            <Button variant="contained" fullWidth sx={{ m: 1 }}>Cancel</Button>
+            <Typography variant="h7" sx={{m: 1}}>
+                Links
+            </Typography>
+            <Button 
+                variant="outlined" 
+                size="medium" 
+                fullWidth
+                startIcon={<LanguageIcon />}
+                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 10}}
+                onClick={()=>{}}
+            >Website</Button>
+            <Divider sx={{m:1}}/>
+            <Typography variant="h7" sx={{m: 1}}>
+                Abstract Uploads
+            </Typography>
+            <div>
+                <div style={{width:'80%', float:'left'}}>
+                    <Button 
+                        variant="outlined" 
+                        size="medium" 
+                        fullWidth
+                        startIcon={<ArticleOutlinedIcon />}
+                        sx = {{ ml: 1, mt: 1}}
+                        style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                        onClick={()=>{}}
+                    >Draft 1</Button>
+                </div>
+                <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
+                    <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
+                </div>
+            </div>
+
+            <div>
+                <div style={{width:'80%', float:'left'}}>
+                    <Button 
+                        variant="outlined" 
+                        size="medium" 
+                        fullWidth
+                        startIcon={<LanguageIcon />}
+                        sx = {{ ml: 1, mt: 1}}
+                        style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                        onClick={()=>{}}
+                    >Draft 1</Button>
+                </div>
+                <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
+                    <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
+                </div>
+            </div>
+            <Button 
+                variant="outlined" 
+                size="medium" 
+                fullWidth
+                startIcon={<FileUploadOutlinedIcon />}
+                sx = {{ ml: 1, mt: 1, mb: 3}}
+                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                onClick={() => openFileSelector()}
+            >Upload</Button>
+
+            <Divider sx={{m:1}}/>
+            <Typography variant="h7" sx={{m: 1}}>
+                Manuscript Uploads
+            </Typography>
+            <div>
+                <div style={{width:'80%', float:'left'}}>
+                    <Button 
+                        variant="outlined" 
+                        size="medium" 
+                        fullWidth
+                        startIcon={<LanguageIcon />}
+                        sx = {{ ml: 1, mt: 1}}
+                        style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                        onClick={()=>{}}
+                    >Draft 1</Button>
+                </div>
+                <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
+                    <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
+                </div>
+            </div>
+            <Button 
+                variant="outlined" 
+                size="medium" 
+                fullWidth
+                startIcon={<FileUploadOutlinedIcon />}
+                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 10}}
+                onClick={()=>{}}
+            >Upload</Button>
+
+            
         </Box>
     );
 
@@ -315,7 +342,7 @@ export default function SubmissionModal(props) {
                 </Grid>
                 <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
                 </Divider>
-                <Grid item xs style = {{maxWidth: "150px"}}>
+                <Grid item xs style = {{maxWidth: "200px"}}>
                     {rightPart}
                 </Grid>
             </Grid>

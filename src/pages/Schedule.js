@@ -5,6 +5,8 @@ import { getStorageToken } from "../context/Auth";
 import { getStorageProjID, useProjID } from "../context/ProjectID";
 import { statusColor } from "../components/Helpers";
 import TaskModal from "../components/TaskModal";
+import AddIcon from '@mui/icons-material/Add';
+import { Grid, Button } from '@mui/material';
 
 const URL = process.env.REACT_APP_API_URL;
 
@@ -26,11 +28,13 @@ const URL = process.env.REACT_APP_API_URL;
 export default function Schedule() {
     const { projID } = useProjID();
     const [tasks, setTasks] = useState([]);
+    const [openEditModal, setOpenEditModal] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState(null);
 
     const handleModalClose = () => {
         setOpenModal(false);
+        setOpenEditModal(false);
         setModalData(null);
         getTasks();
     }
@@ -38,7 +42,7 @@ export default function Schedule() {
     const handleTaskClick = (task) => {
         console.log(task.id)
         setModalData([task.id]);
-        setOpenModal(true);
+        setOpenEditModal(true);
     }
 
     const setTaskData = (data) => {
@@ -121,7 +125,22 @@ export default function Schedule() {
                 />
             }
 
-            { openModal && <TaskModal data={modalData} isOpen={true} handleClose={handleModalClose}/> }
+            <Grid container sx={{pb:5}}>
+
+            <Grid item>
+                <Button 
+                    variant="outlined" 
+                    size="large" 
+                    startIcon={<AddIcon />}
+                    style={{borderColor: "black", color: "black"}}
+                    onClick={()=>{setOpenModal(true)}}
+                    // color="black"
+                >Create Task</Button>
+            </Grid> 
+            </Grid>
+
+            { openModal && <TaskModal isOpen={true} handleClose={handleModalClose} projectTask={true}/> }
+            { openEditModal && <TaskModal data={modalData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>
     )
 }

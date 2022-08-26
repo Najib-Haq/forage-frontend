@@ -225,8 +225,13 @@ export default function Submission() {
         let steps = []
         if (data != null) {            
             data.activities.forEach((item, index) => {
-                console.log("IN LOOP : ", item, data)
-                steps.push(item.activity)
+                // console.log("IN LOOP : ", item, data)
+                steps.push(
+                    {
+                        activity: item.activity,
+                        time: new Date(item.end).toLocaleString('default', { month: 'short', day:'numeric' })
+                    }
+                )
             })
         }
         return steps;
@@ -318,7 +323,7 @@ export default function Submission() {
                     </Grid>
                 </Grid>
             </Box>
-            <SubmissionModal isOpen={openModal} handleClose={handleModalClose} activeStep={activeStep} steps={getSteps(selectedVenue[0])} handleStepChange={handleStepChange}/>
+            { openModal && <SubmissionModal isOpen={true} handleClose={handleModalClose} activeStep={activeStep} steps={getSteps(selectedVenue[0])} handleStepChange={handleStepChange}/> }
         
             { openScheduleModal && <ScheduleModal data={scheduleData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>

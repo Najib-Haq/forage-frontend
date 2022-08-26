@@ -49,8 +49,11 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '768px', //'auto',
+    width: 1024, //'auto',
+    maxWidth: 1024,
+    maxHeight: 768,
     bgcolor: 'background.paper',
+    // bgcolor: 'cyan',
     border: '2px solid #000',
     boxShadow: 24,
     pt: 2,
@@ -60,7 +63,7 @@ const style = {
 
 
 const Grid = styled(MuiGrid)(({ theme }) => ({
-    width: '100%',
+    width: '800px',
     maxWidth: '800px',
     ...theme.typography.body2,
     '& [role="separator"]': {
@@ -266,7 +269,7 @@ export default function SubmissionModal(props) {
             <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
         
             <Typography variant="h4" gutterBottom component="div">
-                {props.steps[props.activeStep]}
+                {props.steps[props.activeStep]['activity']}
             </Typography>
 
             <div>
@@ -398,10 +401,11 @@ export default function SubmissionModal(props) {
         <Modal
           open={props.isOpen}
           onClose={props.handleClose}
+        //   style={{ width: '896px'}}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-            <Grid container sx={style}>
+            <Grid container sx={style} style={{overflowY: 'auto'}}>
                 <Grid item xs>
                     {leftPart}
                 </Grid>

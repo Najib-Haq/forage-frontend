@@ -18,8 +18,8 @@ export default function SubmissionStep(props) {
         <Box sx={{ width: '100%', padding: '25px', marginBottom: '5px', bgcolor: '#fafafa'}}>
             <Stepper activeStep={props.activeStep} alternativeLabel>
                 {props.steps.map((label) => (
-                <Step key={label} onClick={()=>{console.log(label)}}>
-                    <StepLabel>{label}</StepLabel>
+                <Step key={label.activity} onClick={()=>{console.log(label)}}>
+                    <StepLabel>{label.activity} <br/> {label.time} </StepLabel>
                 </Step>
                 ))}
             </Stepper>

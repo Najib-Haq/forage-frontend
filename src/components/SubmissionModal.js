@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Divider, requirePropFactory } from "@mui/material";
+import { Divider, getTabScrollButtonUtilityClass, requirePropFactory } from "@mui/material";
 import SubmissionStep from "../components/SubmissionStep"
 
 import { styled } from '@mui/material/styles';
@@ -108,12 +108,16 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
   
 
+const UPLOADTYPE = [ 'ABSTRACT', 'MANUSCRIPT' ];
+
 export default function SubmissionModal(props) {
     const new_data = pseudoData[0];
     const [data, setData] = useState(new_data);
-    const [expanded, setExpanded] = React.useState(null);
-    const [files, setFiles] = React.useState([]);
-    const [imageSrc, setImageSrc] = useState(undefined);
+    const [expanded, setExpanded] = useState(null);
+    const [files, setFiles] = useState([]);
+
+    const [abstracts, setAbstracts] = useState([]);
+    const [manuscripts, setManuscripts] = useState([]);
 
     const { projID } = useProjID();
     const [openFileSelector, { filesContent, loading, plainFiles}] = useFilePicker({
@@ -147,19 +151,24 @@ export default function SubmissionModal(props) {
     };
 
     const uploadFiles = (file, type) => {
+        console.log("FILE ",file)
+        let formData = new FormData();
+        formData.append('file', file)
+        formData.append('project_id', getStorageProjID())
+        formData.append('name', 'ML_TREE')
+        formData.append('content', type)
+        formData.append('status', 'ACTIVE')
+        formData.append('upload_id', 1)
+
+
         fetch(URL + `api/files/`, {
             method: 'POST',
             credentials: "same-origin",
             headers: {
                 'Authorization': `Token ${getStorageToken()}`,
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringify({ 
-                file: file,
-                project_id: getStorageProjID(),
-                content_type: type,
-                uploader_id: 1
-            })
+                // 'Content-Type':'multipart/form-data; boundary=----WebKitFormBoundaryPJAVNBfjvMvPgX3n'
+            },  
+            body: formData
         })
         .then(resp=>{
             if (resp.status >= 400) throw new Error();
@@ -167,26 +176,52 @@ export default function SubmissionModal(props) {
         })
         .then(resp=>{
             console.log("here : ", resp)
+            getFiles(type);
             // getSelectedVenues();
         })
         .catch(error=>{
             console.log(error);
         })
+        
+    }
+
+    const getFiles = (type) => {
+        let url = `api/files/?content=${type}&project=${projID}`;
+        fetch(URL + url, 
+        {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            if(type === UPLOADTYPE[0]) setAbstracts(resp.results);
+            if(type === UPLOADTYPE[1]) setManuscripts(resp.results);
+        })
+        .catch(error=>{
+            console.log(error);
+            if(type === UPLOADTYPE[0]) setAbstracts([]);
+            if(type === UPLOADTYPE[1]) setManuscripts([]);
+        })
     }
 
     useEffect(() => {
-        uploadFiles(plainFiles[0], 'ABSTRACT');
+        if(plainFiles && plainFiles.length>0) uploadFiles(plainFiles[0], 'ABSTRACT');
     }, [plainFiles])
+
+    useEffect(() => {
+        if(projID) getFiles(UPLOADTYPE[0]);
+    }, [])
+
 
     const onDelete = (id) => {
         setFiles(files.filter((x) => x.id !== id));
-    };
-    const handleSee = (imageSource) => {
-        setImageSrc(imageSource);
-    };
-    const handleClean = (files) => {
-        console.log("list cleaned", files);
-        setFiles([])
     };
 
     const dropzoneUI = (step) => {
@@ -223,6 +258,7 @@ export default function SubmissionModal(props) {
             </React.Fragment>
         )
     }
+
 
 
     const leftPart = (
@@ -289,39 +325,32 @@ export default function SubmissionModal(props) {
             <Typography variant="h7" sx={{m: 1}}>
                 Abstract Uploads
             </Typography>
-            <div>
-                <div style={{width:'80%', float:'left'}}>
-                    <Button 
-                        variant="outlined" 
-                        size="medium" 
-                        fullWidth
-                        startIcon={<ArticleOutlinedIcon />}
-                        sx = {{ ml: 1, mt: 1}}
-                        style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                        onClick={()=>{}}
-                    >Draft 1</Button>
-                </div>
-                <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
-                    <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
-                </div>
-            </div>
+            
+            {
+                abstracts && abstracts.map((item, index) => (
+                    <div>
+                        <div style={{width:'80%', float:'left'}}>
+                            <Button 
+                                variant="outlined" 
+                                size="medium" 
+                                fullWidth
+                                startIcon={<ArticleOutlinedIcon />}
+                                sx = {{ ml: 1, mt: 1}}
+                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                                // onClick={()=>{}}
+                                href={item.file}
+                                target="_blank"
+                            >{item.name}</Button>
+                        </div>
+                        <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
+                            <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
+                        </div>
+                    </div>
+                ))
+            }
+                
+                
 
-            <div>
-                <div style={{width:'80%', float:'left'}}>
-                    <Button 
-                        variant="outlined" 
-                        size="medium" 
-                        fullWidth
-                        startIcon={<LanguageIcon />}
-                        sx = {{ ml: 1, mt: 1}}
-                        style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                        onClick={()=>{}}
-                    >Draft 1</Button>
-                </div>
-                <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
-                    <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
-                </div>
-            </div>
             <Button 
                 variant="outlined" 
                 size="medium" 

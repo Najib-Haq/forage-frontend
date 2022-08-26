@@ -6,6 +6,7 @@ import PaperModal from '../components/PaperModal'
 import KBCard from '../components/KBCard'
 import { getStorageToken } from "../context/Auth";
 import { useProjID } from "../context/ProjectID";
+import { Box } from "@mui/material";
 /*  
     kanban board data format:
     data = { lanes: [
@@ -162,7 +163,7 @@ export default function Papers() {
                     laneStyle={laneStyle}
                     cardStyle={cardStyle}
                     draggable
-                    canAddLane
+                    // canAddLane
                     // cardDraggable
                     // laneDraggable
                     // editable
@@ -182,7 +183,6 @@ export default function Papers() {
                     // handleLaneDragEnd={()=>{}}
                 />
             }
-            
 
             { openModal && <PaperModal data={modalData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>

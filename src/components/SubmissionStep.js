@@ -15,7 +15,7 @@ import StepLabel from '@mui/material/StepLabel';
 export default function SubmissionStep(props) {
 
     return (
-        <Box sx={{ width: '100%', marginBottom: '25px' }}>
+        <Box sx={{ width: '100%', padding: '25px', marginBottom: '5px', bgcolor: '#fafafa'}}>
             <Stepper activeStep={props.activeStep} alternativeLabel>
                 {props.steps.map((label) => (
                 <Step key={label} onClick={()=>{console.log(label)}}>

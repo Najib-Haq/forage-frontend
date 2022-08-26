@@ -199,7 +199,7 @@ export default function Tasks() {
 
     useEffect(() => {
         if(projID != null) getTasks();
-    }, [projID]);
+    }, [projID, search]);
 
     return (
         <React.Fragment>

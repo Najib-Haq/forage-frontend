@@ -111,7 +111,7 @@ function App() {
                 inputProps={{ 'aria-label': 'search' }}
                 />
              </Search> */}
-            <Button sx={{backgroundColor: "#a3a3a3", color: "black"}} onClick={handleLogOut}>Logout</Button>
+            <Button variant='outlined' sx={{borderColor: "#a3a3a3", color: "black", '&:hover': { bgcolor: "#a3a3a3" }}} onClick={handleLogOut}>Logout</Button>
         </Toolbar>
         </AppBar>
         

@@ -40,21 +40,17 @@ export default function VenueCard(props) {
             <Grid item xs container direction="column">
                 <Grid item xs sx={{ textAlign: 'left', ml:2 }}>
                     <Typography gutterBottom variant="subtitle1" component="div">
-                    IEEE Transactions on Image Processing
+                    { props.venueData.name.length > 40 ? props.venueData.name.substring(0, 40) + "..." : props.venueData.name } 
                     </Typography>
                     <Typography variant="body2" gutterBottom>
-                    Deep Learning, Machine Learning, AI
+                    { props.venueData.website.length > 50 ? props.venueData.website.substring(0, 50) + "..." : props.venueData.website } 
                     </Typography>
                 </Grid>
 
                 {
                     props.onlyData ? null : (
                         <Grid item sx={{ textAlign: 'left', ml:1}}>
-                            {/* <Typography sx={{ cursor: 'pointer' }} variant="body2">
-                            Remove
-                            </Typography> */}
-                            <Button variant="contained" sx={{ m: 1 }}>Create</Button>
-                            <Button variant="contained" sx={{ m: 1 }}>Cancel</Button>
+                            {props.buttons}
                         </Grid>
                     )
                 }
@@ -63,7 +59,7 @@ export default function VenueCard(props) {
                 props.onlyData ? null : (
                     <Grid item>
                         <Typography variant="subtitle1" component="div">
-                            <b>July 11, 2020</b>
+                            <b>{new Date(props.venueData.schedule[0].start).toLocaleString('default', { month: 'short', day:'numeric' })}</b>
                         </Typography>
                     </Grid>
                 )

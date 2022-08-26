@@ -24,14 +24,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import { useFilePicker } from 'use-file-picker';
 
+import { getStorageProjID, useProjID } from "../context/ProjectID";
 import { getStorageToken } from "../context/Auth";
-import pseudoData from "./constant";
 import Comment from "./Comment";
-
 
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
+import pseudoData from '../components/constant';
 
 /* 
     define props=> 
@@ -115,8 +115,9 @@ export default function SubmissionModal(props) {
     const [files, setFiles] = React.useState([]);
     const [imageSrc, setImageSrc] = useState(undefined);
 
-    const [openFileSelector, { filesContent, loading }] = useFilePicker({
-        accept: '.txt',
+    const { projID } = useProjID();
+    const [openFileSelector, { filesContent, loading, plainFiles}] = useFilePicker({
+        accept: '*', multiple: false
     });
 
     const handleChange =
@@ -141,8 +142,42 @@ export default function SubmissionModal(props) {
 
     const updateFiles = (incommingFiles) => {
         console.log("incomming files", incommingFiles);
+        uploadFiles(incommingFiles, 'ABSTRACT');
         setFiles(incommingFiles);
     };
+
+    const uploadFiles = (file, type) => {
+        fetch(URL + `api/files/`, {
+            method: 'POST',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({ 
+                file: file,
+                project_id: getStorageProjID(),
+                content_type: type,
+                uploader_id: 1
+            })
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            console.log("here : ", resp)
+            // getSelectedVenues();
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
+    useEffect(() => {
+        uploadFiles(plainFiles[0], 'ABSTRACT');
+    }, [plainFiles])
+
     const onDelete = (id) => {
         setFiles(files.filter((x) => x.id !== id));
     };
@@ -188,6 +223,7 @@ export default function SubmissionModal(props) {
             </React.Fragment>
         )
     }
+
 
     const leftPart = (
         <Box>

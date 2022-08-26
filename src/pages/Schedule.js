@@ -31,6 +31,7 @@ export default function Schedule() {
     const [openEditModal, setOpenEditModal] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState(null);
+    
 
     const handleModalClose = () => {
         setOpenModal(false);

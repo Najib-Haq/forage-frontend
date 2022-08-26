@@ -13,7 +13,7 @@ import TaskTable from "../components/TaskTable";
 import { getStorageToken } from "../context/Auth";
 import { getStorageProjID, useProjID} from "../context/ProjectID";
 import { stringToColor, statusColor } from "../components/Helpers";
-import { AvatarGroup, Avatar } from '@mui/material';
+import { AvatarGroup, Avatar, Tooltip} from '@mui/material';
 
 import '../styles/Table.css'
 
@@ -80,7 +80,7 @@ function getAssignedAvatars(users) {
             {
                 users.map((user, index) => {
                     return (
-                        <Avatar key={index} alt={user.username} src={user.username[0]} sx={{bgcolor : stringToColor(user.username)}} />
+                        <Tooltip title={user.username}><Avatar key={index} alt={user.username} src={user.username[0]} sx={{bgcolor : stringToColor(user.username)}} /></Tooltip>
                     )
                 }
                 )

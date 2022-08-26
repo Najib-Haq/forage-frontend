@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from "react-router-dom";
 import { AuthProvider } from './context/Auth';
 import { ProjIDProvider } from './context/ProjectID';
+import { UserProvider } from './context/User';
 
 import './styles/index.css';
 import App from './App';
@@ -15,16 +16,18 @@ const Index = () => {
     return (
         // <React.StrictMode> /* strict mode doesnt work with react-trello */
             <Router>
-                <AuthProvider
-                    opt1= {
-                        <ProjIDProvider>
-                        <LocalizationProvider dateAdapter={AdapterMoment}>
-                            <App />
-                        </LocalizationProvider>
-                        </ProjIDProvider>
-                    }
-                    opt2= {<Login />}
-                />
+                <UserProvider>
+                    <AuthProvider
+                        opt1= {
+                            <ProjIDProvider>
+                            <LocalizationProvider dateAdapter={AdapterMoment}>
+                                <App />
+                            </LocalizationProvider>
+                            </ProjIDProvider>
+                        }
+                        opt2= {<Login />}
+                    />
+                </UserProvider>
             </Router>
         // </React.StrictMode>
     );

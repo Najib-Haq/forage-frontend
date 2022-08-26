@@ -43,7 +43,7 @@ export default function VenueCard(props) {
                     { props.venueData.name.length > 40 ? props.venueData.name.substring(0, 40) + "..." : props.venueData.name } 
                     </Typography>
                     <Typography variant="body2" gutterBottom>
-                    { props.venueData.website.length > 50 ? props.venueData.website.substring(0, 50) + "..." : props.venueData.website } 
+                    { props.venueData.website && props.venueData.website.length > 50 ? props.venueData.website.substring(0, 50) + "..." : props.venueData.website } 
                     </Typography>
                 </Grid>
 

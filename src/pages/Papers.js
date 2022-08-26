@@ -66,7 +66,7 @@ export default function Papers() {
                         if(lane.id == item.list) {
                             lane.cards.push({
                                 // most probably id is project paper id and paper_id is paper id
-                                id: item.id, title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: false, metadata: {paper_id: item.paper_id, title: item.paper.name}
+                                id: item.id.toString(), title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: true, metadata: {paper_id: item.paper_id, title: item.paper.name}
                             })
                         }
                     })
@@ -100,7 +100,8 @@ export default function Papers() {
                 console.log("filtered : ", filteredLanes)
                 let laneData = [];
                 filteredLanes.forEach((item, index) => {
-                    laneData.push({id: item.name, title:item.name, cards: []})
+                    console.log('lane' + item.id.toString())
+                    laneData.push({id:item.name, title:item.name, cards: []})
                 })
                 fetchCards(laneData)
             })
@@ -144,6 +145,10 @@ export default function Papers() {
         console.log(`Card: ${cardId} clicked in lane: ${laneId}`)
     }
 
+    const handleCardMoveLane = (fromLaneId, toLaneId, cardId, index) => {
+        console.log(`Card: ${cardId} moved from lane: ${fromLaneId} to lane: ${toLaneId}`)
+    }
+
     const components = {Card: KBCard}
 
     return (
@@ -157,24 +162,24 @@ export default function Papers() {
                     laneStyle={laneStyle}
                     cardStyle={cardStyle}
                     draggable
-                    // cardDraggable={true}
+                    canAddLane
+                    // cardDraggable
                     // laneDraggable
                     // editable
-                    canAddLane
-                    collapsibleLanes
+                    // collapsibleLanes
                     // hideCardDeleteIcon
                     // editLaneTitle
                     onDataChange={shouldReceiveNewData}
                     onCardDelete={handleCardDelete}
-                    onCardMoveAcrossLanes={(fromLaneId, toLaneId, cardId, index) => alert("moving")}
+                    onCardMoveAcrossLanes={handleCardMoveLane}
                     onCardAdd={handleCardAdd}
                     onCardClick={handleCardClick}
                     onLaneUpdate={ (laneId, data) => alert(`onLaneUpdate: ${laneId} -> ${data.title}`)}
                     onLaneAdd={t => alert('You added a line with title ' + t.title)}
-                    // handleDragStart={null}
-                    // handleDragEnd={null}
-                    // handleLaneDragStart={null}
-                    // handleLaneDragEnd={null}
+                    // handleDragStart={()=>{}}
+                    // handleDragEnd={()=>{}}
+                    // handleLaneDragStart={()=>{}}
+                    // handleLaneDragEnd={()=>{}}
                 />
             }
             

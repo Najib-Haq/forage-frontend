@@ -23,7 +23,7 @@ const URL = process.env.REACT_APP_API_URL;
 //     },
 // ];
 
-
+const ACTIVITIES_OFFSET  = 1000;
 
 export default function Schedule() {
     const { projID } = useProjID();
@@ -41,6 +41,7 @@ export default function Schedule() {
     }
     
     const handleTaskClick = (task) => {
+        if(task.id > ACTIVITIES_OFFSET) return; // TODO: very bogus hack XD
         console.log(task.id)
         setModalData([task.id]);
         setOpenEditModal(true);
@@ -79,7 +80,8 @@ export default function Schedule() {
             gnattData.push(newTask);
         })
 
-        setTasks(gnattData);
+        // setTasks(gnattData);
+        getVenueActivities(gnattData);
     }
 
 
@@ -100,6 +102,43 @@ export default function Schedule() {
         .then(resp=>{
             console.log(resp.tasks)
             setTaskData(resp.tasks)
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
+    const getVenueActivities= (ganttData) => {
+        fetch(URL + `api/projects/${getStorageProjID()}/submissions/ongoing/`, //TODO: filter using user id
+        {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+
+            if(resp.status != null) {
+                resp.activities.map((item, index) => {
+                    ganttData.push({
+                        start: item.start == null ? new Date() : new Date(item.start),
+                        end: item.end == null ? new Date() : new Date(item.end),
+                        name: resp.venue.name + ' : ' + item.activity,
+                        id: item.id + ACTIVITIES_OFFSET,
+                        styles: { progressColor: statusColor(resp.venue.name), progressSelectedColor: statusColor(resp.venue.name) },
+                        dependencies: [item.id + ACTIVITIES_OFFSET>(1+ACTIVITIES_OFFSET) ? ACTIVITIES_OFFSET+item.id-1:null]
+                    })
+                })
+            }
+            
+            setTasks(ganttData);
+            console.log(ganttData)
         })
         .catch(error=>{
             console.log(error);

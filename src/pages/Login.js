@@ -55,7 +55,7 @@ export default function Login() {
                 console.log(resp.token);
                 setAuthToken(resp.token);
                 // localStorage.setItem('username', username);
-                setUser([1, username]) // default id is 1
+                setUser([resp.user.id, resp.user.username])
             })
             .catch(error=>{
                 console.log(error);

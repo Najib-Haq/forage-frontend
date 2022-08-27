@@ -45,6 +45,7 @@ export default function Papers() {
     const [data, setData] = useState({lanes: [{id: 'loading', title: 'loading..', cards: []}]});
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState(null);
+    const [laneToID, setLaneToID] = useState({});
     
     /////////////////////////////////// FETCH CARDS
     const fetchCards = (laneData) => {
@@ -100,16 +101,39 @@ export default function Papers() {
                 const filteredLanes = resp.results.filter((item)=>{ return !item.is_archived })
                 console.log("filtered : ", filteredLanes)
                 let laneData = [];
+                let laneToIDData = {}
                 filteredLanes.forEach((item, index) => {
                     console.log('lane' + item.id.toString())
+                    laneToIDData[item.name] = item.id
                     laneData.push({id:item.name, title:item.name, cards: []})
                 })
                 fetchCards(laneData)
+                setLaneToID(laneToIDData)
             })
             .catch(error=>{
                 console.log(error);
             })
     }
+
+    
+    const updatePaper = (paper_id, list_id) => {
+        console.log("Mappings : ", laneToID, list_id)
+        fetch(URL + `api/projects/${projID}/papers/${paper_id}/`, {
+            method: 'PUT',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({ 
+                list_id: laneToID[list_id]
+            })
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
 
     useEffect(() => {
         if(projID != null) fetchLanes()
@@ -147,6 +171,7 @@ export default function Papers() {
     }
 
     const handleCardMoveLane = (fromLaneId, toLaneId, cardId, index) => {
+        updatePaper(cardId, toLaneId)
         console.log(`Card: ${cardId} moved from lane: ${fromLaneId} to lane: ${toLaneId}`)
     }
 

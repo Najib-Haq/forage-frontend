@@ -220,31 +220,6 @@ export default function SubmissionModal(props) {
         })
     }
 
-    const getHighlights = () => {
-        let url = `api/submissions/1/comments/`;
-        fetch(URL + url, 
-        {
-            method: 'GET',
-            credentials: "same-origin",
-            headers: {
-                    'Authorization': `Token ${getStorageToken()}`,
-                    'Content-Type':'application/json'
-            }
-        })
-        .then(resp=>{
-            if (resp.status >= 400) throw new Error();
-            return resp.json();
-        })
-        .then(resp=>{
-            let highlights_data = resp.results[0].highlight_metadata;
-            console.log("this is the data : ", resp.results)
-            setHighlights([highlights_data]);            
-        })
-        .catch(error=>{
-            console.log(error);
-        })
-    }
-
     const setFileActive = (file_id) => {
         fetch(URL + `api/files/${file_id}/set_active/`, {
             method: 'PUT',
@@ -264,7 +239,10 @@ export default function SubmissionModal(props) {
     // }, [plainFiles])
 
     useEffect(() => {
-        if(projID) getFiles(UPLOADTYPE[0]);
+        if(projID) {
+            getFiles(UPLOADTYPE[0]);
+            getFiles(UPLOADTYPE[1]);
+        }
     }, [])
 
 
@@ -272,10 +250,6 @@ export default function SubmissionModal(props) {
         setFiles(files.filter((x) => x.id !== id));
     };
 
-    const dropzoneUI = (step) => {
-        
-        return (null)
-    }
     
     const reviewerArea = () => {
         console.log("REVIEW AREA ", props.venue.reviewers)

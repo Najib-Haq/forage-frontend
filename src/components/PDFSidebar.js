@@ -6,6 +6,7 @@ import 'react-comments-section/dist/index.css'
 import { Section } from "react-trello/dist/styles/Base";
 import { getStorageProjID, useProjID } from "../context/ProjectID";
 import { getStorageToken } from "../context/Auth";
+import { useUser, removeStorageUser } from '../context/User';
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button } from '@mui/material';
@@ -18,6 +19,7 @@ const updateHash = (highlight) => {
 
 export default function PDFSidebar(props) {
     const [commentData, setCommentData] = useState([]);
+    const { user } = useUser();
     
     const formatHighlight = (data, text) => {
         return (
@@ -195,8 +197,8 @@ export default function PDFSidebar(props) {
           
           <CommentSection
             currentUser={{
-            currentUserId: 1,
-            currentUserFullName: 'Tahmeed Tarek',
+            currentUserId: user[0],
+            currentUserFullName: user[1],
             currentUserImg: `https://ui-avatars.com/api/name=Tahmeed_Tarek&ground=random`,
             }}
             logIn={{

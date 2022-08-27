@@ -68,7 +68,7 @@ export default function Papers() {
                         if(lane.id == item.list) {
                             lane.cards.push({
                                 // most probably id is project paper id and paper_id is paper id
-                                id: item.id.toString(), title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: true, metadata: {paper_id: item.paper_id, title: item.paper.name}
+                                id: item.id.toString(), title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: true, metadata: {paper_id: item.paper.id, title: item.paper.name}
                             })
                         }
                     })

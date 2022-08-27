@@ -280,7 +280,7 @@ export default function Submission() {
                         </Typography>
                     </Grid>
                     {
-                        (selectedVenue == null) || (selectedVenue.length == 0) ? null :
+                        curSubVenue &&
                         (
                             <React.Fragment>
                                 <Grid item xs={16}>

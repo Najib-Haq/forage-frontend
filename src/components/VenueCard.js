@@ -59,7 +59,7 @@ export default function VenueCard(props) {
                 props.onlyData ? null : (
                     <Grid item>
                         <Typography variant="subtitle1" component="div">
-                            <b>{new Date(props.venueData.schedule[0].start).toLocaleString('default', { month: 'short', day:'numeric' })}</b>
+                            { props.venueData.activities && <b>{new Date(props.venueData.activities[0].start).toLocaleString('default', { month: 'short', day:'numeric' })}</b> }
                         </Typography>
                     </Grid>
                 )

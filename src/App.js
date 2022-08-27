@@ -24,6 +24,7 @@ import Schedule from "./pages/Schedule";
 import Submission from "./pages/Submission";
 import Error from './components/Error';
 import { stringToColor } from "./components/Helpers";
+import PDFAnnotator from "./components/PDFAnnotator";
 
 // search
 import SearchIcon from '@mui/icons-material/Search';

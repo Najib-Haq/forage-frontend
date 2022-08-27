@@ -38,11 +38,12 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function Submission() {
     const newData = pseudoData[1];
+    const [curSubVenue, setCurSubVenue] = useState(null);
     const [selectedVenue, setSelectedVenue] = useState([]);
     const [venueData, setVenueData] = useState([]);
     const [search, setSearch] = useState("");
     const [openModal, setOpenModal] = useState(false);
-    const [activeStep, setActiveStep] = useState(1);
+    const [activeStep, setActiveStep] = useState(2);
     const [openScheduleModal, setOpenScheduleModal] = useState(false);
     const [scheduleData, setScheduleData] = useState([]);
     // const activeStep = 1;
@@ -83,12 +84,23 @@ export default function Submission() {
         )
     }
 
+    useEffect(() => {console.log("Active step : ", activeStep)}, [activeStep])
+
     const venueInfo = (data) => {
         // populate with fake time? 
         data = data.map((item, index) => {
-            if(item.schedule.length == 0)
+            if(item.activities.length == 0)
             {
-                return {...item, schedule: [
+                return {...item, activities: [
+                    {
+                        "activity": "Paper titles and abstracts",
+                        "start": "2022-09-09T00:00:00+06:00",
+                        "end": "2022-10-09T00:00:00+06:00"
+                    }
+                ]}
+            }
+            if(item.activities[0].start == null){
+                return {...item, activities: [
                     {
                         "activity": "Paper titles and abstracts",
                         "start": "2022-09-09T00:00:00+06:00",
@@ -136,7 +148,7 @@ export default function Submission() {
                     <VenueCard 
                         venueData = {{
                             name: item.venue.name, 
-                            website: item.venue.name,
+                            website: item.status,
                             schedule: item.activities
                         }}
                         buttons = {makeUpcomingButtons(item)}
@@ -213,8 +225,14 @@ export default function Submission() {
             return resp.json();
         })
         .then(resp=>{
+            resp.results.map((item, index) => {
+                if(item.status === "ONGOING") {
+                    setCurSubVenue(item)
+                    setActiveStep(item.ongoing_activity.id-1)
+                }
+            })
             setSelectedVenue(resp.results);
-            setActiveStep(resp.results[0].ongoing_activity.id-1)
+            // setActiveStep(2)
         })
         .catch(error=>{
             console.log(error);
@@ -225,8 +243,13 @@ export default function Submission() {
         let steps = []
         if (data != null) {            
             data.activities.forEach((item, index) => {
-                console.log("IN LOOP : ", item, data)
-                steps.push(item.activity)
+                // console.log("IN LOOP : ", item, data)
+                steps.push(
+                    {
+                        activity: item.activity,
+                        time: new Date(item.end).toLocaleString('default', { month: 'short', day:'numeric' })
+                    }
+                )
             })
         }
         return steps;
@@ -263,8 +286,8 @@ export default function Submission() {
                                 <Grid item xs={16}>
                                     <VenueCard onlyData={true} 
                                         venueData={{
-                                            name: selectedVenue[0].venue.name, 
-                                            website: selectedVenue[0].venue.name,
+                                            name: curSubVenue.venue.name, 
+                                            website: curSubVenue.status,
                                         }}
                                     />
                                 </Grid>
@@ -283,7 +306,7 @@ export default function Submission() {
                                 Upcoming
                             </Typography>
                             {/* <Divider /> */}
-                            { selectedVenue != null && selectedVenue.length > 1 ? upcomingInfo(selectedVenue.slice(1)) : null}
+                            { selectedVenue != null && selectedVenue.length > 1 ? upcomingInfo(selectedVenue.filter((item) => item.status != "ONGOING")) : null}
                         </Item>
                     </Grid>
                     <Grid item xs={1} >
@@ -318,7 +341,7 @@ export default function Submission() {
                     </Grid>
                 </Grid>
             </Box>
-            <SubmissionModal isOpen={openModal} handleClose={handleModalClose} activeStep={activeStep} steps={getSteps(selectedVenue[0])} handleStepChange={handleStepChange}/>
+            { openModal && <SubmissionModal isOpen={true} handleClose={handleModalClose} activeStep={activeStep} steps={getSteps(curSubVenue)} venue={curSubVenue} handleStepChange={handleStepChange}/> }
         
             { openScheduleModal && <ScheduleModal data={scheduleData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>

@@ -42,7 +42,7 @@ export default function Submission() {
     const [venueData, setVenueData] = useState([]);
     const [search, setSearch] = useState("");
     const [openModal, setOpenModal] = useState(false);
-    const [activeStep, setActiveStep] = useState(1);
+    const [activeStep, setActiveStep] = useState(2);
     const [openScheduleModal, setOpenScheduleModal] = useState(false);
     const [scheduleData, setScheduleData] = useState([]);
     // const activeStep = 1;
@@ -83,12 +83,23 @@ export default function Submission() {
         )
     }
 
+    useEffect(() => {console.log("Active step : ", activeStep)}, [activeStep])
+
     const venueInfo = (data) => {
         // populate with fake time? 
         data = data.map((item, index) => {
-            if(item.schedule.length == 0)
+            if(item.activities.length == 0)
             {
-                return {...item, schedule: [
+                return {...item, activities: [
+                    {
+                        "activity": "Paper titles and abstracts",
+                        "start": "2022-09-09T00:00:00+06:00",
+                        "end": "2022-10-09T00:00:00+06:00"
+                    }
+                ]}
+            }
+            if(item.activities[0].start == null){
+                return {...item, activities: [
                     {
                         "activity": "Paper titles and abstracts",
                         "start": "2022-09-09T00:00:00+06:00",
@@ -214,7 +225,8 @@ export default function Submission() {
         })
         .then(resp=>{
             setSelectedVenue(resp.results);
-            setActiveStep(resp.results[0].ongoing_activity.id-1)
+            // setActiveStep(resp.results[0].ongoing_activity.id-1)
+            setActiveStep(2)
         })
         .catch(error=>{
             console.log(error);

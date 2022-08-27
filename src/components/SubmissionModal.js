@@ -119,6 +119,8 @@ export default function SubmissionModal(props) {
     const [data, setData] = useState(new_data);
     const [expanded, setExpanded] = useState(null);
     const [files, setFiles] = useState([]);
+    const [thisModalOpen, setThisModalOpen] = useState(true);
+    const [highlights, setHighlights] = useState([]);
 
     const [abstracts, setAbstracts] = useState([]);
     const [manuscripts, setManuscripts] = useState([]);
@@ -217,6 +219,32 @@ export default function SubmissionModal(props) {
         })
     }
 
+
+    const getHighlights = () => {
+        let url = `api/submissions/1/comments/`;
+        fetch(URL + url, 
+        {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            let highlights_data = resp.results[0].highlight_metadata;
+            console.log("this is the data : ", resp.results)
+            setHighlights([highlights_data]);            
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
     useEffect(() => {
         if(plainFiles && plainFiles.length>0) uploadFiles(plainFiles[0], 'ABSTRACT');
     }, [plainFiles])
@@ -270,7 +298,8 @@ export default function SubmissionModal(props) {
             <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
         
             <Typography variant="h4" gutterBottom component="div">
-                {props.steps[props.activeStep]['activity']}
+                {/* {props.steps[props.activeStep]['activity']} */}
+                Smth Smth
             </Typography>
 
             <div>
@@ -341,7 +370,7 @@ export default function SubmissionModal(props) {
                                 startIcon={<ArticleOutlinedIcon />}
                                 sx = {{ ml: 1, mt: 1}}
                                 style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                                onClick={()=>{setOpenPDF(true); setPDFURL(item.file)}}
+                                onClick={()=>{getHighlights(); setOpenPDF(true); setPDFURL(item.file); setThisModalOpen(false);}}
                                 // href={item.file}
                                 // target="_blank"
                             >{item.name}</Button>
@@ -398,44 +427,33 @@ export default function SubmissionModal(props) {
         </Box>
     );
 
+    const handlePDFClose = () => {
+        setThisModalOpen(true);
+        setOpenPDF(false);
+    }
+
     return (
         <React.Fragment>
         <Modal
-          open={props.isOpen}
+          open={thisModalOpen}
           onClose={props.handleClose}
         //   style={{ width: '896px'}}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-            {
-                openPDF ? 
-                (<Grid container sx={style} style={{overflowY: 'auto'}}>
-                    <Grid item xs>
-                        <PDFAnnotator url={pdfURL}/>
-                    </Grid>
-                    <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
-                    </Divider>
-                    <Grid item xs style = {{maxWidth: "200px"}}>
-                        {rightPart}
-                    </Grid>
-                </Grid>)
-                :
-                (<Grid container sx={style} style={{overflowY: 'auto'}}>
-                    <Grid item xs>
-                        {leftPart}
-                    </Grid>
-                    <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
-                    </Divider>
-                    <Grid item xs style = {{maxWidth: "200px"}}>
-                        {rightPart}
-                    </Grid>
-                </Grid>)
-            }
-
-            
+            <Grid container sx={style} style={{overflowY: 'auto'}}>
+                <Grid item xs>
+                    {leftPart}
+                </Grid>
+                <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
+                </Divider>
+                <Grid item xs style = {{maxWidth: "200px"}}>
+                    {rightPart}
+                </Grid>
+            </Grid>            
         </Modal>
 
-        
+        { openPDF && highlights.length!=0 && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} highlight={highlights}/>}
         </React.Fragment>
     );
   }

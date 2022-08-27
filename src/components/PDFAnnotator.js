@@ -84,9 +84,9 @@ const initialUrl = searchParams.get("url") || PRIMARY_PDF_URL;
 let scrollViewerTo = (highlight) => {};
 
 export default function PDFAnnotator(props) {
-    console.log("here -> ", props.url, props.highlight)
+    // console.log("here -> ", props.url, props.highlight)
     // props.handleModalClose();
-    const [highlights, setHighlights] = useState(props.highlight);
+    const [highlights, setHighlights] = useState([]);
     // const [url, setUrl] = useState(props.url);
     const [curHighlight, setCurHighlight] = useState(null);
     
@@ -130,11 +130,15 @@ export default function PDFAnnotator(props) {
           aria-describedby="modal-modal-description"
         >
             <div className="PDFAnnotator" style={{ display: "flex", height: "100vh", backgroundColor: "white"}}>
+                
                 <PDFSidebar
                 highlights={highlights}
                 curHighlight = {curHighlight}
                 setCurHighlight = {setCurHighlight}
                 setHighlights = {setHighlights} // to set the current high light
+                handleClose = {props.handleClose}
+                reviewer_id={props.reviewer_id} 
+                sub_id={props.sub_id}
                 // resetHighlights={this.resetHighlights}
                 />
                 <div
@@ -224,6 +228,7 @@ export default function PDFAnnotator(props) {
                     )}
                 </PdfLoader>
                 </div>
+                
             </div>
         </Modal>
     )

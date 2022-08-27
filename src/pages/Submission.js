@@ -38,6 +38,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function Submission() {
     const newData = pseudoData[1];
+    const [curSubVenue, setCurSubVenue] = useState(null);
     const [selectedVenue, setSelectedVenue] = useState([]);
     const [venueData, setVenueData] = useState([]);
     const [search, setSearch] = useState("");
@@ -147,7 +148,7 @@ export default function Submission() {
                     <VenueCard 
                         venueData = {{
                             name: item.venue.name, 
-                            website: item.venue.name,
+                            website: item.status,
                             schedule: item.activities
                         }}
                         buttons = {makeUpcomingButtons(item)}
@@ -224,9 +225,14 @@ export default function Submission() {
             return resp.json();
         })
         .then(resp=>{
+            resp.results.map((item, index) => {
+                if(item.status === "ONGOING") {
+                    setCurSubVenue(item)
+                    setActiveStep(item.ongoing_activity.id-1)
+                }
+            })
             setSelectedVenue(resp.results);
-            // setActiveStep(resp.results[0].ongoing_activity.id-1)
-            setActiveStep(2)
+            // setActiveStep(2)
         })
         .catch(error=>{
             console.log(error);
@@ -280,8 +286,8 @@ export default function Submission() {
                                 <Grid item xs={16}>
                                     <VenueCard onlyData={true} 
                                         venueData={{
-                                            name: selectedVenue[0].venue.name, 
-                                            website: selectedVenue[0].venue.name,
+                                            name: curSubVenue.venue.name, 
+                                            website: curSubVenue.status,
                                         }}
                                     />
                                 </Grid>
@@ -300,7 +306,7 @@ export default function Submission() {
                                 Upcoming
                             </Typography>
                             {/* <Divider /> */}
-                            { selectedVenue != null && selectedVenue.length > 1 ? upcomingInfo(selectedVenue.slice(1)) : null}
+                            { selectedVenue != null && selectedVenue.length > 1 ? upcomingInfo(selectedVenue.filter((item) => item.status != "ONGOING")) : null}
                         </Item>
                     </Grid>
                     <Grid item xs={1} >
@@ -335,7 +341,7 @@ export default function Submission() {
                     </Grid>
                 </Grid>
             </Box>
-            { openModal && <SubmissionModal isOpen={true} handleClose={handleModalClose} activeStep={activeStep} steps={getSteps(selectedVenue[0])} handleStepChange={handleStepChange}/> }
+            { openModal && <SubmissionModal isOpen={true} handleClose={handleModalClose} activeStep={activeStep} steps={getSteps(curSubVenue)} venue={curSubVenue} handleStepChange={handleStepChange}/> }
         
             { openScheduleModal && <ScheduleModal data={scheduleData} isOpen={true} handleClose={handleModalClose}/> }
         </React.Fragment>

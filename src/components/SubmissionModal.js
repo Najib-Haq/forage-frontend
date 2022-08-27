@@ -3,9 +3,12 @@ import { styled } from '@mui/material/styles';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Divider, getTabScrollButtonUtilityClass, requirePropFactory } from "@mui/material";
+import { Divider, getTabScrollButtonUtilityClass, requirePropFactory, Avatar, Paper } from "@mui/material";
 import SubmissionStep from "../components/SubmissionStep"
 import PDFAnnotator from "./PDFAnnotator";
+import { stringToColor } from "./Helpers";
+import Switch from '@mui/material/Switch';
+
 
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
@@ -21,8 +24,11 @@ import Button from '@mui/material/Button';
 import MuiGrid from '@mui/material/Grid';
 import LanguageIcon from '@mui/icons-material/Language';
 import ArticleOutlinedIcon from '@mui/icons-material/ArticleOutlined';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import { Stack } from "@mui/material";
 import { useFilePicker } from 'use-file-picker';
 
 import { getStorageProjID, useProjID } from "../context/ProjectID";
@@ -63,6 +69,17 @@ const style = {
   };
 
 
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+}));
+
+
+const label = { inputProps: { 'aria-label': 'Switch demo' } };
+
 const Grid = styled(MuiGrid)(({ theme }) => ({
     width: '800px',
     maxWidth: '800px',
@@ -86,35 +103,12 @@ const Accordion = styled((props) => (
 }));
 
 
-const AccordionSummary = styled((props) => (
-    <MuiAccordionSummary
-        expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }} />}
-        {...props}
-    />
-))(({ theme }) => ({
-    backgroundColor:
-        theme.palette.mode === 'dark'
-        ? 'rgba(255, 255, 255, .05)'
-        : 'rgba(0, 0, 0, .03)',
-    flexDirection: 'row-reverse',
-    '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-        transform: 'rotate(90deg)',
-    },
-    '& .MuiAccordionSummary-content': {
-        marginLeft: theme.spacing(1),
-    },
-}));
-
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-    padding: theme.spacing(2),
-    borderTop: '1px solid rgba(0, 0, 0, .125)',
-}));
-  
-
 const UPLOADTYPE = [ 'ABSTRACT', 'MANUSCRIPT' ];
 
 export default function SubmissionModal(props) {
+
+    // props.venue has all current submission venue data
+
     const new_data = pseudoData[0];
     const [data, setData] = useState(new_data);
     const [expanded, setExpanded] = useState(null);
@@ -126,6 +120,8 @@ export default function SubmissionModal(props) {
     const [manuscripts, setManuscripts] = useState([]);
     const [openPDF, setOpenPDF] = useState(false);
     const [pdfURL, setPDFURL] = useState(false);
+    const [reviewer, setReviewer] = useState(null);
+    const [revFile, setRevFile] = useState("");
 
     const { projID } = useProjID();
     const [openFileSelector, { filesContent, loading, plainFiles}] = useFilePicker({
@@ -163,10 +159,10 @@ export default function SubmissionModal(props) {
         let formData = new FormData();
         formData.append('file', file)
         formData.append('project_id', getStorageProjID())
-        formData.append('name', 'ML_TREE')
+        formData.append('name', file.name.slice(0, 5))
         formData.append('content', type)
         formData.append('status', 'ACTIVE')
-        formData.append('upload_id', 1)
+        // formData.append('upload_id', 1)
 
 
         fetch(URL + `api/files/`, {
@@ -210,7 +206,12 @@ export default function SubmissionModal(props) {
         })
         .then(resp=>{
             if(type === UPLOADTYPE[0]) setAbstracts(resp.results);
-            if(type === UPLOADTYPE[1]) setManuscripts(resp.results);
+            if(type === UPLOADTYPE[1]) {
+                setManuscripts(resp.results);
+                resp.results.map((item, index) => {
+                    if(item.status == "ACTIVE") setRevFile(item.file);
+                })
+            }
         })
         .catch(error=>{
             console.log(error);
@@ -218,7 +219,6 @@ export default function SubmissionModal(props) {
             if(type === UPLOADTYPE[1]) setManuscripts([]);
         })
     }
-
 
     const getHighlights = () => {
         let url = `api/submissions/1/comments/`;
@@ -245,9 +245,23 @@ export default function SubmissionModal(props) {
         })
     }
 
-    useEffect(() => {
-        if(plainFiles && plainFiles.length>0) uploadFiles(plainFiles[0], 'ABSTRACT');
-    }, [plainFiles])
+    const setFileActive = (file_id) => {
+        fetch(URL + `api/files/${file_id}/set_active/`, {
+            method: 'PUT',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
+    // useEffect(() => {
+    //     if(plainFiles && plainFiles.length>0) uploadFiles(plainFiles[0], 'ABSTRACT');
+    // }, [plainFiles])
 
     useEffect(() => {
         if(projID) getFiles(UPLOADTYPE[0]);
@@ -263,35 +277,31 @@ export default function SubmissionModal(props) {
         return (null)
     }
     
-    const commentBox = () => {
-        // console.log(data)
+    const reviewerArea = () => {
+        console.log("REVIEW AREA ", props.venue.reviewers)
         return (
-            <React.Fragment>
-            { data.map((item, index) => (
-                <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)}>
-                    <AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
-                        <Typography>{item.reviewer_name}</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Comment data={item.comments} updateComments={updateComments} reviewer={item.reviewer_id}/>
-                    </AccordionDetails>
-                </Accordion>
-            ))}
-            <Grid container justifyContent="flex-end">
-                <Grid item>
-                    <Button 
-                        variant="outlined" 
-                        size="small" 
-                        // startIcon={<AddIcon />}
-                        style={{borderColor: "black", color: "black"}}
-                        onClick={()=>{props.handleStepChange(3);}}
-                        // color="black"
-                    >Next</Button>
-                </Grid> 
-            </Grid>
-            </React.Fragment>
+            <Stack spacing={2}>
+                {props.venue.reviewers.map((reviewer, index) => 
+                    <Item style={{textAlign: 'left'}}>
+                        <Stack direction="row" spacing={2}>
+                            <Avatar key={index} alt={reviewer.username} src={reviewer.username} sx={{bgcolor : stringToColor(reviewer.username)}} />
+                            <Typography variant="h6" gutterBottom>
+                                { reviewer.username }
+                            </Typography>
+                            <Button 
+                                variant="outlined" 
+                                size="small" 
+                                // fullWidth
+                                startIcon={<FileOpenIcon />}
+                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 300, width: '250px'}}
+                                onClick={()=>{setReviewer(reviewer.id); setOpenPDF(true); setPDFURL(revFile); setThisModalOpen(false);}}
+                            >Reviewer FeedBack</Button>
+                        </Stack>
+                    </Item>
+                )}
+            </Stack>
         )
-    }
+    } 
 
     const leftPart = (
         <Box>
@@ -299,18 +309,19 @@ export default function SubmissionModal(props) {
         
             <Typography variant="h4" gutterBottom component="div">
                 {/* {props.steps[props.activeStep]['activity']} */}
-                Smth Smth
+                {/* Smth Smth */}
             </Typography>
 
             <div>
-                {
+                {/* {
                     (props.activeStep == 0 || props.activeStep == 1) && dropzoneUI(props.activeStep)
-                }
+                } */}
 
                 {
-                    props.activeStep == 2 &&
+                    // props.activeStep == 2 &&
                     <div>
-                        { commentBox() }
+                        {/* { commentBox() } */}
+                        { reviewerArea() }
                     </div>
                 }
 
@@ -353,6 +364,8 @@ export default function SubmissionModal(props) {
                 startIcon={<LanguageIcon />}
                 style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 10}}
                 onClick={()=>{}}
+                href={props.venue.website}
+                target="_blank"
             >Website</Button>
             <Divider sx={{m:1}}/>
             <Typography variant="h7" sx={{m: 1}}>
@@ -370,58 +383,82 @@ export default function SubmissionModal(props) {
                                 startIcon={<ArticleOutlinedIcon />}
                                 sx = {{ ml: 1, mt: 1}}
                                 style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                                onClick={()=>{getHighlights(); setOpenPDF(true); setPDFURL(item.file); setThisModalOpen(false);}}
-                                // href={item.file}
-                                // target="_blank"
+                                // onClick={()=>{setOpenPDF(true); setPDFURL(item.file); setThisModalOpen(false);}}
+                                href={item.file}
+                                target="_blank"
                             >{item.name}</Button>
                         </div>
-                        <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
-                            <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
+                        <div style={{width:'20%', float:'right'}}>
+                            <Switch 
+                            {...label}
+                            defaultChecked = {item.status === "ACTIVE" ? true : false}
+                            onChange = {(event) => { if(event.target.checked) setFileActive(item.id)}}
+                            />
                         </div>
                     </div>
                 ))
             }
                 
                 
+            <div style={{width:'80%', float:'left'}}>
+                <Button 
+                    variant="outlined" 
+                    size="medium" 
+                    fullWidth
+                    startIcon={<AttachFileIcon />}
+                    sx = {{ ml: 1, mt: 1, mb: 3}}
+                    style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                    onClick={() => openFileSelector()}
+                >Attach</Button>
+            </div>
+            <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
+                <FileUploadOutlinedIcon onClick={()=>{uploadFiles(plainFiles[0], UPLOADTYPE[0])}}  sx={{ "&:hover": { color: "red" } }}/>
+            </div>
 
-            <Button 
-                variant="outlined" 
-                size="medium" 
-                fullWidth
-                startIcon={<FileUploadOutlinedIcon />}
-                sx = {{ ml: 1, mt: 1, mb: 3}}
-                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                onClick={() => openFileSelector()}
-            >Upload</Button>
 
             <Divider sx={{m:1}}/>
             <Typography variant="h7" sx={{m: 1}}>
                 Manuscript Uploads
             </Typography>
-            <div>
-                <div style={{width:'80%', float:'left'}}>
-                    <Button 
-                        variant="outlined" 
-                        size="medium" 
-                        fullWidth
-                        startIcon={<LanguageIcon />}
-                        sx = {{ ml: 1, mt: 1}}
-                        style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                        onClick={()=>{}}
-                    >Draft 1</Button>
-                </div>
-                <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
-                    <DeleteIcon onClick={()=>{}}  sx={{ "&:hover": { color: "red" } }}/>
-                </div>
+            {
+                manuscripts && manuscripts.map((item, index) => (
+                    <div>
+                        <div style={{width:'80%', float:'left'}}>
+                            <Button 
+                                variant="outlined" 
+                                size="medium" 
+                                fullWidth
+                                startIcon={<ArticleOutlinedIcon />}
+                                sx = {{ ml: 1, mt: 1}}
+                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                                // onClick={()=>{setOpenPDF(true); setPDFURL(item.file); setThisModalOpen(false);}}
+                                href={item.file}
+                                target="_blank"
+                            >{item.name}</Button>
+                        </div>
+                        <div style={{width:'20%', float:'right'}}>
+                            <Switch {...label} 
+                            defaultChecked = {item.status === "ACTIVE" ? true : false}
+                            onChange = {(event) => { if(event.target.checked) setFileActive(item.id)}}
+                            />
+                        </div>
+                    </div>
+                ))
+            }
+            <div style={{width:'80%', float:'left'}}>
+                <Button 
+                    variant="outlined" 
+                    size="medium" 
+                    fullWidth
+                    startIcon={<AttachFileIcon />}
+                    sx = {{ ml: 1, mt: 1, mb: 3}}
+                    style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
+                    onClick={() => openFileSelector()}
+                >Attach</Button>
             </div>
-            <Button 
-                variant="outlined" 
-                size="medium" 
-                fullWidth
-                startIcon={<FileUploadOutlinedIcon />}
-                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 10}}
-                onClick={()=>{}}
-            >Upload</Button>
+            <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
+                <FileUploadOutlinedIcon onClick={()=>{uploadFiles(plainFiles[0], UPLOADTYPE[1])}}  sx={{ "&:hover": { color: "red" } }}/>
+            </div>
 
             
         </Box>
@@ -453,7 +490,7 @@ export default function SubmissionModal(props) {
             </Grid>            
         </Modal>
 
-        { openPDF && highlights.length!=0 && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} highlight={highlights}/>}
+        { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={reviewer} sub_id={props.venue.id}/>}
         </React.Fragment>
     );
   }

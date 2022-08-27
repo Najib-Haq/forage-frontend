@@ -7,6 +7,8 @@ import { Section } from "react-trello/dist/styles/Base";
 import { getStorageProjID, useProjID } from "../context/ProjectID";
 import { getStorageToken } from "../context/Auth";
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button } from '@mui/material';
 
 const URL = process.env.REACT_APP_API_URL;
 
@@ -19,7 +21,7 @@ export default function PDFSidebar(props) {
     
     const formatHighlight = (data, text) => {
         return (
-                <div>
+                <div onClick={()=>{console.log("hehe")}}>
                     <div>
                         {data.content.text ? (
                         <blockquote style={{ marginTop: "0.5rem", backgroundColor: "yellow"}}>
@@ -43,17 +45,24 @@ export default function PDFSidebar(props) {
         )
     }
 
+
+    const singleData = (item) => {
+        return {
+            userId: item.user.id,
+            comId: item.id,
+            fullName: item.user.username,
+            text: item.highlight_metadata ? formatHighlight(item.highlight_metadata, item.text) : item.text,
+            avatarUrl: `https://ui-avatars.com/api/name=${item.user.username}&background=random`,
+        }
+    }
+ 
     const prepCommentData = (data) => {
         let comments = []
         let highlights = []
         data.map((item, index)=> {
             comments.push({
-                userId: item.user.id,
-                comId: item.id,
-                fullName: item.user.username,
-                text: item.highlight_metadata ? formatHighlight(item.highlight_metadata, item.text) : item.text,
-                avatarUrl: `https://ui-avatars.com/api/name=${item.user.username}&background=random`,
-                replies: []
+                ...singleData(item),
+                replies: item.replies.map((reply)=>singleData(reply))
             })
 
             if(item.highlight_metadata) highlights.push(item.highlight_metadata)
@@ -63,24 +72,29 @@ export default function PDFSidebar(props) {
         props.setHighlights(highlights)
     }
 
-    const addComment = (data) => {
+    const addComment = (data, parent_id) => {
         // console.log("Add this : ", highlight)
-        fetch(URL + `api/submissions/1/comments/`, {
+        let payload = { 
+            "text": data.text,
+            "submission_id": props.sub_id,
+            "reviewer_thread": props.reviewer_id,
+            "highlight_metadata": props.curHighlight
+        }
+        if(parent_id != -1) payload["parent_id"] = parent_id
+
+        console.log("Payload : ", payload)
+        fetch(URL + `api/submissions/${props.sub_id}/comments/`, {
             method: 'POST',
             credentials: "same-origin",
             headers: {
                 'Authorization': `Token ${getStorageToken()}`,
                 'Content-Type':'application/json'
             },
-            body: JSON.stringify({ 
-                "text": data.text,
-                "submission_id": 1,
-                "reviewer_thread": 2,
-                "highlight_metadata": props.curHighlight
-             })
+            body: JSON.stringify(payload)
         })
         .then(res=>{
             props.setCurHighlight(null);
+            fetchCommentData();
         })
         .catch(error=>{
             console.log(error);
@@ -88,7 +102,7 @@ export default function PDFSidebar(props) {
     }
 
     const fetchCommentData = () => {
-        let url = `api/submissions/1/comments/`;
+        let url = `api/submissions/${props.sub_id}/comments/?reviewer_thread=${props.reviewer_id}`;
         fetch(URL + url, 
         {
             method: 'GET',
@@ -119,9 +133,20 @@ export default function PDFSidebar(props) {
     // props -> highlights
     return (
         <div className="sidebar" style={{ width: "25vw" }}>
+            
           <div className="description" style={{ padding: "1rem" }}>
-            <h2 style={{ marginBottom: "1rem" }}>Current HighLight</h2>
     
+            <Button 
+                variant="outlined" 
+                size="large" 
+                startIcon={<ArrowBackIcon />}
+                style={{borderColor: "black", color: "black"}}
+                onClick={()=>{props.handleClose()}}
+                // color="black"
+            >BACK</Button>
+
+            <h2 style={{ marginBottom: "1rem" }}>Current Highlight</h2>
+            
             {/* <p style={{ fontSize: "0.7rem" }}>
               <a href="https://github.com/agentcooper/react-pdf-highlighter">
                 Open in GitHub
@@ -180,8 +205,8 @@ export default function PDFSidebar(props) {
             }}
             commentData={commentData}
             removeEmoji={true}
-            onSubmitAction={(data) => { console.log('check submit, ', data); addComment(data); fetchCommentData(); }}
-            onReplyAction={(data) => { console.log('check reply, ', data); addComment(data); fetchCommentData(); }}
+            onSubmitAction={(data) => { console.log('check submit, ', data); addComment(data, -1); ; }}
+            onReplyAction={(data) => { console.log('check reply, ', data); addComment(data, data.repliedToCommentId); }}
             // currentData={(data) => {
             //     console.log('curent data', data)
             // }}

@@ -133,7 +133,8 @@ export default function PDFAnnotator(props) {
                 <PDFSidebar
                 highlights={highlights}
                 curHighlight = {curHighlight}
-                setHighlight = {setHighlights} // to set the current high light
+                setCurHighlight = {setCurHighlight}
+                setHighlights = {setHighlights} // to set the current high light
                 // resetHighlights={this.resetHighlights}
                 />
                 <div

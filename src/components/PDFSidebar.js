@@ -45,6 +45,7 @@ export default function PDFSidebar(props) {
 
     const prepCommentData = (data) => {
         let comments = []
+        let highlights = []
         data.map((item, index)=> {
             comments.push({
                 userId: item.user.id,
@@ -54,10 +55,12 @@ export default function PDFSidebar(props) {
                 avatarUrl: `https://ui-avatars.com/api/name=${item.user.username}&background=random`,
                 replies: []
             })
-        })
 
+            if(item.highlight_metadata) highlights.push(item.highlight_metadata)
+        })
         console.log("Data reformatted : ", comments)
         setCommentData(comments)
+        props.setHighlights(highlights)
     }
 
     const addComment = (data) => {
@@ -77,7 +80,7 @@ export default function PDFSidebar(props) {
              })
         })
         .then(res=>{
-            props.setHighlight(null);
+            props.setCurHighlight(null);
         })
         .catch(error=>{
             console.log(error);

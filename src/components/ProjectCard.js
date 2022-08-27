@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
-import { Button, CardActionArea, CardActions, CardHeader, AvatarGroup, Avatar } from '@mui/material';
+import { Button, CardActionArea, CardActions, CardHeader, AvatarGroup, Avatar, Tooltip } from '@mui/material';
 import { stringToColor } from "./Helpers";
 import { bgcolor } from "@mui/system";
 
@@ -24,7 +24,7 @@ export default function ProjectCard(props) {
     const handleGroupAvatar = (users) => {
         return users.map((user, index) => {
             return (
-                <Avatar key={index} alt={user.username} src={user.username[0]} sx={{bgcolor : stringToColor(user.username)}} />
+                <Tooltip title={user.username}><Avatar key={index} alt={user.username} src={user.username[0]} sx={{bgcolor : stringToColor(user.username)}} /></Tooltip>
             )
         })
     }

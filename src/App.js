@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { useAuth, removeStorageToken } from "./context/Auth";
 import { useProjID, removeStorageProjID } from "./context/ProjectID";
+import { useUser, removeStorageUser } from './context/User';
 import './styles/App.css';
 import Sidebar from './components/Sidebar';
 import Box from '@mui/material/Box';
@@ -9,6 +10,8 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Avatar from '@mui/material/Avatar';
+import { Tooltip } from "@mui/material";
 
 // import pages
 import Home from './pages/Home';
@@ -20,11 +23,13 @@ import Tasks from "./pages/Tasks";
 import Schedule from "./pages/Schedule";
 import Submission from "./pages/Submission";
 import Error from './components/Error';
+import { stringToColor } from "./components/Helpers";
 
 // search
 import SearchIcon from '@mui/icons-material/Search';
 import InputBase from '@mui/material/InputBase';
 import { styled, alpha } from '@mui/material/styles';
+
 
 const drawerWidth = 250;
 
@@ -80,12 +85,14 @@ color: 'inherit',
 function App() {
     const { setAuthToken } = useAuth();
     const { setProjID } = useProjID();
+    const { user, setUser } = useUser();
     const handleLogOut = () => {
         console.log("Logging Out");
         setAuthToken(null);
         removeStorageToken();
 
-        localStorage.removeItem('username'); // TODO: remove user id if appended
+        setUser([]);
+        removeStorageUser();
         
         setProjID(null);
         removeStorageProjID();
@@ -111,6 +118,7 @@ function App() {
                 inputProps={{ 'aria-label': 'search' }}
                 />
              </Search> */}
+            <Tooltip title={user[1]}><Avatar alt={user[1]} src={user[1]} sx={{bgcolor : stringToColor(user[1]), mr: 2}} /></Tooltip>
             <Button variant='outlined' sx={{borderColor: "#a3a3a3", color: "black", '&:hover': { bgcolor: "#a3a3a3" }}} onClick={handleLogOut}>Logout</Button>
         </Toolbar>
         </AppBar>

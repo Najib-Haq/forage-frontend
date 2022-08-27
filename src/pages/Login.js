@@ -15,6 +15,8 @@ import forageIcon from '../forage_logo.png';
 import { Toolbar } from '@mui/material';
 
 import { useAuth } from '../context/Auth';
+import { useUser } from '../context/User';
+
 
 const theme = createTheme();
 const URL = process.env.REACT_APP_API_URL;
@@ -22,6 +24,7 @@ const URL = process.env.REACT_APP_API_URL;
 export default function Login() {
 
     const { setAuthToken } = useAuth();
+    const { setUser } = useUser(); 
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -51,7 +54,8 @@ export default function Login() {
             .then(resp => {
                 console.log(resp.token);
                 setAuthToken(resp.token);
-                localStorage.setItem('username', username);
+                // localStorage.setItem('username', username);
+                setUser([resp.user.id, resp.user.username])
             })
             .catch(error=>{
                 console.log(error);

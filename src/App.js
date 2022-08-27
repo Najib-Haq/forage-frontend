@@ -20,6 +20,7 @@ import Tasks from "./pages/Tasks";
 import Schedule from "./pages/Schedule";
 import Submission from "./pages/Submission";
 import Error from './components/Error';
+import PDFAnnotator from "./components/PDFAnnotator";
 
 // search
 import SearchIcon from '@mui/icons-material/Search';

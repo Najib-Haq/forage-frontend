@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from "react";
+import { styled } from '@mui/material/styles';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Divider, getTabScrollButtonUtilityClass, requirePropFactory } from "@mui/material";
 import SubmissionStep from "../components/SubmissionStep"
+import PDFAnnotator from "./PDFAnnotator";
 
-import { styled } from '@mui/material/styles';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -121,6 +122,8 @@ export default function SubmissionModal(props) {
 
     const [abstracts, setAbstracts] = useState([]);
     const [manuscripts, setManuscripts] = useState([]);
+    const [openPDF, setOpenPDF] = useState(false);
+    const [pdfURL, setPDFURL] = useState(false);
 
     const { projID } = useProjID();
     const [openFileSelector, { filesContent, loading, plainFiles}] = useFilePicker({
@@ -262,8 +265,6 @@ export default function SubmissionModal(props) {
         )
     }
 
-
-
     const leftPart = (
         <Box>
             <SubmissionStep activeStep={props.activeStep} steps={props.steps}/>
@@ -340,9 +341,9 @@ export default function SubmissionModal(props) {
                                 startIcon={<ArticleOutlinedIcon />}
                                 sx = {{ ml: 1, mt: 1}}
                                 style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5"}}
-                                // onClick={()=>{}}
-                                href={item.file}
-                                target="_blank"
+                                onClick={()=>{setOpenPDF(true); setPDFURL(item.file)}}
+                                // href={item.file}
+                                // target="_blank"
                             >{item.name}</Button>
                         </div>
                         <div style={{width:'20%', float:'right', paddingLeft: '20px', paddingTop: '17px'}}>
@@ -398,6 +399,7 @@ export default function SubmissionModal(props) {
     );
 
     return (
+        <React.Fragment>
         <Modal
           open={props.isOpen}
           onClose={props.handleClose}
@@ -405,17 +407,36 @@ export default function SubmissionModal(props) {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-            <Grid container sx={style} style={{overflowY: 'auto'}}>
-                <Grid item xs>
-                    {leftPart}
-                </Grid>
-                <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
-                </Divider>
-                <Grid item xs style = {{maxWidth: "200px"}}>
-                    {rightPart}
-                </Grid>
-            </Grid>
+            {
+                openPDF ? 
+                (<Grid container sx={style} style={{overflowY: 'auto'}}>
+                    <Grid item xs>
+                        <PDFAnnotator url={pdfURL}/>
+                    </Grid>
+                    <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
+                    </Divider>
+                    <Grid item xs style = {{maxWidth: "200px"}}>
+                        {rightPart}
+                    </Grid>
+                </Grid>)
+                :
+                (<Grid container sx={style} style={{overflowY: 'auto'}}>
+                    <Grid item xs>
+                        {leftPart}
+                    </Grid>
+                    <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
+                    </Divider>
+                    <Grid item xs style = {{maxWidth: "200px"}}>
+                        {rightPart}
+                    </Grid>
+                </Grid>)
+            }
+
+            
         </Modal>
+
+        
+        </React.Fragment>
     );
   }
   

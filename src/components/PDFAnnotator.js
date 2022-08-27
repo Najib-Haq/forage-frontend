@@ -25,7 +25,6 @@ const style = {
     pb: 3,
 };
 
-
 const getNextId = () => String(Math.random()).slice(2);
 
 const parseIdFromHash = () =>
@@ -82,13 +81,16 @@ const searchParams = new URLSearchParams(document.location.search);
 //   }
   
 const initialUrl = searchParams.get("url") || PRIMARY_PDF_URL;
-// let scrollViewerTo = (highlight) => {return highlight};
+let scrollViewerTo = (highlight) => {};
 
 export default function PDFAnnotator(props) {
     console.log("here -> ", props.url, props.highlight)
     // props.handleModalClose();
     const [highlights, setHighlights] = useState(props.highlight);
     // const [url, setUrl] = useState(props.url);
+    const [curHighlight, setCurHighlight] = useState(null);
+    
+
 
     const resetHighLights = () => {
         setHighlights([])
@@ -97,43 +99,23 @@ export default function PDFAnnotator(props) {
     const scrollToHighlightFromHash = () => {
         const highlight = getHighlightById(parseIdFromHash());
     
-        // if (highlight) {
-        //   scrollViewerTo(highlight);
-        // }
+        if (highlight) {
+          scrollViewerTo(highlight);
+        }
     };
 
     const getHighlightById = (id) => {    
         return highlights.find((highlight) => highlight.id === id);
     }
     
-    const addComment = (highlight) => {
-        console.log("Add this : ", highlight)
-        fetch(URL + `api/submissions/1/comments/`, {
-            method: 'POST',
-            credentials: "same-origin",
-            headers: {
-                'Authorization': `Token ${getStorageToken()}`,
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringify({ 
-                "text": "Very nice work done here",
-                "submission_id": 1,
-                "reviewer_thread": 2,
-                "highlight_metadata": highlight
-             })
-        })
-        .catch(error=>{
-            console.log(error);
-        })
-    }
 
     const addHighlight = (highlight) => {
         console.log("Saving highlight", JSON.stringify(highlight));
 
-        setHighlights([{ ...highlight, id: getNextId() }, ...highlights])
+        // setHighlights([{ ...highlight, id: getNextId() }, ...highlights])
 
         console.log("Adding hightlight .. ", highlight)
-        addComment(highlight);        
+        // addComment(highlight);        
     }
  
     const updateHighlight = (highlightId, position, content) => {
@@ -150,6 +132,8 @@ export default function PDFAnnotator(props) {
             <div className="PDFAnnotator" style={{ display: "flex", height: "100vh", backgroundColor: "white"}}>
                 <PDFSidebar
                 highlights={highlights}
+                curHighlight = {curHighlight}
+                setHighlight = {setHighlights} // to set the current high light
                 // resetHighlights={this.resetHighlights}
                 />
                 <div
@@ -167,7 +151,7 @@ export default function PDFAnnotator(props) {
                         onScrollChange={resetHash}
                         // pdfScaleValue="page-width"
                         scrollRef={(scrollTo) => {
-                            // scrollViewerTo = scrollTo;
+                            scrollViewerTo = scrollTo;
                             scrollToHighlightFromHash();
                         }}
                         onSelectionFinished={(
@@ -176,13 +160,18 @@ export default function PDFAnnotator(props) {
                             hideTipAndSelection,
                             transformSelection
                         ) => (
-                        <Tip
-                            onOpen={transformSelection}
-                            onConfirm={(comment) => {
-                                addHighlight({ content, position, comment });
-                                hideTipAndSelection();
-                            }}
-                        />
+                            // <Tip
+                            //     onOpen={transformSelection}
+                            //     onConfirm={(comment) => {
+                            //         addHighlight({ content, position, comment });
+                            //         hideTipAndSelection();
+                            //     }}
+                            // />
+                            setCurHighlight({
+                                'content': content,
+                                'position': position
+                            })
+
                         )}
                         highlightTransform={(
                             highlight,

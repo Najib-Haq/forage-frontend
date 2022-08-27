@@ -12,6 +12,16 @@ export function getStorageToken() {
     return JSON.parse(value);
 }
 
+export function getUserID() {
+    const value = localStorage.getItem('userId')
+    console.log(value)
+    if (value === 'undefined') {
+        // console.log("checking undef")
+        return null
+    }
+    return JSON.parse(value);
+}
+
 export function setStorageToken(data) {
     // console.log("Setting data: ", JSON.stringify(data))
     localStorage.setItem('token', JSON.stringify(data));

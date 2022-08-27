@@ -9,7 +9,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ReviewTable from "../components/ReviewTable";
-import { getStorageToken } from "../context/Auth";
+import { getStorageToken,getUserID } from "../context/Auth";
 import ReviewModal from "../components/ReviewModal.js";
 import '../styles/Table.css'
 
@@ -111,6 +111,7 @@ export default function Reviews() {
 
         const accept = (review) => {
             //add api call for accepting review
+            
             //update table
             }
         
@@ -138,7 +139,7 @@ export default function Reviews() {
 
     function fetchReviewerdata() {
         //add api call
-        fetch(URL + 'api/submissions/?reviewers=1',
+        fetch(URL + `api/submissions/?reviewers=${getUserID()}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",

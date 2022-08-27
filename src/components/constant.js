@@ -93,5 +93,25 @@ export default [[
         ]
     }
 
-]
+],
+[
+    {
+        reviewer_id: 1,
+        reviewer_name: "John Doe",
+        comments:[
+            {
+                commenter: "John Doe",
+                comment: "Your Paper has some issues. Please fix them",
+            },
+            {
+                commenter: "Tahmeed",
+                comment: "Can you please tell me what to change?"
+            },
+            {
+                commenter: "John Doe",
+                comment: "The benchmarking section is actually useless due to the rough tuning of parameters as mentioned by the authors themselves. There should be a proper evaluation technique to benchmark the existing and proposed methods, otherwise the performance comparison of the methods will remain ambiguous."
+            }
+        ]
+    }
+],
 ]

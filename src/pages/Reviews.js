@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ReviewTable from "../components/ReviewTable";
 import { getStorageToken } from "../context/Auth";
+import ReviewModal from "../components/ReviewModal.js";
 import '../styles/Table.css'
 
 const URL = process.env.REACT_APP_API_URL;
@@ -72,9 +73,10 @@ function a11yProps(index) {
 function getStatusLabel(status) {
     let color = "rgb(0, 0, 0)";
     if (status === "Done") {color = "rgb(150, 242, 119)" }
-    else if (status === "Feedback") {color = "cyan" }
+    else if (status === "Start") {color = "cyan" }
     else if (status === "Pending") {color = "rgb(254, 137, 111)" }
     else if (status === "In Progress") {color = "rgb(163, 160, 249)" }
+    else {color = "rgb(249, 160, 163)" }
 
     return (
         <Typography><span className='labelSpan' style={{backgroundColor: color}}>{status}</span></Typography>
@@ -84,43 +86,39 @@ function getStatusLabel(status) {
 
 export default function Reviews() {
     const [value, setValue] = useState(0);
-    const [assignedData, setAssignedData] = useState({head: [], rows: [[]]});
-    const [proposedData, setProposedData] = useState({head: [], rows: [[]]});
+    const [assignedData, setAssignedData] = useState({head: tableHeadersAssigned, rows: [[]]});
+    const [proposedData, setProposedData] = useState({head: tableHeadersProposed, rows: [[]]});
+    const [submittedData, setSubmittedData] = useState({head: [], rows: [[]]});
+    const [openModal, setOpenModal] = useState(false);
+    const [modalData, setModalData] = useState(null);
+
+    const openModalWithData = (id) => {
+        setModalData({results: assignedData.rows[id],reviewer_id:15});
+        setOpenModal(true);
+    };
+
+    const closeModal = () => {
+        setOpenModal(false);
+        setModalData(null);
+        console.log("Closing modal")
+    }
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
-    const getTableData = (apidata,assigned) => {
-        let data = []
-        apidata.results.forEach((item, index) => {
-            let pushdata = assigned ? [
-                item.venue,
-                item.paper,
-                getStatusLabel(item.status),
-                tableActions(item)
-            ] : [
-                item.venue,
-                item.paper,
-                tableActions(item)
-            ];
-            data.push(pushdata);
-        })
-        
-        let tableData = assigned ? {head: tableHeadersAssigned, rows: data} : {head: tableHeadersProposed, rows: data};
-        return tableData;
-    };
-
-    const tableActions = (review) => {
+    const tableActions = (review,index) => {
 
         const accept = (review) => {
             //add api call for accepting review
             //update table
             }
         
-        const edit = (review) => {
+        const edit = (review,index) => {
             //add api call for editing review
             //update table
+            openModalWithData(index);
+
             }
         const del = (review) => {
             //add api call for deleting review
@@ -132,7 +130,7 @@ export default function Reviews() {
                 {/* <CheckCircleOutlinedIcon onClick={()=>{accept(review)}} sx={{ "&:hover": { color: "cyan" }, }}/> */}
                 {/* <EditIcon onClick={()=>{edit(review)}} sx={{ "&:hover": { color: "red" } }}/>    */}
                 <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }}/> 
-                {review.assigned && <EditIcon sx={{ "&:hover": { color: "cyan" } }}/> }
+                {review.assigned && <EditIcon sx={{ "&:hover": { color: "cyan" } }} onClick={()=>{edit(review,index)}}/> }
                 {!review.assigned && <DeleteIcon sx={{ "&:hover": { color: "red" } }}/> }
             </Typography>
         )
@@ -140,73 +138,45 @@ export default function Reviews() {
 
     function fetchReviewerdata() {
         //add api call
-        var dummydata1 = 
-        {
-            "count": 4,
-            "results": [
+        fetch(URL + 'api/submissions/?reviewers=1',
                 {
-                    "id": 14,
-                    "venue": "CVPR'22",
-                    "paper": "Firecracker: Lightweight Virtualization for Serverless Applications",
-                    "status": "Pending",
-                    "assigned" : true
-                },
-                {
-                    "id": 13,
-                    "venue": "CVPR'22",
-                    "paper": "Faasm: Lightweight Isolation for Efficient Stateful Serverless Computing",
-                    "status": "Feedback",
-                    "assigned" : true
-                },
-                {
-                    "id": 12,
-                    "venue": "CVPR'22",
-                    "paper": "Sledge: a Serverless-first, Light-weight Wasm Runtime for the Edge",
-                    "status": "In Progress",
-                    "assigned" : true
-                },
-                {
-                    "id": 11,
-                    "venue": "CVPR'22",
-                    "paper": "Sledge: a Serverless-first, Light-weight Wasm Runtime for the Edge",
-                    "status": "Feedback",
-                    "assigned" : true
-                }
-            ]
-        };
-        setAssignedData(getTableData(dummydata1,true));
-
-        var dummydata2 = 
-        {
-            "count" : 4,
-            "results" : [
-                {
-                    "id": 14,
-                    "venue": "CVPR'22",
-                    "paper": "Firecracker: Lightweight Virtualization for Serverless Applications",
-                    "assigned" : false
-                },
-                {
-                    "id": 13,
-                    "venue": "CVPR'22",
-                    "paper": "Faasm: Lightweight Isolation for Efficient Stateful Serverless Computing",
-                    "assigned" : false
-                },
-                {
-                    "id": 12,
-                    "venue": "CVPR'22",
-                    "paper": "Sledge: a Serverless-first, Light-weight Wasm Runtime for the Edge",
-                    "assigned" : false
-                },
-                {
-                    "id": 11,
-                    "venue": "CVPR'22",
-                    "paper": "Sledge: a Serverless-first, Light-weight Wasm Runtime for the Edge",
-                    "assigned" : false
-                }
-            ]
-        };
-        setProposedData(getTableData(dummydata2,false));
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    let data = [];
+                    let assigned=true; //change for proposed
+                    resp.results.forEach((item, index) => {
+                                    item.assigned = assigned;
+                                    let pushdata = assigned ? [
+                                        item.venue.name,
+                                        item.project.name,
+                                        getStatusLabel(item.status),
+                                        tableActions(item,index),
+                                        item.comments
+                                    ] : [
+                                        item.venue.name,
+                                        item.project.name,
+                                        tableActions(item)
+                                    ];
+                                    data.push(pushdata);
+                                    
+                                })
+                            
+                            setAssignedData(assigned ? {head: tableHeadersAssigned, rows: data} : assignedData);
+                            setProposedData(assigned ? proposedData : {head: tableHeadersProposed, rows: data});
+                })
+                .catch(error=>{
+                    console.log(error);
+                })
     }
 
     useEffect(() => {
@@ -222,6 +192,7 @@ export default function Reviews() {
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="Assigned" {...a11yProps(0)} />
             <Tab label="Proposed" {...a11yProps(1)} />
+            <Tab label="Submitted" {...a11yProps(2)} />
             </Tabs>
                 
             <TabPanel value={value} index={0}>
@@ -230,7 +201,11 @@ export default function Reviews() {
             <TabPanel value={value} index={1}>
                     <ReviewTable data={proposedData}/>
             </TabPanel>
-            
+            <TabPanel value={value} index={2}>
+                    <ReviewTable data={submittedData}/>
+            </TabPanel>
+        
+        <ReviewModal data={modalData} isOpen={openModal} handleClose={closeModal} />
         </React.Fragment>
     )
 }

@@ -27,7 +27,12 @@ const URL = process.env.REACT_APP_API_URL;
 export default function Home() {
     const [search, setSearch] = useState("");
     const [cardData, setCardData] = useState([])
-    const [modalData, setModalData] = useState([])
+    const [modalData, setModalData] = useState({
+        users: [],
+        keywords: [],
+        domains: []
+    })
+
     const [openModal, setOpenModal] = useState(false);
     const navigate = useNavigate();
 
@@ -60,37 +65,6 @@ export default function Home() {
                 })
     }
 
-    const getModalData = () => {
-        //TODO : add api call to get users of system, keywords, domains
-        const dummyUsers = [
-            'Oliver Hansen',
-            'Van Henry',
-            'April Tucker',
-            'Ralph Hubbard',
-            'Omar Alexander',
-            'Carlos Abbott',
-            'Miriam Wagner',
-            'Bradley Wilkerson',
-            'Virginia Andrews',
-            'Kelly Snyder',
-          ];
-        
-        const dummykeywords = [
-            'BigData',
-            'SVM',
-            'Bert',
-            'APT'
-        ]
-        
-        const dummydomains = [
-            'Security',
-            'ML',
-            'Server',
-        ]
-
-        setModalData({users: dummyUsers, keywords: dummykeywords, domains: dummydomains});
-        console.log(modalData);
-    }
 
     const handleCardClick = (proj_id) => {
         setProjID(proj_id);
@@ -114,7 +88,6 @@ export default function Home() {
 
     useEffect(() => {
         getData();
-        getModalData();
     }, [])
 
     return (
@@ -152,7 +125,7 @@ export default function Home() {
                     </Grid>
                 </Box>
             }
-            <ProjectModal isOpen={openModal} data={modalData} handleClose={handleModalClose}/>
+            {openModal && <ProjectModal isOpen={true} handleClose={handleModalClose}/>}
         </React.Fragment>
     )
 }

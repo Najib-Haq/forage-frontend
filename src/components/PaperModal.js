@@ -13,10 +13,10 @@ import Switch from '@mui/material/Switch';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { RichTextEditor } from '@mantine/rte';
-
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Grid from '@mui/material/Grid';
 import PaperCard from '../components/PaperCard';
-
+import TaskModal from "../components/TaskModal";
 import { getStorageToken } from "../context/Auth";
 
 /* 
@@ -40,7 +40,18 @@ const style = {
     pt: 2,
     px: 4,
     pb: 3,
+    minHeight: '80vh',
+    minWidth: '160vh',
+    maxWidth: '160vh',
+    
   };
+
+const modalStyle = {
+    minHeight: '80vh',
+    minWidth: '220vh',
+    maxWidth: '220vh',
+    overflow:'scroll'
+} 
 
 
 function TabPanel(props) {
@@ -90,6 +101,7 @@ export default function BasicModal(props) {
     const [abstract, setAbstract] = useState("");
     const [note, setNote] = useState("");
     const [noteData, setNoteData] = useState({});
+    const [tasks, setTasks] = useState({});
     const [publicNoteData, setPublicNoteData] = useState({});
     const [value, setValue] = useState(0);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -98,17 +110,21 @@ export default function BasicModal(props) {
     const [notePrivacy, setNotePrivacy] = useState("Private");
     const [checked, setChecked] = useState(false);
     const [cardData, setCardData] = useState([])
+    const [taskOpenModal, setTaskOpenModal] = useState(false);
+    const [taskModalData, setTaskModalData] = useState(null);
+
 
 
     //TODO : delete default values of the following after adding api calls
-    const [venueType, setVenueType] = useState("Conference");
-    const [venueValue, setVenueValue] = useState("NSDI 2020");
-    const [list, setList] = useState("To Read");
-    const [collaborators, setCollaborators] = useState(['tahmeed']);
+    // const [list, setList] = useState("To Read");
+    // const [collaborators, setCollaborators] = useState(['tahmeed']);
     
-    const collaboratorItems = collaborators.map((collaborator) =>
-        <div>{collaborator}</div>
-        );
+    // const collaboratorItems = collaborators.map((collaborator) =>
+    //     <div>{collaborator}</div>
+    //     );
+    const openInNewTab = url => {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      };
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -116,7 +132,7 @@ export default function BasicModal(props) {
 
 
     const getReco = () => {
-        fetch(URL + 'api/papers/unsorted',
+        fetch(URL + `api/papers/${props.data.paper_id}/relevant/`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -138,114 +154,9 @@ export default function BasicModal(props) {
                 })
     }
 
-    useEffect(() => {
-        if(props.data)
-        {
-            console.log("paper id",props.data.paper_id);
-            console.log("project paper id",props.data.pp_id);
-            
-            fetch(URL + `api/papers/${props.data.paper_id}`,
-                {
-                    method: 'GET',
-                    credentials: "same-origin",
-                    headers: {
-                            'Authorization': `Token ${getStorageToken()}`,
-                            'Content-Type':'application/json'
-                    }
-                })
-                .then(resp=>{
-                    if (resp.status >= 400) throw new Error();
-                    return resp.json();
-                })
-                .then(resp=>{
-                    console.log("data is :", resp);
-                    console.log("abstract is :", resp.abstract);
-                    setData(resp);
-                    setAbstract(resp.abstract);
-                })
-                .catch(error=>{
-                    console.log(error);
-                });
-
-            
-                fetch(URL + `api/notes/${props.data.pp_id}/`,
-                {
-                    method: 'GET',
-                    credentials: "same-origin",
-                    headers: {
-                            'Authorization': `Token ${getStorageToken()}`,
-                            'Content-Type':'application/json'
-                    }
-                })
-                .then(resp=>{
-                    if (resp.status >= 400) throw new Error();
-                    return resp.json();
-                })
-                .then(resp=>{
-                    console.log("data is :", resp);
-                    
-                    if(resp.text.length == 0)
-                        setIsEditMode(true);
-                    if(resp.visibility=="Public")
-                        setChecked(true);
-                    setNotePrivacy(resp.visibility);
-                    setNote(resp.text); 
-                    setNoteData(resp);
-                    
-                })
-                .catch(error=>{
-                    console.log(error);
-                });
-
-                
-
-                fetch(URL + `api/notes/?project_paper__paper=${props.data.paper_id}`,
-                {
-                    method: 'GET',
-                    credentials: "same-origin",
-                    headers: {
-                            'Authorization': `Token ${getStorageToken()}`,
-                            'Content-Type':'application/json'
-                    }
-                })
-                .then(resp=>{
-                    if (resp.status >= 400) throw new Error();
-                    return resp.json();
-                })
-                .then(resp=>{
-                    console.log("public note data is :", resp);
-                    setPublicNoteData(resp);
-                    setNoteFull(new Array(resp.count).fill(true));
-                    
-                })
-                .catch(error=>{
-                    console.log(error);
-                });
-
-
-                getReco();
-            
-        }
-            
-    }, [props.isOpen]);
-    
-  
-    return (
-        <Modal
-          open={props.isOpen}
-          onClose={props.handleClose}
-          style={{overflow:'scroll'}}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-            <Box sx={style}>
-                <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                        <Tab label="Basic" {...a11yProps(0)} />
-                        <Tab label="Notes" {...a11yProps(1)} />
-                        <Tab label="Relevant" {...a11yProps(2)} />
-                </Tabs>
-                <TabPanel value={value} index={0}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
+    const content = (
+        <div>
+        <Typography id="modal-modal-title" variant="h6" component="h2">
                     <b>{data.name}</b>
                     </Typography>
                     <Divider light />
@@ -274,9 +185,9 @@ export default function BasicModal(props) {
                     </div>}
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
                     <Stack direction="row" spacing={6}>
-                        <div><b><small>{venueType}</small></b><div>{venueValue}</div></div>
-                        <div><b><small>List</small> </b><div>{list}</div></div>
-                        <div><b><small>Assigned</small></b><div>{collaboratorItems}</div> </div>
+                        <div><b><small>Venue</small></b><div>{data.venue}</div></div>
+                        {/* <div><b><small>List</small> </b><div>{list}</div></div> */}
+                        {/* <div><b><small>Assigned</small></b><div>{collaboratorItems}</div> </div> */}
                     </Stack>
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
@@ -339,6 +250,7 @@ export default function BasicModal(props) {
                                         }
                                     })
                                     .then(resp => {
+                                        console.log("note put")
                                         console.log(resp);
                                     })
                                     .catch(error=>{
@@ -353,12 +265,7 @@ export default function BasicModal(props) {
                     <FormGroup>
                         <FormControlLabel control={<Switch checked={checked} onChange={(e) => {
                             setChecked(e.target.checked);
-                            if(notePrivacy=="Private")
-                                setNotePrivacy("Public");
-                            else
-                                setNotePrivacy("Private");
                             //add api call
-
                             //have to change the hardcoded project paper id
                             fetch(URL + `api/notes/${props.data.pp_id}/`,
                             {
@@ -372,7 +279,7 @@ export default function BasicModal(props) {
                                     {
                                         "id": noteData.id,
                                         "text": note,
-                                        "visibility": notePrivacy,
+                                        "visibility": notePrivacy=="Public" ? "Private" : "Public",
                                         "last_modified": noteData.last_modified,
                                         "creator": noteData.creator,
                                         "project_paper": noteData.project_paper
@@ -388,6 +295,10 @@ export default function BasicModal(props) {
                                 }
                             })
                             .then(resp => {
+                                if(notePrivacy=="Private")
+                                    setNotePrivacy("Public");
+                                else
+                                    setNotePrivacy("Private");
                                 console.log(resp);
                             })
                             .catch(error=>{
@@ -398,6 +309,201 @@ export default function BasicModal(props) {
                         }} />} label={notePrivacy} />
                     </FormGroup>
                     </Typography>
+        </div>
+    );
+    
+    const getTasks = () => {
+        fetch(URL + `api/projects/${props.data.project_id}/papers/${props.data.pp_id}`,
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    setTasks(resp.tasks)
+                })
+                .catch(error=>{
+                    console.log(error);
+                });
+    }
+
+    const handleTaskModalClose = () => {
+        setTaskOpenModal(false);
+        setTaskModalData(null);
+        getTasks();
+    }
+    
+    const handleTaskClick = (task_id) => {
+        setTaskModalData([task_id]);
+        setTaskOpenModal(true);
+    }
+
+
+    const content2 = (
+        <div>
+            <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mt: 2 }}>
+                <b>Tasks</b>
+            </Typography>
+            {tasks.length>0 && tasks.map(task => <Button variant="outlined"  onClick={() => handleTaskClick(task.id)} fullWidth sx={{ m: 1 }}>{task.name}</Button>)}
+            {tasks.length==0 && <p> No tasks</p>}
+        </div>
+    );
+
+    
+
+    useEffect(() => {
+        if(props.data)
+        {
+            console.log("paper id",props.data.paper_id);
+            console.log("project id",props.data.project_id);
+            console.log("project paper id",props.data.pp_id);
+            
+            getTasks();
+            
+            fetch(URL + `api/notes/${props.data.pp_id}/`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                
+                if(resp.text.length == 0)
+                    setIsEditMode(true);
+                if(resp.visibility=="Public")
+                    setChecked(true);
+                setNotePrivacy(resp.visibility);
+                setNote(resp.text); 
+                setNoteData(resp);
+                
+            })
+            .catch(error=>{
+                console.log(error);
+            });
+
+
+            fetch(URL + `api/papers/${props.data.paper_id}`,
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    setData(resp);
+                    setAbstract(resp.abstract);
+                })
+                .catch(error=>{
+                    console.log(error);
+                });
+
+            
+                fetch(URL + `api/notes/${props.data.pp_id}/`,
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    
+                    if(resp.text.length == 0)
+                        setIsEditMode(true);
+                    if(resp.visibility=="Public")
+                        setChecked(true);
+                    setNotePrivacy(resp.visibility);
+                    setNote(resp.text); 
+                    setNoteData(resp);
+                    
+                })
+                .catch(error=>{
+                    console.log(error);
+                });
+
+                
+
+            fetch(URL + `api/notes/?project_paper__paper=${props.data.paper_id}`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                setPublicNoteData(resp);
+                setNoteFull(new Array(resp.count).fill(false));
+                
+            })
+            .catch(error=>{
+                console.log(error);
+            });
+
+
+            getReco();
+            
+        }
+            
+    }, [props.isOpen]);
+    
+  
+    return (
+        <Modal
+          open={props.isOpen}
+          onClose={props.handleClose}
+          style={modalStyle}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+            <Box sx={style}>
+                <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                        <Tab label="Basic" {...a11yProps(0)} />
+                        <Tab label="Notes" {...a11yProps(1)} />
+                        <Tab label="Relevant" {...a11yProps(2)} />
+                </Tabs>
+                <TabPanel value={value} index={0}>
+                    <Grid container>
+                        <Grid item xs>
+                            {content}
+                        </Grid>
+                        <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
+                        </Divider>
+                        <Grid item xs style = {{maxWidth: "230px"}}>
+                            {content2}
+                        </Grid>
+                    </Grid>
+                    { taskOpenModal && <TaskModal data={taskModalData} isOpen={true} handleClose={handleTaskModalClose}/> }
                 </TabPanel> 
                 <TabPanel value={value} index={1}>
                     <Typography id="modal-modal-title" variant="h4" component="h4" sx={{ mt: 2 }}>
@@ -439,33 +545,22 @@ export default function BasicModal(props) {
                                         {item.text.length>50 && 
                                             <h2><div className="content" dangerouslySetInnerHTML={{__html: item.text.substring(0,50)}}></div></h2>
                                         }
-                                        <p><div className="content" dangerouslySetInnerHTML={{__html: item.text}}></div></p>
                                         {/* for see more see less feature, check how to update state by changing array element, then add below code */}
-                                        {/* {!noteFull[index] && 
-                                            <div><p><i>{item.text.substring(0,item.text.length/3)}...</i><Button onClick={() => {
-                                                setNoteFull(prevState => ({
-                                                    items: {
-                                                        ...prevState.items,
-                                                        [prevState.items[index]]: true,
-                                                    },
-                                                }));
+                                        {!noteFull[index] && 
+                                            <div><p><i>{item.text.length<=200 ? item.text : item.text.substring(0,200)}</i>{item.text.length>200 && <span>...<Button onClick={() => {
+                                                setNoteFull({...noteFull, [index]:true});
                                             }}>
                                                 <b>See More</b>
-                                            </Button></p></div>}
+                                            </Button></span>}</p></div>}
                                         {noteFull[index] && 
                                         <div>
-                                            <p><i>{item.text}</i><Button onClick={() => {
-                                                setNoteFull(prevState => ({
-                                                    items: {
-                                                        ...prevState.items,
-                                                        [prevState.items[index]]: false,
-                                                    },
-                                                }));
+                                            <p><i>{item.text}</i>{item.text.length>200 && <span><Button onClick={() => {
+                                                setNoteFull({...noteFull, [index]:false});
                                             }}>
                                                 <b> See Less</b>
-                                                </Button>
+                                                </Button></span>}
                                             </p>
-                                        </div>} */}
+                                        </div>}
                                     <Divider light />
                                     <p><b>Last Updated: </b>{formatDate(new Date(item.last_modified))}</p>
                                     </Box>
@@ -486,13 +581,19 @@ export default function BasicModal(props) {
                                             <PaperCard 
                                                 key={index} 
                                                 data={item}
-                                                onClick={()=>{}}
+                                                onClick={()=>{
+                                                    openInNewTab('https://dl.acm.org/doi/'+item.doi)
+
+                                                }}
                                             />
                                         </Grid>
                                 )
                             })
                         }
                     </Grid>
+                    }
+
+                    { cardData.length == 0 && <div><h2><font color="#808080">No Results</font></h2></div>
                     }
                 </TabPanel>   
             </Box>

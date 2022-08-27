@@ -4,7 +4,6 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Divider } from "@mui/material";
-import TextField from '@mui/material/TextField';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -18,6 +17,8 @@ import Select from '@mui/material/Select';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import Popover from '@mui/material/Popover';
+import TextField from '@mui/material/TextField';
+import Autocomplete, { createFilterOptions }  from '@mui/material/Autocomplete';
 
 /* 
     define props=> 
@@ -27,6 +28,8 @@ import Popover from '@mui/material/Popover';
 */
 
 const URL = process.env.REACT_APP_API_URL;
+
+const filter = createFilterOptions();
 
 const style = {
     position: 'absolute',
@@ -78,10 +81,12 @@ const ListItem = styled('li')(({ theme }) => ({
 
 export default function BasicModal(props) {
     const theme = useTheme();
+    const [value, setValue] = React.useState(null);
+    const [valueD, setValueD] = React.useState(null);
     const [data, setData] = useState({
         name: "",
         description: "",
-        colab: [],
+        collaborators: [],
         keywords: [],
         domains: [],
         start_date: ""
@@ -92,9 +97,13 @@ export default function BasicModal(props) {
         domains: []
     });
     const [startDate, setStartDate] = useState(new Date());
-    const [collaboratorName, setCollaboratorName] = React.useState([]);
+    const [users, setUsers] = React.useState([]);
+    const [collaborators, setCollaborators] = React.useState([]);
     const [keywords, setKeywords] = React.useState([]);
     const [domains, setDomains] = React.useState([]);
+    const [pCollaborators, setPCollaborators] = React.useState([]);
+    const [pKeywords, setPKeywords] = React.useState([]);
+    const [pDomains, setPDomains] = React.useState([]);
     const [keywordAnchorEl, setKeywordAnchorEl] = React.useState(null);
     const [domainAnchorEl, setDomainAnchorEl] = React.useState(null);
     const [keywordChipData, setKeywordChipData] = React.useState([]);
@@ -105,14 +114,84 @@ export default function BasicModal(props) {
     const popKeywordId = keywordPopOverOpen ? 'simple-popover' : undefined;
     const popDomainId = domainPopOverOpen ? 'simple-popover' : undefined;
 
-    useEffect(() => {
-        if(props.data)
-        {
-            setinitialData(props.data);
-            console.log(props.data);
-            console.log("initialData.length",initialData.length);
+    const getModalData = () => {
+        //TODO : add api call to get users of system, keywords, domains
+        fetch(URL + `api/users/`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                console.log(resp)
+                if(resp.count>0)
+                {
+                    setUsers(resp.results)
+                }
+            })
+            .catch(error=>{
+                console.log(error);
+            });
+        fetch(URL + `api/keywords/`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                console.log(resp)
+                if(resp.count>0)
+                {
+                    setKeywords(resp.results)
+                    console.log("keywords",keywords)
+                }
+            })
+            .catch(error=>{
+                console.log(error);
+            });
+        fetch(URL + `api/domains/`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                console.log(resp)
+                if(resp.count>0)
+                {
+                    setDomains(resp.results)
+                }
+                setinitialData({users: users,keywords: keywords,domains: domains})
+            })
+            .catch(error=>{
+                console.log(error);
+            });
         }
-    }, [])
+
+    useEffect(() => {
+        getModalData();
+    }, [props.isOpen])
 
 
     const handleKeywordPopOverClick = (event) => {
@@ -131,41 +210,41 @@ export default function BasicModal(props) {
         setDomainAnchorEl(null);
     };
 
-    const handleCollaboratorChange = (event) => {
-        const {
-          target: { value },
-        } = event;
-        setCollaboratorName(
-          // On autofill we get a stringified value.
-          typeof value === 'string' ? value.split(',') : value,
-        );
-      };
+    // const handleCollaboratorChange = (event) => {
+    //     const {
+    //       target: { value },
+    //     } = event;
+    //     setCollaboratorName(
+    //       // On autofill we get a stringified value.
+    //       typeof value === 'string' ? value.split(',') : value,
+    //     );
+    //   };
 
-    const handleKeywordsChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        setKeywords(
-            // On autofill we get a stringified value.
-            typeof value === 'string' ? value.split(',') : value,
-        );
+    // const handleKeywordsChange = (event) => {
+    //     const {
+    //         target: { value },
+    //     } = event;
+    //     setKeywords(
+    //         // On autofill we get a stringified value.
+    //         typeof value === 'string' ? value.split(',') : value,
+    //     );
         
-        let data;
-        typeof value === 'string' ? data=value.split(',') : data=value;
+    //     let data;
+    //     typeof value === 'string' ? data=value.split(',') : data=value;
         
-        let chipdict = [];
-        let idx=0;
-        data.forEach(element => {
-            chipdict.push({
-                key : idx,
-                label: element
-            });
-            idx++;
-        });
-        console.log("chipdict",chipdict);
+    //     let chipdict = [];
+    //     let idx=0;
+    //     data.forEach(element => {
+    //         chipdict.push({
+    //             key : idx,
+    //             label: element
+    //         });
+    //         idx++;
+    //     });
+    //     console.log("chipdict",chipdict);
 
-        setKeywordChipData(chipdict);
-    };
+    //     setKeywordChipData(chipdict);
+    // };
 
     const handleDomainsChange = (event) => {
         const {
@@ -204,27 +283,53 @@ export default function BasicModal(props) {
     {
         let kw = [];
         keywordChipData.forEach(element => {
-            kw.push(element.label);
+            kw.push(element.id);
         });
-        setKeywords(kw);
+        setPKeywords(kw);
 
         let dom = [];
         domainChipData.forEach(element => {
-            kw.push(element.label);
+            kw.push(element.id);
         });
-        setDomains(dom);
+        setPDomains(dom);
+        
+        let cols = [];
+        collaborators.forEach(element => {
+            cols.push(element.id);
+        });
+        setPCollaborators(cols);
 
-        setData({...data, keywords:keywords, domains: domains, colab: collaboratorName, start_date: startDate});
+
+        setData({...data, keywords:pKeywords, domains: pDomains, collaborators: pCollaborators});
+        
+        
         console.log("create project data",data);
-
+        console.log("collaborators",collaborators)
         //TODO : add api call to create project
-
+        fetch(URL + `api/projects/`, {
+            method: 'POST',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({
+                "name": data.name,
+                "description": data.description,
+                "collaborators": data.collaborators,
+                "keywords": data.keywords,
+                "domains": data.domains
+            })
+        })
+        .catch(error=>{
+            console.log(error);
+        })
         props.handleClose();
     };
 
 
     const content = (
-        <div>
+    <div>
         <Box>
             <Typography id="modal-modal-title" variant="h6" component="h2">
                 Create New Project 
@@ -257,7 +362,7 @@ export default function BasicModal(props) {
         </Box>
         <Grid container spacing={2}>
             <Grid item xs={6}>
-            <FormControl sx={{width: 300 }}>
+            {/* <FormControl sx={{width: 300 }}>
                 <InputLabel id="demo-multiple-name-label">Collaborators</InputLabel>
                 <Select
                 labelId="demo-multiple-name-label"
@@ -278,7 +383,26 @@ export default function BasicModal(props) {
                     </MenuItem>
                 ))}
                 </Select>
-            </FormControl>
+            </FormControl> */}
+            
+            <Autocomplete
+                multiple
+                id="tags-standard"
+                options={initialData.users}
+                getOptionLabel={(option) => option.username}
+                onChange={(event, value) => setCollaborators(value)
+                }
+                renderInput={(params) => (
+                <TextField
+                    {...params}
+                    variant="standard"
+                    label="Add Collaborators"
+                    placeholder="Type any username"
+                />
+        )}
+      />
+
+
             </Grid>
             <Grid item xs={6}>
                 <small>Keywords</small>
@@ -292,18 +416,21 @@ export default function BasicModal(props) {
                     }}
                     component="ul"
                     >
-                    {keywordChipData.map((data) => {
+                    {keywordChipData.length>0 && keywordChipData.map((data) => {
                         let icon;
-
-                        return (
-                        <ListItem key={data.key}>
-                            <Chip
-                            icon={icon}
-                            label={data.label}
-                            onDelete={handleKeywordDelete(data)}
-                            />
-                        </ListItem>
-                        );
+                        if(data.name.length!=0)
+                        {
+                            return (
+                                <ListItem key={data.id}>
+                                    <Chip
+                                    icon={icon}
+                                    label={data.name}
+                                    onDelete={handleKeywordDelete(data)}
+                                    />
+                                </ListItem>
+                                );
+                        }
+                        
                     })}
                     </Paper>
             </Grid>
@@ -332,10 +459,10 @@ export default function BasicModal(props) {
                         let icon;
 
                         return (
-                        <ListItem key={data.key}>
+                        <ListItem key={data.id}>
                             <Chip
                             icon={icon}
-                            label={data.label}
+                            label={data.name}
                             onDelete={handleDomainDelete(data)}
                             />
                         </ListItem>
@@ -344,12 +471,11 @@ export default function BasicModal(props) {
                     </Paper>
             </Grid>
         </Grid>
-    </div>
-      );
+    </div>);
 
-      const content2 = (
+      const content2 = ( 
         <Box>
-            <Button aria-describedby={popKeywordId} variant="contained" onClick={handleKeywordPopOverClick} fullWidth sx={{ m: 1 }}>
+            <Button aria-describedby={popKeywordId} variant="outlined" onClick={handleKeywordPopOverClick} fullWidth sx={{ m: 1 }}>
                 Add Keywords
             </Button>
             <Popover
@@ -363,7 +489,7 @@ export default function BasicModal(props) {
                 }}
             >
                 <Typography sx={{ p: 2 }}>
-                <FormControl sx={{width: 180 }}>
+                {/* <FormControl sx={{width: 180 }}>
                     <InputLabel id="keyword-label">Keywords</InputLabel>
                     <Select
                     labelId="keyword-label"
@@ -374,7 +500,7 @@ export default function BasicModal(props) {
                     input={<OutlinedInput label="Keywords" />}
                     MenuProps={MenuProps}
                     >
-                    {initialData && initialData.keywords.map((name) => (
+                    {initialData.keywords.length>0 && initialData.keywords.map((name) => (
                         <MenuItem
                         key={name}
                         value={name}
@@ -384,14 +510,101 @@ export default function BasicModal(props) {
                         </MenuItem>
                     ))}
                     </Select>
-                </FormControl>
+                </FormControl> */}
+                <Autocomplete
+                value={value}
+                onChange={(event, newValue) => {
+                    if (typeof newValue === 'string') {
+                    setValue({
+                        name: newValue,
+                    });
+                    console.log("NEWVALUE 1",newValue)
+
+                    fetch(URL + `api/keywords/`, {
+                        method: 'POST',
+                        credentials: "same-origin",
+                        headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify({name: newValue})
+                    })
+                    .catch(error=>{
+                        console.log(error);
+                    })
+                    getModalData();
+                    } else if (newValue && newValue.inputValue) {
+                    // Create a new value from the user input
+                    setValue({
+                        name: newValue.inputValue,
+                    });
+                    console.log("NEWVALUE 2",newValue)
+                    fetch(URL + `api/keywords/`, {
+                        method: 'POST',
+                        credentials: "same-origin",
+                        headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify({name: newValue.inputValue})
+                    })
+                    .catch(error=>{
+                        console.log(error);
+                    })
+                    getModalData();
+                    } else {
+                    setValue(newValue);
+                    console.log("NEWVALUE 3",newValue)
+                    setKeywordChipData([...keywordChipData,newValue])
+                    console.log("keywordChipData",keywordChipData)
+                    }
+                }}
+                filterOptions={(options, params) => {
+                    const filtered = filter(options, params);
+
+                    const { inputValue } = params;
+                    // Suggest the creation of a new value
+                    const isExisting = options.some((option) => inputValue === option.name);
+                    if (inputValue !== '' && !isExisting) {
+                    filtered.push({
+                        inputValue,
+                        name: `Add "${inputValue}"`,
+                    });
+                    }
+
+                    return filtered;
+                }}
+                selectOnFocus
+                clearOnBlur
+                handleHomeEndKeys
+                id="free-solo-with-text-demo"
+                options={initialData.keywords}
+                getOptionLabel={(option) => {
+                    // Value selected with enter, right from the input
+                    if (typeof option === 'string') {
+                    return option;
+                    }
+                    // Add "xxx" option created dynamically
+                    if (option.inputValue) {
+                    return option.inputValue;
+                    }
+                    // Regular option
+                    return option.name;
+                }}
+                renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                sx={{ width: 300 }}
+                freeSolo
+                renderInput={(params) => (
+                    <TextField {...params} label="Add keyword" />
+                )}
+                />
                 </Typography>
-                <Typography sx={{ p: 2 }}>
-                <Button variant="contained" fullWidth sx={{ m: 1 }}>Create Keyword</Button>
-                </Typography>
+                {/* <Typography sx={{ p: 2 }}>
+                <Button variant="outlined" fullWidth sx={{ m: 1 }}>Create Keyword</Button>
+                </Typography> */}
             </Popover>
 
-            <Button aria-describedby={popDomainId} variant="contained" onClick={handleDomainPopOverClick} fullWidth sx={{ m: 1 }}>
+            <Button aria-describedby={popDomainId} variant="outlined" onClick={handleDomainPopOverClick} fullWidth sx={{ m: 1 }}>
                 Add Domains
             </Button>
             <Popover
@@ -405,57 +618,125 @@ export default function BasicModal(props) {
                 }}
             >
                 <Typography sx={{ p: 2 }}>
-                <FormControl sx={{width: 180 }}>
-                    <InputLabel id="domain-label">Domains</InputLabel>
-                    <Select
-                    labelId="domain-label"
-                    id="domain-name"
-                    multiple
-                    value={domains}
-                    onChange={handleDomainsChange}
-                    input={<OutlinedInput label="Domains" />}
-                    MenuProps={MenuProps}
-                    >
-                    {initialData && initialData.domains.map((name) => (
-                        <MenuItem
-                        key={name}
-                        value={name}
-                        style={getStyles(name, collaboratorName, theme)}
-                        >
-                        {name}
-                        </MenuItem>
-                    ))}
-                    </Select>
-                </FormControl>
+                <Autocomplete
+                value={valueD}
+                onChange={(event, newValue) => {
+                    if (typeof newValue === 'string') {
+                    setValueD({
+                        name: newValue,
+                    });
+                    console.log("NEWVALUE 1",newValue)
+
+                    fetch(URL + `api/domains/`, {
+                        method: 'POST',
+                        credentials: "same-origin",
+                        headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify({name: newValue})
+                    })
+                    .catch(error=>{
+                        console.log(error);
+                    })
+                    getModalData();
+                    } else if (newValue && newValue.inputValue) {
+                    // Create a new value from the user input
+                    setValueD({
+                        name: newValue.inputValue,
+                    });
+                    console.log("NEWVALUE 2",newValue)
+                    fetch(URL + `api/domains/`, {
+                        method: 'POST',
+                        credentials: "same-origin",
+                        headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                        },
+                        body: JSON.stringify({name: newValue.inputValue})
+                    })
+                    .catch(error=>{
+                        console.log(error);
+                    })
+                    getModalData();
+                    } else {
+                    setValueD(newValue);
+                    console.log("NEWVALUE 3",newValue)
+                    setDomainChipData([...domainChipData,newValue])
+                    // console.log("keywordChipData",keywordChipData)
+                    }
+                }}
+                filterOptions={(options, params) => {
+                    const filtered = filter(options, params);
+
+                    const { inputValue } = params;
+                    // Suggest the creation of a new value
+                    const isExisting = options.some((option) => inputValue === option.name);
+                    if (inputValue !== '' && !isExisting) {
+                    filtered.push({
+                        inputValue,
+                        name: `Add "${inputValue}"`,
+                    });
+                    }
+
+                    return filtered;
+                }}
+                selectOnFocus
+                clearOnBlur
+                handleHomeEndKeys
+                id="free-solo-with-text-demo"
+                options={initialData.domains}
+                getOptionLabel={(option) => {
+                    // Value selected with enter, right from the input
+                    if (typeof option === 'string') {
+                    return option;
+                    }
+                    // Add "xxx" option created dynamically
+                    if (option.inputValue) {
+                    return option.inputValue;
+                    }
+                    // Regular option
+                    return option.name;
+                }}
+                renderOption={(props, option) => <li {...props}>{option.name}</li>}
+                sx={{ width: 300 }}
+                freeSolo
+                renderInput={(params) => (
+                    <TextField {...params} label="Add domain" />
+                )}
+                />
                 </Typography>
                 <Typography sx={{ p: 2 }}>
-                <Button variant="contained" fullWidth sx={{ m: 1 }}>Create Domain</Button>
+                {/* <Button variant="outlined" fullWidth sx={{ m: 1 }}>Create Domain</Button> */}
                 </Typography>
             </Popover>
-            <Button variant="contained" fullWidth sx={{ m: 1 }} onClick={createProject}>Create</Button>
-        </Box>
-      );
-  
-    return (
-        <Modal
-          open={props.isOpen}
-          onClose={props.handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-                    
-                <Grid container sx={style}>
-                    <Grid item xs>
-                        {content}
-                    </Grid>
-                    <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
-                    </Divider>
-                    <Grid item xs style = {{maxWidth: "200px"}}>
-                        {content2}
-                    </Grid>
-                </Grid>
-            
-        </Modal>
-    );
+            <Button variant="outlined" fullWidth sx={{ m: 1 }} onClick={createProject}>Create</Button>
+        </Box>);
+    if(initialData.users.length==0)
+    {
+        getModalData();
+        for(let i=0;i<100000;i++){}
+    }
+    return (<Modal
+        open={props.isOpen}
+        onClose={props.handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+                  
+              <Grid container sx={style}>
+                  <Grid item xs>
+                      {content}
+                  </Grid>
+                  <Divider orientation="vertical" flexItem style = {{minWidth: "20px"}}>
+                  </Divider>
+                  <Grid item xs style = {{maxWidth: "200px"}}>
+                      {content2}
+                  </Grid>
+              </Grid>
+          
+      </Modal>
+  );
+    
   }
   

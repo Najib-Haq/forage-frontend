@@ -66,7 +66,7 @@ export default function Papers() {
                         if(lane.id == item.list) {
                             lane.cards.push({
                                 // most probably id is project paper id and paper_id is paper id
-                                id: item.id, title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: false, metadata: {paper_id: item.paper_id, title: item.paper.name}
+                                id: item.id, title: item.paper.name, description: item.paper.authors, label: 'Done', draggable: false, metadata: {paper_id: item.paper_id, title: item.paper.name, paper_index: index}
                             })
                         }
                     })
@@ -138,7 +138,9 @@ export default function Papers() {
         setModalData({
             pp_id: cardId,
             paper_id: metadata.paper_id,
-            title: metadata.title
+            title: metadata.title,
+            project_id: projID,
+
         })
         setOpenModal(true);
         console.log(`Card: ${cardId} clicked in lane: ${laneId}`)

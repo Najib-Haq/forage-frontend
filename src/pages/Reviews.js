@@ -9,7 +9,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ReviewTable from "../components/ReviewTable";
-import { getStorageToken } from "../context/Auth";
+import { getStorageToken,getUserID } from "../context/Auth";
 import ReviewModal from "../components/ReviewModal.js";
 import '../styles/Table.css'
 
@@ -19,7 +19,10 @@ const tableHeadersAssigned = [
    'Venue', 'Paper', 'Status', " "
 ]
 const tableHeadersProposed = [
-    'Venue', 'Paper', " "
+    'Venue', 'Status', " "
+ ]
+ const tableHeadersSubmitted = [
+    'Venue', 'Status'
  ]
 
 const style = {
@@ -94,6 +97,7 @@ export default function Reviews() {
 
     const openModalWithData = (id) => {
         setModalData({results: assignedData.rows[id],reviewer_id:15});
+        for(let i=0;i<1000000;i++){};
         setOpenModal(true);
     };
 
@@ -107,11 +111,45 @@ export default function Reviews() {
         setValue(newValue);
     };
 
-    const tableActions = (review,index) => {
+    const tableActions = (review,index,assigned) => {
 
         const accept = (review) => {
             //add api call for accepting review
+            fetch(URL + `api/proposals/${review.id}/`, {
+                method: 'PATCH',
+                credentials: "same-origin",
+                headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({
+                    "status": "ACCEPTED",
+                })
+            })
+            .catch(error=>{
+                console.log(error);
+            })
             //update table
+            fetchReviewerdata();
+            }
+        const submit = (review) => {
+            //add api call for accepting review
+            fetch(URL + `api/reviewers/${review.id}/`, {
+                method: 'PATCH',
+                credentials: "same-origin",
+                headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({
+                    "is_submitted": "true",
+                })
+            })
+            .catch(error=>{
+                console.log(error);
+            })
+            //update table
+            fetchReviewerdata();
             }
         
         const edit = (review,index) => {
@@ -123,22 +161,39 @@ export default function Reviews() {
         const del = (review) => {
             //add api call for deleting review
             //update table
+            fetch(URL + `api/proposals/${review.id}/`, {
+                method: 'PATCH',
+                credentials: "same-origin",
+                headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({
+                    "status": "REJECTED",
+                })
+            })
+            .catch(error=>{
+                console.log(error);
+            })
+            //update table
+            fetchReviewerdata();
             }
 
         return (
             <Typography>
                 {/* <CheckCircleOutlinedIcon onClick={()=>{accept(review)}} sx={{ "&:hover": { color: "cyan" }, }}/> */}
                 {/* <EditIcon onClick={()=>{edit(review)}} sx={{ "&:hover": { color: "red" } }}/>    */}
-                <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }}/> 
-                {review.assigned && <EditIcon sx={{ "&:hover": { color: "cyan" } }} onClick={()=>{edit(review,index)}}/> }
-                {!review.assigned && <DeleteIcon sx={{ "&:hover": { color: "red" } }}/> }
+                {!assigned && <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }} onClick={()=>{accept(review,index)}}/> }
+                {assigned && <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }} onClick={()=>{submit(review,index)}}/> }
+                {assigned && <EditIcon sx={{ "&:hover": { color: "cyan" } }} onClick={()=>{edit(review,index)}}/> }
+                {!assigned && <DeleteIcon sx={{ "&:hover": { color: "red" } }} onClick={()=>{del(review,index)}}/> }
             </Typography>
         )
     }
 
     function fetchReviewerdata() {
-        //add api call
-        fetch(URL + 'api/submissions/?reviewers=1',
+        //for accepted table
+        fetch(URL + `api/submissions/?reviewers=${getUserID()}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -153,30 +208,135 @@ export default function Reviews() {
                 })
                 .then(resp=>{
                     let data = [];
-                    let assigned=true; //change for proposed
                     resp.results.forEach((item, index) => {
-                                    item.assigned = assigned;
-                                    let pushdata = assigned ? [
+                                    let pushdata = [
                                         item.venue.name,
                                         item.project.name,
                                         getStatusLabel(item.status),
-                                        tableActions(item,index),
-                                        item.comments
-                                    ] : [
-                                        item.venue.name,
-                                        item.project.name,
-                                        tableActions(item)
+                                        tableActions(item,index,true),
+                                        item.comments, //NAJIB
+                                        item.id
                                     ];
                                     data.push(pushdata);
                                     
                                 })
                             
-                            setAssignedData(assigned ? {head: tableHeadersAssigned, rows: data} : assignedData);
-                            setProposedData(assigned ? proposedData : {head: tableHeadersProposed, rows: data});
+                            setAssignedData({head: tableHeadersAssigned, rows: data});
                 })
                 .catch(error=>{
                     console.log(error);
                 })
+        //for proposal table
+        fetch(URL + `api/proposals/`,
+            {
+                method: 'GET',
+                credentials: "same-origin",
+                headers: {
+                        'Authorization': `Token ${getStorageToken()}`,
+                        'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                let data = [];
+                resp.results.forEach((item, index) => {
+                                if(item.reviewer==getUserID())
+                                {
+                                    //again an api call to get venue name from venue id
+                                    fetch(URL + `api/venues/${item.venue}/`,
+                                    {
+                                        method: 'GET',
+                                        credentials: "same-origin",
+                                        headers: {
+                                                'Authorization': `Token ${getStorageToken()}`,
+                                                'Content-Type':'application/json'
+                                        }
+                                    })
+                                    .then(resp=>{
+                                        if (resp.status >= 400) throw new Error();
+                                        return resp.json();
+                                    })
+                                    .then(resp=>{
+                                        let pushdata = [
+                                            resp.name,
+                                            getStatusLabel(item.status),
+                                            tableActions(item,index,false),
+                                            item.id,
+                                            item.sent
+                                        ];
+                                        data.push(pushdata);
+                                        setProposedData({head: tableHeadersProposed, rows: data});
+                                    })
+                                    .catch(error=>{
+                                        console.log(error);
+                                    })
+
+                                    
+                                }
+                                
+                                
+                            })
+                        
+            })
+            .catch(error=>{
+                console.log(error);
+            })
+
+        //for submitted table
+        fetch(URL + `api/reviewers/`,
+        {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            let data = [];
+            resp.results.forEach((item, index) => {
+                if(item.user==getUserID() && item.is_submitted)
+                {
+                     //again an api call to get venue name from venue id
+                     fetch(URL + `api/venues/${item.venue}/`,
+                     {
+                         method: 'GET',
+                         credentials: "same-origin",
+                         headers: {
+                                 'Authorization': `Token ${getStorageToken()}`,
+                                 'Content-Type':'application/json'
+                         }
+                     })
+                     .then(resp=>{
+                         if (resp.status >= 400) throw new Error();
+                         return resp.json();
+                     })
+                     .then(resp=>{
+                         let pushdata = [
+                             resp.name,
+                             getStatusLabel("ACCEPTED")
+                         ];
+                         data.push(pushdata);
+                         setSubmittedData({head: tableHeadersSubmitted, rows: data});
+                     })
+                     .catch(error=>{
+                         console.log(error);
+                     })
+                }
+                
+            })
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+        
     }
 
     useEffect(() => {

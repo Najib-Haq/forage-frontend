@@ -308,7 +308,7 @@ export default function Submission() {
 
     
     const upperPart = (<Box onClick={()=>setOpenModal(true)}>
-            <SubmissionStep activeStep={activeStep} steps={getSteps(selectedVenue[0])}/>
+            <SubmissionStep activeStep={activeStep} steps={getSteps(curSubVenue)}/>
         </Box>)
 
     return (

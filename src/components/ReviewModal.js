@@ -49,22 +49,23 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'auto',
+    width: 1024, //'auto',
+    maxWidth: 1024,
+    maxHeight: 768,
     bgcolor: 'background.paper',
+    // bgcolor: 'cyan',
     border: '2px solid #000',
     boxShadow: 24,
     pt: 2,
     px: 4,
     pb: 3,
-    minHeight: '80vh',
-    minWidth: '160vh',
-    maxWidth: '160vh',
   };
+
 
 const modalStyle = {
     minHeight: '80vh',
-    minWidth: '220vh',
-    maxWidth: '220vh',
+    minWidth: '150vh',
+    maxWidth: '150vh',
     overflow:'scroll'
 } 
 function TabPanel(props) {
@@ -123,21 +124,6 @@ export default function ReviewModal(props) {
         setValue(newValue);
     };
 
-    //NAJIB
-    const updateComments = (reviewer_id, value) => {
-        console.log(reviewer_id, value)
-        new_data.forEach(item => {
-            if(item.reviewer_id == reviewer_id) {
-                // console.log("milse to")
-                item.comments.push({
-                    commenter: "John Doe",
-                    comment: value
-                })
-            }
-        })
-        console.log(new_data, value)
-        setData(new_data);
-    }
 
     // const updateComments = (reviewer_id, value) => {
     //     let new_data = data
@@ -157,6 +143,10 @@ export default function ReviewModal(props) {
     //     });
     //     setData(new_data)
     // }
+
+    const getFile = () => {
+
+    }
 
     const fetchData = () => {
         fetch(URL + `api/reviewers/`,
@@ -216,14 +206,11 @@ export default function ReviewModal(props) {
     }, [props.isOpen])
 
 
-    //NAJIB
     const commentBox = () => {
         // console.log(data)
         return (
             <React.Fragment>
-            { data.map((item, index) => (
-               <Comment data={item.comments} updateComments={updateComments} reviewer={item.reviewer_id}/>
-            ))}
+
             </React.Fragment>
         )
     }
@@ -242,7 +229,7 @@ export default function ReviewModal(props) {
         <Modal
           open={thisModalOpen}
           onClose={props.handleClose}
-          style={modalStyle}
+        //   style={modalStyle}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >

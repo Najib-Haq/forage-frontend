@@ -289,7 +289,7 @@ export default function BasicModal(props) {
 
         let dom = [];
         domainChipData.forEach(element => {
-            kw.push(element.id);
+            dom.push(element.id);
         });
         setPDomains(dom);
         
@@ -316,10 +316,21 @@ export default function BasicModal(props) {
             body: JSON.stringify({
                 "name": data.name,
                 "description": data.description,
-                "collaborators": data.collaborators,
-                "keywords": data.keywords,
-                "domains": data.domains
+                "collaborators": cols,
+                "keywords": kw,
+                "domains": dom
             })
+        })
+        .then(resp => {
+            if (resp.status == 200)
+                return resp.json();
+            else if (resp.status >= 400){
+                if (resp.status == 500) throw new Error();
+                return resp.json();
+            }
+        })
+        .then(resp => {
+            
         })
         .catch(error=>{
             console.log(error);

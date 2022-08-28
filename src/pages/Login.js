@@ -166,10 +166,11 @@ export default function Login() {
                 },
                 body: JSON.stringify({
                   username: data.get('username'),
-                  fullname: data.get('firstName')+" "+data.get('lastName'),
+                  full_name: data.get('firstName')+" "+data.get('lastName'),
                   email: data.get('email'),
                   affiliation: data.get('affiliation'),
-                  designation: data.get('designation')
+                  designation: data.get('designation'),
+                  password: data.get('password')
               })
             })
             .then(resp => {
@@ -182,7 +183,7 @@ export default function Login() {
             })
             .then(resp => {
                 console.log("signup",resp);
-                navigateSignup();
+                navigateLogin();
             })
             .catch(error=>{
                 console.log(error);

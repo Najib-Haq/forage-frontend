@@ -84,7 +84,7 @@ export default function ReviewTable(props) {
                                     {
                                         data.head.map((headCell, index)=>(
                                             <TableCell 
-                                                onClick={() => {if (index != 7) openModalWithData(row_index)}}
+                                                // onClick={() => {if (index == 3) openModalWithData(row_index)}}
                                                 align="left" 
                                                 key={index}>{row[index]}
                                             </TableCell>
@@ -98,7 +98,6 @@ export default function ReviewTable(props) {
                 // </TableContainer>
             }  
 
-            <ReviewModal data={modalData} isOpen={openModal} handleClose={closeModal} />
         </React.Fragment>
     );
 }

@@ -27,6 +27,12 @@ const URL = process.env.REACT_APP_API_URL;
 export default function Home() {
     const [search, setSearch] = useState("");
     const [cardData, setCardData] = useState([])
+    const [modalData, setModalData] = useState({
+        users: [],
+        keywords: [],
+        domains: []
+    })
+
     const [openModal, setOpenModal] = useState(false);
     const navigate = useNavigate();
 
@@ -58,6 +64,7 @@ export default function Home() {
                     console.log(error);
                 })
     }
+
 
     const handleCardClick = (proj_id) => {
         setProjID(proj_id);
@@ -118,7 +125,7 @@ export default function Home() {
                     </Grid>
                 </Box>
             }
-            <ProjectModal isOpen={openModal} handleClose={handleModalClose}/>
+            {openModal && <ProjectModal isOpen={true} handleClose={handleModalClose}/>}
         </React.Fragment>
     )
 }

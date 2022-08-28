@@ -164,7 +164,9 @@ export default function Papers() {
         setModalData({
             pp_id: cardId,
             paper_id: metadata.paper_id,
-            title: metadata.title
+            title: metadata.title,
+            project_id: projID,
+
         })
         setOpenModal(true);
         console.log(`Card: ${cardId} clicked in lane: ${laneId}`)

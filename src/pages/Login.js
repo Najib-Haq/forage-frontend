@@ -165,7 +165,8 @@ export default function Login() {
                     // 'Access-Control-Allow-Credentials': true
                 },
                 body: JSON.stringify({
-                  username: data.get('firstName')+" "+data.get('lastName'),
+                  username: data.get('username'),
+                  fullname: data.get('firstName')+" "+data.get('lastName'),
                   email: data.get('email'),
                   affiliation: data.get('affiliation'),
                   designation: data.get('designation')
@@ -208,6 +209,17 @@ export default function Login() {
             </Typography>
             <Box component="form" noValidate onSubmit={handleSignup} sx={{ mt: 3 }}>
               <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                  <TextField
+                    autoComplete="given-name"
+                    name="username"
+                    required
+                    fullWidth
+                    id="username"
+                    label="Username"
+                    autoFocus
+                  />
+                </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     autoComplete="given-name"

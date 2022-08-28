@@ -41,6 +41,7 @@ export default function Home() {
 
     const handleModalClose = () => {
         setOpenModal(false);
+        getData();
     }
 
     const getData = () => {

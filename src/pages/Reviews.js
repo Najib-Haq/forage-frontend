@@ -22,7 +22,7 @@ const tableHeadersProposed = [
     'Venue', 'Status', " "
  ]
  const tableHeadersSubmitted = [
-    'Venue', 'Status'
+    'Venue', 'Paper', 'Status'
  ]
 
 const style = {
@@ -75,9 +75,9 @@ function a11yProps(index) {
 
 function getStatusLabel(status) {
     let color = "rgb(0, 0, 0)";
-    if (status === "Done") {color = "rgb(150, 242, 119)" }
-    else if (status === "Start") {color = "cyan" }
-    else if (status === "Pending") {color = "rgb(254, 137, 111)" }
+    if (status === "ACCEPTED") {color = "green" }
+    else if (status === "RECEIVED") {color = "cyan" }
+    else if (status === "REJECTED") {color = "red" }
     else if (status === "In Progress") {color = "rgb(163, 160, 249)" }
     else {color = "rgb(249, 160, 163)" }
 
@@ -104,6 +104,7 @@ export default function Reviews() {
     const closeModal = () => {
         setOpenModal(false);
         setModalData(null);
+        fetchReviewerdata();
         console.log("Closing modal")
     }
 
@@ -115,7 +116,30 @@ export default function Reviews() {
 
         const accept = (review) => {
             //add api call for accepting review
-            fetch(URL + `api/proposals/${review.id}/`, {
+            fetch(URL + `api/proposals/${review.id}/accept/`, {
+                method: 'POST',
+                credentials: "same-origin",
+                headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+                }
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                //update table
+                fetchReviewerdata();
+            })
+            .catch(error=>{
+                console.log(error);
+            })
+            
+            }
+        const submit = (review) => {
+            //add api call for accepting review
+            fetch(URL + `api/reviewers/${review.id}/`, {
                 method: 'PATCH',
                 credentials: "same-origin",
                 headers: {
@@ -123,7 +147,7 @@ export default function Reviews() {
                     'Content-Type':'application/json'
                 },
                 body: JSON.stringify({
-                    "status": "ACCEPTED",
+                    "is_submitted": "true",
                 })
             })
             .catch(error=>{
@@ -131,11 +155,6 @@ export default function Reviews() {
             })
             //update table
             fetchReviewerdata();
-            }
-        const submit = (review) => {
-            //add api call for accepting review
-            
-            //update table
             }
         
         const edit = (review,index) => {
@@ -148,16 +167,21 @@ export default function Reviews() {
         const del = (review) => {
             //add api call for deleting review
             //update table
-            fetch(URL + `api/proposals/${review.id}/`, {
-                method: 'PATCH',
+            fetch(URL + `api/proposals/${review.id}/reject/`, {
+                method: 'POST',
                 credentials: "same-origin",
                 headers: {
                     'Authorization': `Token ${getStorageToken()}`,
                     'Content-Type':'application/json'
                 },
-                body: JSON.stringify({
-                    "status": "REJECTED",
-                })
+            })
+            .then(resp=>{
+                if (resp.status >= 400) throw new Error();
+                return resp.json();
+            })
+            .then(resp=>{
+                //update table
+                fetchReviewerdata();
             })
             .catch(error=>{
                 console.log(error);
@@ -170,17 +194,17 @@ export default function Reviews() {
             <Typography>
                 {/* <CheckCircleOutlinedIcon onClick={()=>{accept(review)}} sx={{ "&:hover": { color: "cyan" }, }}/> */}
                 {/* <EditIcon onClick={()=>{edit(review)}} sx={{ "&:hover": { color: "red" } }}/>    */}
-                {!assigned && <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }} onClick={()=>{accept(review,index)}}/> }
-                {assigned && <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }} onClick={()=>{submit(review,index)}}/> }
+                {!assigned && review.status!="ACCEPTED" && <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }} onClick={()=>{accept(review,index)}}/> }
+                {/* {assigned && <CheckCircleOutlinedIcon sx={{ "&:hover": { color: "green" } }} onClick={()=>{submit(review,index)}}/> } */}
                 {assigned && <EditIcon sx={{ "&:hover": { color: "cyan" } }} onClick={()=>{edit(review,index)}}/> }
-                {!assigned && <DeleteIcon sx={{ "&:hover": { color: "red" } }} onClick={()=>{del(review,index)}}/> }
+                {!assigned && review.status!="ACCEPTED" && <DeleteIcon sx={{ "&:hover": { color: "red" } }} onClick={()=>{del(review,index)}}/> }
             </Typography>
         )
     }
 
     function fetchReviewerdata() {
         //for accepted table
-        fetch(URL + `api/submissions/?reviewers=${getUserID()}`,
+        fetch(URL + `api/reviewers/?submission_id=${getUserID()}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -196,18 +220,23 @@ export default function Reviews() {
                 .then(resp=>{
                     let data = [];
                     resp.results.forEach((item, index) => {
-                            let pushdata = [
-                                item.venue.name,
-                                item.project.name,
-                                getStatusLabel(item.status),
-                                tableActions(item,index,true),
-                                item.comments,
-                                item.id
-                            ];
-                            data.push(pushdata);
-                        })
-                    
-                    setAssignedData({head: tableHeadersAssigned, rows: data});
+                                    if(!item.is_submitted)
+                                    {
+                                        let pushdata = [
+                                            item.submission.venue.name,
+                                            item.submission.name,
+                                            getStatusLabel("Assigned"),
+                                            tableActions(item,index,true),
+                                            // item.comments, //NAJIB
+                                            item.id
+                                        ];
+                                        data.push(pushdata);
+                                    }
+                                    
+                                    
+                                })
+                            
+                            setAssignedData({head: tableHeadersAssigned, rows: data});
                 })
                 .catch(error=>{
                     console.log(error);
@@ -246,14 +275,18 @@ export default function Reviews() {
                                         return resp.json();
                                     })
                                     .then(resp=>{
-                                        let pushdata = [
-                                            resp.name,
-                                            getStatusLabel(item.status),
-                                            tableActions(item,index,false),
-                                            item.id,
-                                            item.sent
-                                        ];
-                                        data.push(pushdata);
+                                        if(item.status!="REJECTED")
+                                        {
+                                            let pushdata = [
+                                                resp.name,
+                                                getStatusLabel(item.status),
+                                                tableActions(item,index,false),
+                                                item.id,
+                                                item.sent
+                                            ];
+                                            data.push(pushdata);
+                                        }
+                                        
                                         setProposedData({head: tableHeadersProposed, rows: data});
                                     })
                                     .catch(error=>{
@@ -272,7 +305,7 @@ export default function Reviews() {
             })
 
         //for submitted table
-        fetch(URL + `api/reviewers/`,
+        fetch(URL + `api/reviewers/?is_submitted=true`,
         {
             method: 'GET',
             credentials: "same-origin",
@@ -288,36 +321,17 @@ export default function Reviews() {
         .then(resp=>{
             let data = [];
             resp.results.forEach((item, index) => {
-                if(item.user==getUserID() && item.is_submitted)
-                {
-                     //again an api call to get venue name from venue id
-                     fetch(URL + `api/venues/${item.venue}/`,
-                     {
-                         method: 'GET',
-                         credentials: "same-origin",
-                         headers: {
-                                 'Authorization': `Token ${getStorageToken()}`,
-                                 'Content-Type':'application/json'
-                         }
-                     })
-                     .then(resp=>{
-                         if (resp.status >= 400) throw new Error();
-                         return resp.json();
-                     })
-                     .then(resp=>{
-                         let pushdata = [
-                             resp.name,
-                             getStatusLabel("ACCEPTED")
-                         ];
-                         data.push(pushdata);
-                         setSubmittedData({head: tableHeadersSubmitted, rows: data});
-                     })
-                     .catch(error=>{
-                         console.log(error);
-                     })
-                }
                 
+                    let pushdata = [
+                        item.submission.venue.name,
+                        item.submission.name,
+                        getStatusLabel("ACCEPTED")
+
+                    ];
+                    data.push(pushdata);
             })
+
+            setSubmittedData({head: tableHeadersSubmitted, rows: data});
         })
         .catch(error=>{
             console.log(error);

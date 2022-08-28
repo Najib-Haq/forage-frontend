@@ -478,7 +478,7 @@ export default function BasicModal(props) {
                 console.log(error);
             });
 
-
+            getTasks();
             getReco();
             
         }

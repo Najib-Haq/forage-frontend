@@ -33,25 +33,24 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'auto',
+    width: 1024, //'auto',
+    maxWidth: 1024,
+    maxHeight: 768,
     bgcolor: 'background.paper',
+    // bgcolor: 'cyan',
     border: '2px solid #000',
     boxShadow: 24,
     pt: 2,
     px: 4,
     pb: 3,
-    minHeight: '80vh',
-    minWidth: '160vh',
-    maxWidth: '160vh',
-    
   };
 
-const modalStyle = {
-    minHeight: '80vh',
-    minWidth: '220vh',
-    maxWidth: '220vh',
-    overflow:'scroll'
-} 
+// const modalStyle = {
+//     minHeight: '80vh',
+//     minWidth: '220vh',
+//     maxWidth: '220vh',
+//     overflow:'scroll'
+// } 
 
 
 function TabPanel(props) {
@@ -491,7 +490,7 @@ export default function BasicModal(props) {
         <Modal
           open={props.isOpen}
           onClose={props.handleClose}
-          style={modalStyle}
+        //   style={modalStyle}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >

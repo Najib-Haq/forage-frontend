@@ -196,19 +196,18 @@ export default function Reviews() {
                 .then(resp=>{
                     let data = [];
                     resp.results.forEach((item, index) => {
-                                    let pushdata = [
-                                        item.venue.name,
-                                        item.project.name,
-                                        getStatusLabel(item.status),
-                                        tableActions(item,index,true),
-                                        item.comments, //NAJIB
-                                        item.id
-                                    ];
-                                    data.push(pushdata);
-                                    
-                                })
-                            
-                            setAssignedData({head: tableHeadersAssigned, rows: data});
+                            let pushdata = [
+                                item.venue.name,
+                                item.project.name,
+                                getStatusLabel(item.status),
+                                tableActions(item,index,true),
+                                item.comments,
+                                item.id
+                            ];
+                            data.push(pushdata);
+                        })
+                    
+                    setAssignedData({head: tableHeadersAssigned, rows: data});
                 })
                 .catch(error=>{
                     console.log(error);

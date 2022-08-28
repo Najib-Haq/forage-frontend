@@ -80,7 +80,7 @@ function getAssignedAvatars(users) {
             {
                 users.map((user, index) => {
                     return (
-                        <Tooltip title={user.username}><Avatar key={index} alt={user.username} src={user.username[0]} sx={{bgcolor : stringToColor(user.username)}} /></Tooltip>
+                        <Tooltip title={user.collaborator.username}><Avatar key={index} alt={user.collaborator.username} src={user.collaborator.username[0]} sx={{bgcolor : stringToColor(user.collaborator.username)}} /></Tooltip>
                     )
                 }
                 )
@@ -110,7 +110,7 @@ export default function Tasks() {
                 item.name,
                 (item.project_paper === null) ? "" :item.project_paper.paper.name.substring(0, 20) + '...', 
                 getStatusLabel(item.status), // 
-                getAssignedAvatars(USERS), // TODO: CHANGE THIS 
+                getAssignedAvatars(item.assignees), // TODO: CHANGE THIS 
                 getDateLabel(item.start_date, false), 
                 getDateLabel(item.due_date, true, item.status),
                 tableActions(item)

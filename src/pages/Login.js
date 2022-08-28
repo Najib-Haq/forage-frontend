@@ -15,7 +15,7 @@ import { Toolbar } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useAuth } from '../context/Auth';
+import { getStorageToken, setStorageToken, useAuth } from '../context/Auth';
 import { useUser } from '../context/User';
 
 
@@ -64,14 +64,12 @@ export default function Login() {
                 }
             })
             .then(resp => {
-                console.log("login",resp);
+                // console.log("login",resp);
                 setAuthToken(resp.token);
+                setStorageToken(resp.token);
                 // localStorage.setItem('username', username);
-                // setTimeout(() => {
-                //     setUser([resp.user.id, resp.user.username])
-                // }, 1000);
-                setUser([resp.user.id, resp.user.username])
-                
+                // console.log(`storage token: ${getStorageToken()}`);
+                setUser([resp.user.id, resp.user.username]);
             })
             .catch(error=>{
                 console.log(error);

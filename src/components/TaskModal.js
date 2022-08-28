@@ -58,6 +58,22 @@ export default function TaskModal(props) {
     const [startDate, setStartDate] = useState(new Date());
     const [dueDate, setDueDate] = useState(null);
 
+    const addCollaborator = (taskid, colabId) => {
+        fetch(URL + `api/tasks/${taskid}/assignees/`, {
+            method: 'POST',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({ colab_id: colabId })
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+        loadData();
+    }
+
     const addDependsOn = (taskid, depId) => {
         fetch(URL + `api/tasks/${taskid}/depends_on/`, {
             method: 'POST',
@@ -145,7 +161,22 @@ export default function TaskModal(props) {
         })
     }
 
-    const deleteDependsOn = (task_id) => {
+    const unassignCollaborator = (colabId) => {
+        fetch(URL + `api/tasks/${task.id}/assignees/`, {
+            method: 'DELETE',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({ colab_id: colabId })
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
+    const deleteDependsOn = (depId) => {
         fetch(URL + `api/tasks/${task.id}/depends_on/`, {
             method: 'DELETE',
             credentials: "same-origin",
@@ -153,6 +184,7 @@ export default function TaskModal(props) {
                 'Authorization': `Token ${getStorageToken()}`,
                 'Content-Type':'application/json'
             },
+            body: JSON.stringify({ dep_id: depId })
         })
         .catch(error=>{
             console.log(error);
@@ -194,7 +226,8 @@ export default function TaskModal(props) {
             return resp.json();
         })
         .then(resp=>{
-            setProjectColabs(resp.results.map((item) => item.collaborator));
+            // setProjectColabs(resp.results.map((item) => item.collaborator));
+            setProjectColabs(resp.results);
         })
         .catch(error=>{
             console.log(error);
@@ -380,20 +413,20 @@ export default function TaskModal(props) {
                         onChange={(e) => setTask({...task, collaborators:task.collaborators.concat(e.target.value)})}
                     >
                         {projectColabs && projectColabs.map((data, index) => (
-                            <MenuItem value={data.username} key={index}>
-                                {data.username}
+                            <MenuItem value={data.collaborator.username} key={index}  onClick={() => addCollaborator(task.id, data.id)}>
+                                {data.collaborator.username}
                             </MenuItem>
                         ))} 
                     </Select>
 
                     <nav aria-label="secondary mailbox folders">
                         <List>
-                            {task.collaborators.map((data, index) => (
+                            {task.assignees && task.assignees.map((data, index) => (
                                 <ListItem disablePadding>
                                     <ListItemButton>
-                                    <ListItemText primary={data} />
+                                    <ListItemText primary={data.collaborator.username} />
                                     </ListItemButton>
-                                    <Button onClick={()=>{setTask({...task, collaborators:task.collaborators.filter(item=> item!=data)})}}>X</Button>
+                                    <Button onClick={()=>{unassignCollaborator(data.id); setTask({...task, assignees:task.assignees.filter(item=> item.id !== data.id)})}}>X</Button>
                                 </ListItem>
                             ))}
                         </List>
@@ -428,7 +461,7 @@ export default function TaskModal(props) {
                                             <ListItemButton>
                                             <ListItemText primary={data.name} />
                                             </ListItemButton>
-                                            <Button onClick={()=>{deleteDependsOn(task.id); setTask({...task, depends_on:task.depends_on.filter(item=> item.id!=data.id)})}}>X</Button>
+                                            <Button onClick={()=>{deleteDependsOn(data.id); setTask({...task, depends_on:task.depends_on.filter(item=> item.id!=data.id)})}}>X</Button>
                                         </ListItem>
                                     ))}
                                 </List>

@@ -190,10 +190,16 @@ export default function ReviewModal(props) {
                 "is_submitted": "true",
             })
         })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            props.handleClose();
+        })
         .catch(error=>{
             console.log(error);
         })
-        props.handleClose();
         
     }
 

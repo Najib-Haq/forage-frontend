@@ -80,7 +80,8 @@ export default function PDFSidebar(props) {
             "text": data.text,
             "submission_id": props.sub_id,
             "reviewer_thread": props.reviewer_id,
-            "highlight_metadata": props.curHighlight
+            "highlight_metadata": props.curHighlight,
+            "parent_id": null
         }
         if(parent_id != -1) payload["parent_id"] = parent_id
 

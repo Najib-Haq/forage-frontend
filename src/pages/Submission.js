@@ -68,7 +68,7 @@ export default function Submission() {
                     onClick={() => {saveSubmission(data)}}
                 >Save</Button>
                 <Button variant="outlined" sx={{ m: 1 , borderColor: "black", color: "black"}}
-                    onClick={() => {setScheduleData(data.schedule); setOpenScheduleModal(true);}}
+                    onClick={() => {setScheduleData(data.activities); setOpenScheduleModal(true);}}
                 >Schedule</Button>
             </React.Fragment>
         )
@@ -87,27 +87,66 @@ export default function Submission() {
     useEffect(() => {console.log("Active step : ", activeStep)}, [activeStep])
 
     const venueInfo = (data) => {
+        console.log("Populate venue : ")
         // populate with fake time? 
         data = data.map((item, index) => {
             if(item.activities.length == 0)
             {
                 return {...item, activities: [
                     {
-                        "activity": "Paper titles and abstracts",
-                        "start": "2022-09-09T00:00:00+06:00",
-                        "end": "2022-10-09T00:00:00+06:00"
-                    }
-                ]}
-            }
-            if(item.activities[0].start == null){
-                return {...item, activities: [
+                        "id": 1,
+                        "activity": "Abstract Submission",
+                        "start": "2022-08-09T00:00:00+06:00",
+                        "end": "2022-09-09T00:00:00+06:00"
+                    },
                     {
-                        "activity": "Paper titles and abstracts",
-                        "start": "2022-09-09T00:00:00+06:00",
-                        "end": "2022-10-09T00:00:00+06:00"
+                        "id": 2,
+                        "activity": "Manuscript Submission",
+                        "start": "2022-09-09T00:00:01+06:00",
+                        "end": "2022-09-15T00:00:00+06:00"
+                    },
+                    {
+                        "id": 3,
+                        "activity": "Peer Review",
+                        "start": "2022-09-15T00:00:01+06:00",
+                        "end": "2022-12-15T00:00:00+06:00"
+                    },
+                    {
+                        "id": 4,
+                        "activity": "Final Decisions",
+                        "start": "2022-12-15T00:00:01+06:00",
+                        "end": "2023-03-01T00:00:00+06:00"
                     }
                 ]}
             }
+            // if(item.activities[0].start == null){
+            //     return {...item, activities: [
+            //         {
+            //             "id": 1,
+            //             "activity": "Abstract Submission",
+            //             "start": null,
+            //             "end": "2022-09-09T00:00:00+06:00"
+            //         },
+            //         {
+            //             "id": 2,
+            //             "activity": "Manuscript Submission",
+            //             "start": "2022-09-09T00:00:01+06:00",
+            //             "end": "2022-09-15T00:00:00+06:00"
+            //         },
+            //         {
+            //             "id": 3,
+            //             "activity": "Peer Review",
+            //             "start": "2022-09-15T00:00:01+06:00",
+            //             "end": "2022-12-15T00:00:00+06:00"
+            //         },
+            //         {
+            //             "id": 4,
+            //             "activity": "Final Decisions",
+            //             "start": "2022-12-15T00:00:01+06:00",
+            //             "end": "2023-03-01T00:00:00+06:00"
+            //         }
+            //     ]}
+            // }
             else return item;
         })
 
@@ -186,7 +225,7 @@ export default function Submission() {
     }
 
     const getSuggestedVenues = () => {
-        let url = 'api/venues/'
+        let url = `api/venues/suggest/?project_id=${projID}`
         if (search) url = `api/venues/?search=${search}`
         fetch(URL + url, 
         {
@@ -202,7 +241,9 @@ export default function Submission() {
             return resp.json();
         })
         .then(resp=>{
-            setVenueData(resp.results);
+            // console.log("Suggested : ", resp)
+            if(search) resp=resp.results; // ----------________________---------------
+            setVenueData(resp);
         })
         .catch(error=>{
             console.log(error);
@@ -254,6 +295,7 @@ export default function Submission() {
         }
         return steps;
     }
+
 
     useEffect(() => {
         // console.log("PROJ ID : ", projID)

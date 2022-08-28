@@ -55,7 +55,6 @@ const Item = styled(Paper)(({ theme }) => ({
 
 const URL = process.env.REACT_APP_API_URL;
 
-const SUB_ID = 1;
 const style = {
     position: 'absolute',
     top: '50%',
@@ -132,8 +131,10 @@ export default function ReviewModal(props) {
     const [thisModalOpen, setThisModalOpen] = useState(true);
     const { user } = useUser();
 
-    console.log("props.dataaaaa is ", props.data)
+    console.log("props.dataa is =>", props.data[4])
 
+    
+    const SUB_ID = props.data[4];
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };

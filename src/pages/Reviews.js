@@ -161,7 +161,7 @@ export default function Reviews() {
             //add api call for editing review
             //update table
 
-            for(let i=0;i<100000;i++){}
+            for(let i=0;i<1000000;i++){}
             openModalWithData(index,review.id);
 
             }
@@ -219,6 +219,7 @@ export default function Reviews() {
                     return resp.json();
                 })
                 .then(resp=>{
+                    console.log("here is the one : ", resp);
                     let data = [];
                     resp.results.forEach((item, index) => {
                                     if(!item.is_submitted)
@@ -229,7 +230,7 @@ export default function Reviews() {
                                             getStatusLabel("Assigned"),
                                             tableActions(item,index,true),
                                             // item.comments, //NAJIB
-                                            item.id
+                                            item.submission_id
                                         ];
                                         data.push(pushdata);
                                     }
@@ -238,6 +239,8 @@ export default function Reviews() {
                                 })
                             
                             setAssignedData({head: tableHeadersAssigned, rows: data});
+
+                            // for(let i=0;i<1000000;i++){}
                 })
                 .catch(error=>{
                     console.log(error);

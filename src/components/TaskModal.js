@@ -36,7 +36,7 @@ export default function TaskModal(props) {
         name: "",
         status: "",
         start_date: new Date(),
-        due_date: null,
+        due_date: new Date(),
         project_paper: {
             id: null,
             paper: ""

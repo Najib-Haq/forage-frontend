@@ -74,11 +74,29 @@ export default function Submission() {
         )
     }
 
+
+    const deleteUpcoming = (data) => {
+        fetch(URL + `api/submissions/${data.id}/`, {
+            method: 'DELETE',
+            credentials: "same-origin",
+            headers: {
+                'Authorization': `Token ${getStorageToken()}`,
+                'Content-Type':'application/json'
+            },
+        })
+        .then(resp=>{
+            getSelectedVenues();
+        })
+        .catch(error=>{
+            console.log(error);
+        })
+    }
+
     const makeUpcomingButtons = (data) => {
         return (
             <React.Fragment>
                 <Button variant="outlined" sx={{ m: 1 , borderColor: "black", color: "black"}}
-                    onClick={() => {}}
+                    onClick={() => {deleteUpcoming(data)}}
                 >Delete</Button>
             </React.Fragment>
         )

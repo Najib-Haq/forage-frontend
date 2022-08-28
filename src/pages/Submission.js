@@ -224,7 +224,7 @@ export default function Submission() {
                 'Content-Type':'application/json'
             },
             body: JSON.stringify({ 
-                name: "GETTING THERE", // TODO : CHANGE THIS 
+                name: "Submission name", // TODO : CHANGE THIS 
                 project_id: getStorageProjID(),
                 venue_id: data.id
             })
@@ -284,12 +284,23 @@ export default function Submission() {
             return resp.json();
         })
         .then(resp=>{
+            let count = 0;
             resp.results.map((item, index) => {
+
+                console.log(item.status + " : here ; " + item)
                 if(item.status === "ONGOING") {
+                    count += 1;
+                    console.log("here is ongoing")
                     setCurSubVenue(item)
                     setActiveStep(item.ongoing_activity.id-1)
                 }
             })
+
+            if (count == 0){
+                let item = resp.results[0]
+                setCurSubVenue(item)
+                setActiveStep(item.ongoing_activity.id-1)
+            }
             setSelectedVenue(resp.results);
             // setActiveStep(2)
         })

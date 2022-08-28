@@ -260,7 +260,7 @@ export default function SubmissionModal(props) {
                         <Stack direction="row" spacing={2}>
                             <Avatar key={index} alt={reviewer.username} src={reviewer.username} sx={{bgcolor : stringToColor(reviewer.username)}} />
                             <Typography variant="h6" gutterBottom>
-                                { reviewer.username }
+                                { reviewer.full_name }
                             </Typography>
                             <Button 
                                 variant="outlined" 

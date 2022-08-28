@@ -269,7 +269,7 @@ export default function ReviewModal(props) {
                                     // fullWidth
                                     startIcon={<FileOpenIcon />}
                                     style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 300, width: '250px'}}
-                                    onClick={()=>{setOpenPDF(true); setThisModalOpen(false);}}
+                                    onClick={()=>{setOpenPDF(true); setThisModalOpen(false); }}
                                 >Go to Manuscript</Button>
                             }
                             
@@ -363,9 +363,9 @@ export default function ReviewModal(props) {
             </Box>
         </Modal>
         
-        {/* { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={SUB_ID}/>}
-         */}
-         { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={props.data[4]}/>}
+        { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={SUB_ID}/>}
+        
+         {/* { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={props.data[4]}/>} */}
         </React.Fragment>
     );
   }

@@ -205,7 +205,7 @@ export default function Reviews() {
 
     function fetchReviewerdata() {
         //for accepted table
-        fetch(URL + `api/reviewers/?submission_id=${getUserID()}`,
+        fetch(URL + `api/reviewers/?user_id=${getUserID()}`,
                 {
                     method: 'GET',
                     credentials: "same-origin",

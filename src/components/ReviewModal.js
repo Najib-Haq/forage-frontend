@@ -16,7 +16,7 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 // import {DropzoneArea} from 'material-ui-dropzone' // HAS PROBLEMS
 // import FileUpload from "react-mui-fileuploader"
-import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
+// import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 import Button from '@mui/material/Button';
 import Grid from "@mui/material/Grid";
 import PropTypes from 'prop-types';

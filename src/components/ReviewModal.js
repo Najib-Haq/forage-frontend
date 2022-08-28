@@ -252,6 +252,7 @@ export default function ReviewModal(props) {
     const commentBox = () => {
         // console.log(data)
         return (
+            // pdfURL &&
             <React.Fragment>
                 <Stack spacing={2}>
                     <Item style={{textAlign: 'left'}}>
@@ -260,19 +261,23 @@ export default function ReviewModal(props) {
                             <Typography variant="h6" gutterBottom>
                                 Uploaded file : 
                             </Typography>
-                            <Button 
-                                variant="outlined" 
-                                size="small" 
-                                // fullWidth
-                                startIcon={<FileOpenIcon />}
-                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 300, width: '250px'}}
-                                onClick={()=>{setOpenPDF(true); setThisModalOpen(false);}}
-                            >Go to Manuscript</Button>
+                            {
+                                pdfURL &&
+                                <Button 
+                                    variant="outlined" 
+                                    size="small" 
+                                    // fullWidth
+                                    startIcon={<FileOpenIcon />}
+                                    style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 300, width: '250px'}}
+                                    onClick={()=>{setOpenPDF(true); setThisModalOpen(false);}}
+                                >Go to Manuscript</Button>
+                            }
+                            
                         </Stack>
                     </Item>
                 </Stack>
             </React.Fragment>
-        )
+    )
     }
 
 
@@ -299,11 +304,11 @@ export default function ReviewModal(props) {
                         <Tab label="Editor" {...a11yProps(1)} />
             </Tabs>
             <TabPanel value={value} index={0}>
-            <Grid container justifyContent="flex-end">
+            {/* <Grid container justifyContent="flex-end">
                 <Grid item>
                 <FileDownloadIcon sx={{ "&:hover": { color: "green" } }}></FileDownloadIcon>
                 </Grid> 
-            </Grid>
+            </Grid> */}
             
             { commentBox() }
             </TabPanel>
@@ -358,7 +363,9 @@ export default function ReviewModal(props) {
             </Box>
         </Modal>
         
-        { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={SUB_ID}/>}
+        {/* { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={SUB_ID}/>}
+         */}
+         { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={props.data[4]}/>}
         </React.Fragment>
     );
   }

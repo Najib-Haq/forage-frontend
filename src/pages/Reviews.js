@@ -95,7 +95,7 @@ export default function Reviews() {
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState(null);
 
-    const openModalWithData = async (id) => {
+    const openModalWithData = async (id,submission_id) => {
         await setModalData(assignedData.rows[id]);
         console.log("hereee",assignedData.rows[id])
         setOpenModal(true);
@@ -160,8 +160,9 @@ export default function Reviews() {
         const edit = (review,index) => {
             //add api call for editing review
             //update table
-            // fetchReviewerdata();
-            openModalWithData(index);
+
+            for(let i=0;i<100000;i++){}
+            openModalWithData(index,review.id);
 
             }
         const del = (review) => {

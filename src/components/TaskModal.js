@@ -56,7 +56,7 @@ export default function TaskModal(props) {
     const [list, setList] = useState("");
     const [name, setName] = useState("");
     const [startDate, setStartDate] = useState(new Date());
-    const [dueDate, setDueDate] = useState(null);
+    const [dueDate, setDueDate] = useState(new Date());
 
     const addCollaborator = (taskid, colabId) => {
         fetch(URL + `api/tasks/${taskid}/assignees/`, {
@@ -104,7 +104,7 @@ export default function TaskModal(props) {
                 start_date: startDate,
                 due_date: dueDate,
                 project_id: task.project.id,
-                project_paper_id: task.project_paper.id
+                project_paper_id: task.project_paper ? task.project_paper.id : null
             })
         })
         .catch(error=>{

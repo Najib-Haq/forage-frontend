@@ -260,14 +260,14 @@ export default function SubmissionModal(props) {
                         <Stack direction="row" spacing={2}>
                             <Avatar key={index} alt={reviewer.username} src={reviewer.username} sx={{bgcolor : stringToColor(reviewer.username)}} />
                             <Typography variant="h6" gutterBottom>
-                                { reviewer.full_name }
+                                { reviewer.full_name ? reviewer.full_name : reviewer.username  }
                             </Typography>
                             <Button 
                                 variant="outlined" 
                                 size="small" 
                                 // fullWidth
                                 startIcon={<FileOpenIcon />}
-                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 300, width: '250px'}}
+                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 350, width: '250px'}}
                                 onClick={()=>{setReviewer(reviewer.id); setOpenPDF(true); setPDFURL(revFile); setThisModalOpen(false);}}
                             >Reviewer FeedBack</Button>
                         </Stack>

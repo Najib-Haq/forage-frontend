@@ -16,7 +16,7 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 // import {DropzoneArea} from 'material-ui-dropzone' // HAS PROBLEMS
 // import FileUpload from "react-mui-fileuploader"
-import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
+// import { Dropzone, FileItem, FullScreenPreview } from "@dropzone-ui/react";
 import Button from '@mui/material/Button';
 import Grid from "@mui/material/Grid";
 import PropTypes from 'prop-types';
@@ -30,7 +30,9 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import PDFAnnotator from "./PDFAnnotator";
 
+import { useUser, removeStorageUser } from '../context/User';
 
 /* 
     define props=> 
@@ -108,6 +110,14 @@ export default function ReviewModal(props) {
     const [reviewId, setReviewId] = useState(0);
     const [isEditMode, setIsEditMode] = useState(true);
     const [noteToEditor,setNoteToEditor] = useState("")
+
+    // for comment stuff
+    const [openPDF, setOpenPDF] = useState(false);
+    const [pdfURL, setPDFURL] = useState(false);
+    const [thisModalOpen, setThisModalOpen] = useState(true);
+    const { user } = useUser();
+
+    console.log("props.dataaaaa is ", props.data)
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -219,9 +229,18 @@ export default function ReviewModal(props) {
     }
 
 
+    const handlePDFClose = () => {
+        setThisModalOpen(true);
+        setOpenPDF(false);
+    }
+
+    if(props.data.length==0)
+        for(let i=0;i<1000000;i++){};
+
     return (
+        <React.Fragment>
         <Modal
-          open={props.isOpen}
+          open={thisModalOpen}
           onClose={props.handleClose}
           style={modalStyle}
           aria-labelledby="modal-modal-title"
@@ -291,6 +310,9 @@ export default function ReviewModal(props) {
                 
             </Box>
         </Modal>
+        
+        { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user.id} sub_id={props.data[5]}/>}
+        </React.Fragment>
     );
   }
   

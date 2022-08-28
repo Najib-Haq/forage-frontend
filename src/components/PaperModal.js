@@ -190,6 +190,9 @@ export default function BasicModal(props) {
                         {/* <div><b><small>Assigned</small></b><div>{collaboratorItems}</div> </div> */}
                     </Stack>
                     </Typography>
+                {
+                    !props.unsorted && 
+                    <React.Fragment>
                     <Typography id="modal-modal-description" sx={{ mt: 1 }}>
                     <b><small>Notes</small></b> 
                     </Typography>
@@ -309,6 +312,8 @@ export default function BasicModal(props) {
                         }} />} label={notePrivacy} />
                     </FormGroup>
                     </Typography>
+                    </React.Fragment>
+                }
         </div>
     );
     
@@ -361,13 +366,37 @@ export default function BasicModal(props) {
     useEffect(() => {
         if(props.data)
         {
+            
             console.log("paper id",props.data.paper_id);
             console.log("project id",props.data.project_id);
             console.log("project paper id",props.data.pp_id);
             
-            getTasks();
+            fetch(URL + `api/papers/${props.data.paper_id}`,
+                {
+                    method: 'GET',
+                    credentials: "same-origin",
+                    headers: {
+                            'Authorization': `Token ${getStorageToken()}`,
+                            'Content-Type':'application/json'
+                    }
+                })
+                .then(resp=>{
+                    if (resp.status >= 400) throw new Error();
+                    return resp.json();
+                })
+                .then(resp=>{
+                    setData(resp);
+                    setAbstract(resp.abstract);
+                })
+                .catch(error=>{
+                    console.log(error);
+                });
+
             
-            fetch(URL + `api/notes/${props.data.pp_id}/`,
+            if(!props.unsorted){
+                getTasks();
+
+                fetch(URL + `api/notes/${props.data.pp_id}/`,
             {
                 method: 'GET',
                 credentials: "same-origin",
@@ -395,27 +424,6 @@ export default function BasicModal(props) {
                 console.log(error);
             });
 
-
-            fetch(URL + `api/papers/${props.data.paper_id}`,
-                {
-                    method: 'GET',
-                    credentials: "same-origin",
-                    headers: {
-                            'Authorization': `Token ${getStorageToken()}`,
-                            'Content-Type':'application/json'
-                    }
-                })
-                .then(resp=>{
-                    if (resp.status >= 400) throw new Error();
-                    return resp.json();
-                })
-                .then(resp=>{
-                    setData(resp);
-                    setAbstract(resp.abstract);
-                })
-                .catch(error=>{
-                    console.log(error);
-                });
 
             
                 fetch(URL + `api/notes/${props.data.pp_id}/`,
@@ -446,7 +454,8 @@ export default function BasicModal(props) {
                     console.log(error);
                 });
 
-                
+            }
+            
 
             fetch(URL + `api/notes/?project_paper__paper=${props.data.paper_id}`,
             {

@@ -95,9 +95,9 @@ export default function Reviews() {
     const [openModal, setOpenModal] = useState(false);
     const [modalData, setModalData] = useState(null);
 
-    const openModalWithData = (id) => {
-        setModalData({results: assignedData.rows[id],reviewer_id:15});
-        for(let i=0;i<1000000;i++){};
+    const openModalWithData = async (id) => {
+        await setModalData(assignedData.rows[id]);
+        console.log("hereee",assignedData.rows[id])
         setOpenModal(true);
     };
 
@@ -141,6 +141,7 @@ export default function Reviews() {
         const edit = (review,index) => {
             //add api call for editing review
             //update table
+            // fetchReviewerdata();
             openModalWithData(index);
 
             }
@@ -351,7 +352,7 @@ export default function Reviews() {
                     <ReviewTable data={submittedData}/>
             </TabPanel>
         
-        <ReviewModal data={modalData} isOpen={openModal} handleClose={closeModal} />
+        { openModal && <ReviewModal data={modalData} isOpen={true} handleClose={closeModal} /> }
         </React.Fragment>
     )
 }

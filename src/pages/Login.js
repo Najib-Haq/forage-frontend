@@ -67,7 +67,11 @@ export default function Login() {
                 console.log("login",resp);
                 setAuthToken(resp.token);
                 // localStorage.setItem('username', username);
+                // setTimeout(() => {
+                //     setUser([resp.user.id, resp.user.username])
+                // }, 1000);
                 setUser([resp.user.id, resp.user.username])
+                
             })
             .catch(error=>{
                 console.log(error);

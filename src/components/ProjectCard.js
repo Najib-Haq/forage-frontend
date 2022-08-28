@@ -54,11 +54,11 @@ export default function ProjectCard(props) {
             </Typography>
             </CardContent>
         </CardActionArea>
-        <CardActions disableSpacing>
+        {/* <CardActions disableSpacing>
             <EditIcon onClick={()=>{}} sx={{ "&:hover": { color: "green" }, mr:1}}/>
             <InfoIcon  onClick={()=>{}} sx={{ "&:hover": { color: "blue" } }}/> 
             <DeleteIcon className='CardItem-right-align' onClick={()=>{}} sx={{ "&:hover": { color: "red" } }}/> 
-        </CardActions>
+        </CardActions> */}
     </Card>
     );
   }

@@ -105,6 +105,7 @@ export default function PDFSidebar(props) {
     }
 
     const fetchCommentData = () => {
+        console.log("here is sidebar ",props)
         let url = `api/submissions/${props.sub_id}/comments/?reviewer_thread=${props.reviewer_id}`;
         fetch(URL + url, 
         {
@@ -200,7 +201,7 @@ export default function PDFSidebar(props) {
             currentUser={{
             currentUserId: user[0],
             currentUserFullName: user[1],
-            currentUserImg: `https://ui-avatars.com/api/name=Tahmeed_Tarek&ground=random`,
+            currentUserImg: `https://ui-avatars.com/api/name=${user[1]}&ground=random`,
             }}
             logIn={{
             loginLink: 'http://localhost:3001/',

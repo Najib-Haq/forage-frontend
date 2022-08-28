@@ -90,6 +90,7 @@ export default function PDFAnnotator(props) {
     // const [url, setUrl] = useState(props.url);
     const [curHighlight, setCurHighlight] = useState(null);
     
+    console.log("here is annotator ",props)
 
 
     const resetHighLights = () => {

@@ -2,7 +2,7 @@ import React, {useState, useEffect} from "react";
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { Divider, requirePropFactory } from "@mui/material";
+import { Divider, requirePropFactory, Paper } from "@mui/material";
 import SubmissionStep from "../components/SubmissionStep"
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
@@ -31,8 +31,20 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PDFAnnotator from "./PDFAnnotator";
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+
 
 import { useUser, removeStorageUser } from '../context/User';
+// import { Stack } from "@mui/material";
+
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+}));
+
 
 /* 
     define props=> 
@@ -43,7 +55,7 @@ import { useUser, removeStorageUser } from '../context/User';
 
 const URL = process.env.REACT_APP_API_URL;
 
-
+const SUB_ID = 1;
 const style = {
     position: 'absolute',
     top: '50%',
@@ -101,6 +113,8 @@ function a11yProps(index) {
     };
 } 
 
+
+
 export default function ReviewModal(props) {
     const new_data = pseudoData[2];
     const [data, setData] = useState(new_data);
@@ -144,8 +158,30 @@ export default function ReviewModal(props) {
     //     setData(new_data)
     // }
 
-    const getFile = () => {
-
+    const getFiles = () => {
+        let url = `api/submissions/${SUB_ID}/`;
+        fetch(URL + url, 
+        {
+            method: 'GET',
+            credentials: "same-origin",
+            headers: {
+                    'Authorization': `Token ${getStorageToken()}`,
+                    'Content-Type':'application/json'
+            }
+        })
+        .then(resp=>{
+            if (resp.status >= 400) throw new Error();
+            return resp.json();
+        })
+        .then(resp=>{
+            console.log("Here is the url ", resp)
+            let url = "http://localhost:8000" + resp.manuscript;
+            console.log("Here is the url ", url)
+            setPDFURL(url)
+        })
+        .catch(error=>{
+            console.log(error);
+        })
     }
 
     const fetchData = () => {
@@ -199,10 +235,11 @@ export default function ReviewModal(props) {
 
     useEffect(() => {
         if(props.data)
-        {
+        {   
             console.log("props.data",props.data)
         }
         fetchData();
+        getFiles();
     }, [props.isOpen])
 
 
@@ -210,7 +247,24 @@ export default function ReviewModal(props) {
         // console.log(data)
         return (
             <React.Fragment>
-
+                <Stack spacing={2}>
+                    <Item style={{textAlign: 'left'}}>
+                        <Stack direction="row" spacing={2}>
+                            {/* <Avatar key={index} alt={reviewer.username} src={reviewer.username} sx={{bgcolor : stringToColor(reviewer.username)}} /> */}
+                            <Typography variant="h6" gutterBottom>
+                                Uploaded file : 
+                            </Typography>
+                            <Button 
+                                variant="outlined" 
+                                size="small" 
+                                // fullWidth
+                                startIcon={<FileOpenIcon />}
+                                style={{borderColor: "black", color: "black", backgroundColor: "#f5f5f5", margin: 1, marginLeft: 300, width: '250px'}}
+                                onClick={()=>{setOpenPDF(true); setThisModalOpen(false);}}
+                            >Go to Manuscript</Button>
+                        </Stack>
+                    </Item>
+                </Stack>
             </React.Fragment>
         )
     }
@@ -298,7 +352,7 @@ export default function ReviewModal(props) {
             </Box>
         </Modal>
         
-        { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user.id} sub_id={props.data[5]}/>}
+        { openPDF && <PDFAnnotator url={pdfURL} isOpen={true} handleClose={handlePDFClose} reviewer_id={user[0]} sub_id={SUB_ID}/>}
         </React.Fragment>
     );
   }

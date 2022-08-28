@@ -11,7 +11,7 @@ import ProjectModal from '../components/ProjectModal';
 import Box from '@mui/material/Box';
 import { useNavigate } from "react-router-dom";
 
-import { getStorageToken } from "../context/Auth";
+import { useAuth, getStorageToken } from "../context/Auth";
 import { useProjID, setStorageProjID } from "../context/ProjectID";
 
 const URL = process.env.REACT_APP_API_URL;
@@ -26,7 +26,7 @@ const URL = process.env.REACT_APP_API_URL;
 
 export default function Home() {
     const [search, setSearch] = useState("");
-    const [cardData, setCardData] = useState([])
+    const [cardData, setCardData] = useState(null)
     const [modalData, setModalData] = useState({
         users: [],
         keywords: [],
@@ -35,6 +35,7 @@ export default function Home() {
 
     const [openModal, setOpenModal] = useState(false);
     const navigate = useNavigate();
+    const { authToken } = useAuth(); 
 
     const { projID, setProjID } = useProjID();
 
@@ -43,7 +44,9 @@ export default function Home() {
     }
 
     const getData = () => {
-        fetch(URL + 'api/projects/',
+        let url = "api/projects/";
+        if (search) url = `api/projects/?search=${search}`;
+        fetch(URL + url,
                 {
                     method: 'GET',
                     credentials: "same-origin",
@@ -58,7 +61,7 @@ export default function Home() {
                     return resp.json();
                 })
                 .then(resp=>{
-                    setCardData(resp.results)
+                    setCardData(populateCardData(resp.results))
                 })
                 .catch(error=>{
                     console.log(error);
@@ -88,7 +91,7 @@ export default function Home() {
 
     useEffect(() => {
         getData();
-    }, [])
+    }, [search])
 
     return (
         <React.Fragment>
@@ -116,11 +119,11 @@ export default function Home() {
             </Grid>
 
             {
-                cardData.length > 0 && 
+                cardData && 
                 <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={2}>
                         {
-                            populateCardData(cardData)
+                            cardData
                         }
                     </Grid>
                 </Box>

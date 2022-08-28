@@ -161,7 +161,7 @@ export default function SubmissionModal(props) {
         formData.append('project_id', getStorageProjID())
         formData.append('name', file.name.slice(0, 5))
         formData.append('content', type)
-        formData.append('status', 'ACTIVE')
+        // formData.append('status', 'ACTIVE')
         // formData.append('upload_id', 1)
 
 

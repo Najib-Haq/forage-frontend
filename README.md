@@ -15,3 +15,5 @@ Project Developers:
 
 # Walkthrough
 The initial project proposals can be viewed [here](proposals). The completed project walkthrough can be viewed [here](proposals/A2_8_DEMO.MP4).
+
+https://user-images.githubusercontent.com/40890874/214404229-1e16a5d8-b7f7-4eb3-9643-6024b27452d1.MP4
